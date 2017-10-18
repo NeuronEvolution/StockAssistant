@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/NeuronEvolution/sql/runtime"
-	"time"
 )
 
 func (dao *StockIndexIdGenDao) NextStockIndexId() (id int64, err error) {
@@ -29,13 +28,9 @@ func (dao *StockIndexIdGenDao) NextStockIndexId() (id int64, err error) {
 
 	dbGen.CurrentIndexId++
 
-	rowsAffected, err := dao.Update(context.Background(), tx, dbGen)
+	err = dao.Update(context.Background(), tx, dbGen)
 	if err != nil {
 		return 0, err
-	}
-
-	if rowsAffected != 1 {
-		return 0, fmt.Errorf(fmt.Sprintf("rowsAffected :%s", rowsAffected))
 	}
 
 	err = tx.Commit()
@@ -77,8 +72,6 @@ func (dao *StockIndexDao) InsertStockIndex(userId string, index *models.StockInd
 	dbIndex.EvalWeight = index.EvalWeight
 	dbIndex.AiWeight = index.AIWeight
 	dbIndex.NiWeight = index.NIWeight
-	dbIndex.CreateTime = time.Now()
-	dbIndex.UpdateTime = time.Now()
 
 	rowsAffected, err := dao.Insert(context.Background(), tx, dbIndex)
 	if err != nil {
@@ -86,7 +79,7 @@ func (dao *StockIndexDao) InsertStockIndex(userId string, index *models.StockInd
 	}
 
 	if rowsAffected != 1 {
-		return nil, fmt.Errorf(fmt.Sprintf("rowsAffected: %s", rowsAffected))
+		return nil, fmt.Errorf("rowsAffected: %s", rowsAffected)
 	}
 
 	err = tx.Commit()
@@ -143,13 +136,9 @@ func (dao *StockIndexDao) UpdateStockIndex(userId string, index *models.StockInd
 	dbIndex.AiWeight = index.AIWeight
 	dbIndex.NiWeight = index.NIWeight
 
-	rowsAffected, err := dao.Update(context.Background(), tx, dbIndex)
+	err = dao.Update(context.Background(), tx, dbIndex)
 	if err != nil {
 		return nil, err
-	}
-
-	if rowsAffected != 1 {
-		return nil, fmt.Errorf(fmt.Sprintf("update rowsAffected :%s", rowsAffected))
 	}
 
 	err = tx.Commit()
@@ -182,13 +171,9 @@ func (dao *StockIndexDao) DeleteStockIndex(userId string, indexId string) (err e
 		return fmt.Errorf("user not owner")
 	}
 
-	rowsAffected, err := dao.Delete(context.Background(), nil, dbIndex.Id)
+	err = dao.Delete(context.Background(), nil, dbIndex.Id)
 	if err != nil {
 		return err
-	}
-
-	if rowsAffected != 1 {
-		return fmt.Errorf(fmt.Sprintf("rowsAffected :%s", rowsAffected))
 	}
 
 	return nil

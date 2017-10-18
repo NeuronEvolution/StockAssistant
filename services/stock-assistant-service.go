@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/NeuronEvolution/StockAssistant/storages"
 	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
@@ -72,43 +74,164 @@ func (s *StockAssistantService) UserStockEvaluateList(userId string) (result []*
 		return nil, err
 	}
 
-	result = make([]*models.StockEvaluate, 0)
+	if dbStockEvaluateList == nil {
+		return nil, nil
+	}
 
-	for _, u := range dbStockEvaluateList {
-		se := &models.StockEvaluate{}
-		se.StockId = u.StockId
-		se.TotalScore = u.TotalScore
-		se.EvalRemark = u.EvalRemark
-
+	result = fin_stock_assistant.FromStockEvaluateList(dbStockEvaluateList)
+	for _, u := range result {
 		dbIndexEvaluateList, err := s.storage.StockAssistant.IndexEvaluate.
 			SelectListByUserIdAndStockId(context.Background(), nil, userId, u.StockId)
 		if err != nil {
 			return nil, err
 		}
 
-		se.IndexEvaluates = make([]*models.IndexEvaluate, 0)
-		for _, v := range dbIndexEvaluateList {
-			ie := &models.IndexEvaluate{}
-			ie.IndexId = v.IndexId
-			ie.EvalStars = v.EvalStars
-			ie.EvalRemark = v.EvalRemark
-			ie.UpdateTime = v.UpdateTime
-
-			se.IndexEvaluates = append(se.IndexEvaluates, ie)
-		}
-
-		result = append(result, se)
+		u.IndexEvaluates = fin_stock_assistant.FromIndexEvaluateList(dbIndexEvaluateList)
 	}
 
 	return result, nil
 }
 
 func (s *StockAssistantService) UserStockEvaluateGet(userId string, stockId string) (eval *models.StockEvaluate, err error) {
-	return nil, nil
+	dbStockEvaluate, err := s.storage.StockAssistant.StockEvaluate.SelectByUserIdAndStockId(context.Background(), nil, userId, stockId)
+	if err != nil {
+		return nil, err
+	}
+
+	if dbStockEvaluate == nil {
+		return nil, nil
+	}
+
+	dbIndexEvaluateList, err := s.storage.StockAssistant.IndexEvaluate.
+		SelectListByUserIdAndStockId(context.Background(), nil, userId, stockId)
+	if err != nil {
+		return nil, err
+	}
+
+	eval = fin_stock_assistant.FromStockEvaluate(dbStockEvaluate)
+	eval.IndexEvaluates = fin_stock_assistant.FromIndexEvaluateList(dbIndexEvaluateList)
+
+	return eval, nil
 }
 
 func (s *StockAssistantService) UserStockEvaluateAddOrUpdate(userId string, eval *models.StockEvaluate) (evalUpdated *models.StockEvaluate, err error) {
-	return nil, nil
+	tx, err := s.storage.StockAssistant.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	//valid indices
+	dbIndexList, err := s.storage.StockAssistant.StockIndex.GetQuery().
+		UserId_Column(runtime.RELATION_EQUAL, userId).
+		SelectListForShare(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+	if dbIndexList == nil || len(dbIndexList) == 0 {
+		return nil, fmt.Errorf("user have no index")
+	}
+	for _, u := range eval.IndexEvaluates {
+		has := false
+		for _, v := range dbIndexList {
+			if v.IndexId == u.IndexId {
+				has = true
+				break
+			}
+		}
+		if !has {
+			return nil, fmt.Errorf("user have no index:%s", u.IndexId)
+		}
+	}
+
+	//result
+	evalUpdated = &models.StockEvaluate{}
+	evalUpdated.IndexEvaluates = make([]*models.IndexEvaluate, 0)
+
+	//update index evaluates
+	dbIndexEvaluateListOld, err := s.storage.StockAssistant.IndexEvaluate.GetQuery().
+		UserId_Column(runtime.RELATION_EQUAL, userId).
+		StockId_Column(runtime.RELATION_EQUAL, eval.StockId).SelectListForUpdate(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+	if eval.IndexEvaluates != nil {
+		for _, u := range eval.IndexEvaluates {
+			var ie *fin_stock_assistant.IndexEvaluate
+			if dbIndexEvaluateListOld != nil {
+				for _, v := range dbIndexEvaluateListOld {
+					if v.IndexId == u.IndexId {
+						ie = v
+						break
+					}
+				}
+			}
+			if ie == nil {
+				ie = &fin_stock_assistant.IndexEvaluate{}
+				ie.UserId = userId
+				ie.StockId = eval.StockId
+				ie.IndexId = u.IndexId
+				ie.EvalStars = u.EvalStars
+				ie.EvalRemark = u.EvalRemark
+				_, err := s.storage.StockAssistant.IndexEvaluate.Insert(context.Background(), tx, ie)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				ie.EvalStars = u.EvalStars
+				ie.EvalRemark = u.EvalRemark
+				err = s.storage.StockAssistant.IndexEvaluate.Update(context.Background(), tx, ie)
+				if err != nil {
+					return nil, err
+				}
+			}
+			evalUpdated.IndexEvaluates = append(evalUpdated.IndexEvaluates, &models.IndexEvaluate{
+				IndexId:    ie.IndexId,
+				EvalStars:  ie.EvalStars,
+				EvalRemark: ie.EvalRemark,
+				UpdateTime: ie.UpdateTime,
+			})
+		}
+	}
+
+	//update stock evaluates
+	se, err := s.storage.StockAssistant.StockEvaluate.GetQuery().
+		UserId_Column(runtime.RELATION_EQUAL, userId).
+		StockId_Column(runtime.RELATION_EQUAL, eval.StockId).
+		SelectForUpdate(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+
+	if se == nil {
+		se = &fin_stock_assistant.StockEvaluate{}
+		se.UserId = userId
+		se.StockId = eval.StockId
+		se.TotalScore = 10000
+
+		_, err := s.storage.StockAssistant.StockEvaluate.Insert(context.Background(), tx, se)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		se.EvalRemark = eval.EvalRemark
+		se.TotalScore = 10000
+		err = s.storage.StockAssistant.StockEvaluate.Update(context.Background(), tx, se)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	evalUpdated.StockId = se.StockId
+	evalUpdated.EvalRemark = se.EvalRemark
+	evalUpdated.TotalScore = se.TotalScore
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return evalUpdated, nil
 }
 
 func (s *StockAssistantService) UserSettingsList(userId string) (settingsList []*models.Setting, err error) {

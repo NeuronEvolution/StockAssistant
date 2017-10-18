@@ -33,6 +33,32 @@ func FromStockIndexList(p []*StockIndex) (r []*models.StockIndex) {
 	return r
 }
 
+func FromStockEvaluate(p *StockEvaluate) (r *models.StockEvaluate) {
+	if p == nil {
+		return r
+	}
+
+	r = &models.StockEvaluate{}
+	r.StockId = p.StockId
+	r.TotalScore = p.TotalScore
+	r.EvalRemark = p.EvalRemark
+
+	return r
+}
+
+func FromStockEvaluateList(p []*StockEvaluate) (r []*models.StockEvaluate) {
+	if p == nil {
+		return nil
+	}
+
+	r = make([]*models.StockEvaluate, 0)
+	for _, v := range p {
+		r = append(r, FromStockEvaluate(v))
+	}
+
+	return r
+}
+
 func FromIndexEvaluate(p *IndexEvaluate) (r *models.IndexEvaluate) {
 	if p == nil {
 		return nil

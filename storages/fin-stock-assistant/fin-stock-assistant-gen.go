@@ -302,7 +302,7 @@ func (dao *IndexEvaluateDao) Insert(ctx context.Context, tx *runtime.Tx, e *Inde
 	return id, nil
 }
 
-func (dao *IndexEvaluateDao) Update(ctx context.Context, tx *runtime.Tx, e *IndexEvaluate) (rowsAffected int64, err error) {
+func (dao *IndexEvaluateDao) Update(ctx context.Context, tx *runtime.Tx, e *IndexEvaluate) (err error) {
 	stmt := dao.updateStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -310,18 +310,22 @@ func (dao *IndexEvaluateDao) Update(ctx context.Context, tx *runtime.Tx, e *Inde
 
 	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.IndexId, e.EvalStars, e.EvalRemark, e.CreateTime, e.UpdateTime, e.Id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rowsAffected, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	if rowsAffected != 1 {
+		return fmt.Errorf("rowsAffected:%s", rowsAffected)
+	}
+
+	return nil
 }
 
-func (dao *IndexEvaluateDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (rowsAffected int64, err error) {
+func (dao *IndexEvaluateDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -329,15 +333,19 @@ func (dao *IndexEvaluateDao) Delete(ctx context.Context, tx *runtime.Tx, id int6
 
 	result, err := stmt.Exec(ctx, id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rowsAffected, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	if rowsAffected != 1 {
+		return fmt.Errorf("rowsAffected:%s", rowsAffected)
+	}
+
+	return nil
 }
 
 func (dao *IndexEvaluateDao) ScanRow(row *runtime.Row) (*IndexEvaluate, error) {
@@ -756,7 +764,7 @@ func (dao *StockEvaluateDao) Insert(ctx context.Context, tx *runtime.Tx, e *Stoc
 	return id, nil
 }
 
-func (dao *StockEvaluateDao) Update(ctx context.Context, tx *runtime.Tx, e *StockEvaluate) (rowsAffected int64, err error) {
+func (dao *StockEvaluateDao) Update(ctx context.Context, tx *runtime.Tx, e *StockEvaluate) (err error) {
 	stmt := dao.updateStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -764,18 +772,22 @@ func (dao *StockEvaluateDao) Update(ctx context.Context, tx *runtime.Tx, e *Stoc
 
 	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.TotalScore, e.EvalRemark, e.CreateTime, e.UpdateTime, e.Id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rowsAffected, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	if rowsAffected != 1 {
+		return fmt.Errorf("rowsAffected:%s", rowsAffected)
+	}
+
+	return nil
 }
 
-func (dao *StockEvaluateDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (rowsAffected int64, err error) {
+func (dao *StockEvaluateDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -783,15 +795,19 @@ func (dao *StockEvaluateDao) Delete(ctx context.Context, tx *runtime.Tx, id int6
 
 	result, err := stmt.Exec(ctx, id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rowsAffected, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	if rowsAffected != 1 {
+		return fmt.Errorf("rowsAffected:%s", rowsAffected)
+	}
+
+	return nil
 }
 
 func (dao *StockEvaluateDao) ScanRow(row *runtime.Row) (*StockEvaluate, error) {
@@ -1235,7 +1251,7 @@ func (dao *StockIndexDao) Insert(ctx context.Context, tx *runtime.Tx, e *StockIn
 	return id, nil
 }
 
-func (dao *StockIndexDao) Update(ctx context.Context, tx *runtime.Tx, e *StockIndex) (rowsAffected int64, err error) {
+func (dao *StockIndexDao) Update(ctx context.Context, tx *runtime.Tx, e *StockIndex) (err error) {
 	stmt := dao.updateStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -1243,18 +1259,22 @@ func (dao *StockIndexDao) Update(ctx context.Context, tx *runtime.Tx, e *StockIn
 
 	result, err := stmt.Exec(ctx, e.IndexId, e.UserId, e.IndexName, e.IndexDesc, e.EvalWeight, e.AiWeight, e.NiWeight, e.CreateTime, e.UpdateTime, e.Id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rowsAffected, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	if rowsAffected != 1 {
+		return fmt.Errorf("rowsAffected:%s", rowsAffected)
+	}
+
+	return nil
 }
 
-func (dao *StockIndexDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (rowsAffected int64, err error) {
+func (dao *StockIndexDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -1262,15 +1282,19 @@ func (dao *StockIndexDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) 
 
 	result, err := stmt.Exec(ctx, id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rowsAffected, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	if rowsAffected != 1 {
+		return fmt.Errorf("rowsAffected:%s", rowsAffected)
+	}
+
+	return nil
 }
 
 func (dao *StockIndexDao) ScanRow(row *runtime.Row) (*StockIndex, error) {
@@ -1644,7 +1668,7 @@ func (dao *StockIndexIdGenDao) Insert(ctx context.Context, tx *runtime.Tx, e *St
 	return id, nil
 }
 
-func (dao *StockIndexIdGenDao) Update(ctx context.Context, tx *runtime.Tx, e *StockIndexIdGen) (rowsAffected int64, err error) {
+func (dao *StockIndexIdGenDao) Update(ctx context.Context, tx *runtime.Tx, e *StockIndexIdGen) (err error) {
 	stmt := dao.updateStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -1652,18 +1676,22 @@ func (dao *StockIndexIdGenDao) Update(ctx context.Context, tx *runtime.Tx, e *St
 
 	result, err := stmt.Exec(ctx, e.CurrentIndexId, e.CreateTime, e.UpdateTime, e.Id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rowsAffected, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	if rowsAffected != 1 {
+		return fmt.Errorf("rowsAffected:%s", rowsAffected)
+	}
+
+	return nil
 }
 
-func (dao *StockIndexIdGenDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (rowsAffected int64, err error) {
+func (dao *StockIndexIdGenDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -1671,15 +1699,19 @@ func (dao *StockIndexIdGenDao) Delete(ctx context.Context, tx *runtime.Tx, id in
 
 	result, err := stmt.Exec(ctx, id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rowsAffected, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	if rowsAffected != 1 {
+		return fmt.Errorf("rowsAffected:%s", rowsAffected)
+	}
+
+	return nil
 }
 
 func (dao *StockIndexIdGenDao) ScanRow(row *runtime.Row) (*StockIndexIdGen, error) {
@@ -2021,7 +2053,7 @@ func (dao *UserSettingDao) Insert(ctx context.Context, tx *runtime.Tx, e *UserSe
 	return id, nil
 }
 
-func (dao *UserSettingDao) Update(ctx context.Context, tx *runtime.Tx, e *UserSetting) (rowsAffected int64, err error) {
+func (dao *UserSettingDao) Update(ctx context.Context, tx *runtime.Tx, e *UserSetting) (err error) {
 	stmt := dao.updateStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -2029,18 +2061,22 @@ func (dao *UserSettingDao) Update(ctx context.Context, tx *runtime.Tx, e *UserSe
 
 	result, err := stmt.Exec(ctx, e.UserId, e.ConfigKey, e.ConfigValue, e.CreateTime, e.UpdateTime, e.Id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rowsAffected, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	if rowsAffected != 1 {
+		return fmt.Errorf("rowsAffected:%s", rowsAffected)
+	}
+
+	return nil
 }
 
-func (dao *UserSettingDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (rowsAffected int64, err error) {
+func (dao *UserSettingDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -2048,15 +2084,19 @@ func (dao *UserSettingDao) Delete(ctx context.Context, tx *runtime.Tx, id int64)
 
 	result, err := stmt.Exec(ctx, id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rowsAffected, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	if rowsAffected != 1 {
+		return fmt.Errorf("rowsAffected:%s", rowsAffected)
+	}
+
+	return nil
 }
 
 func (dao *UserSettingDao) ScanRow(row *runtime.Row) (*UserSetting, error) {
