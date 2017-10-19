@@ -22,6 +22,14 @@
       "in": "header"
     }
   },
+  "responses": {
+    "InternalServerError":{
+      "description": "Internal server error",
+      "schema": {
+        "type": "string"
+      }
+    }
+  },
   "paths": {
     "/{userId}/indices": {
       "parameters": [
@@ -59,10 +67,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       },
@@ -94,10 +99,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -145,10 +147,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -189,10 +188,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       },
@@ -212,10 +208,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -252,10 +245,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       },
@@ -287,10 +277,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -331,10 +318,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -378,10 +362,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       },
@@ -412,10 +393,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -463,10 +441,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -503,10 +478,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       },
@@ -538,10 +510,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -582,10 +551,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       },
@@ -605,10 +571,7 @@
             }
           },
           "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }

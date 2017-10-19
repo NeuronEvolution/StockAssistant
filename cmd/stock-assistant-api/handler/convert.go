@@ -1,7 +1,7 @@
 package handler
 
 import (
-	api "github.com/NeuronEvolution/StockAssistant/api/models"
+	api "github.com/NeuronEvolution/StockAssistant/api/gen/models"
 	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/go-openapi/strfmt"
 	"time"
