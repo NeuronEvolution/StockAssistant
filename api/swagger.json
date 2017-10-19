@@ -22,13 +22,15 @@
       "in": "header"
     }
   },
+  "parameters": {
+  },
   "responses": {
-    "ErrorResponse":{
+    "ErrorResponse": {
       "description": "Error response",
       "schema": {
         "type": "object",
         "properties": {
-          "status":{
+          "status": {
             "default": "Http status",
             "type": "string",
             "format": "int32"
