@@ -52,10 +52,10 @@ func main() {
 		api.UserIndexEvaluateListHandler = operations.UserIndexEvaluateListHandlerFunc(h.UserIndexEvaluateList)
 		api.UserIndexEvaluateGetHandler = operations.UserIndexEvaluateGetHandlerFunc(h.UserIndexEvaluateGet)
 		api.UserIndexEvaluateSaveHandler = operations.UserIndexEvaluateSaveHandlerFunc(h.UserIndexEvaluateSave)
-		api.UserSettingsListHandler = operations.UserSettingsListHandlerFunc(h.UserSettingsList)
-		api.UserSettingsGetHandler = operations.UserSettingsGetHandlerFunc(h.UserSettingsGet)
-		api.UserSettingsSaveHandler = operations.UserSettingsSaveHandlerFunc(h.UserSettingsSave)
-		api.UserSettingsDeleteHandler = operations.UserSettingsDeleteHandlerFunc(h.UserSettingsDelete)
+		api.UserSettingListHandler = operations.UserSettingListHandlerFunc(h.UserSettingsList)
+		api.UserSettingGetHandler = operations.UserSettingGetHandlerFunc(h.UserSettingsGet)
+		api.UserSettingSaveHandler = operations.UserSettingSaveHandlerFunc(h.UserSettingsSave)
+		api.UserSettingDeleteHandler = operations.UserSettingDeleteHandlerFunc(h.UserSettingsDelete)
 
 		logger.Info("Start server", zap.String("addr", bind_addr))
 		err = http.ListenAndServe(bind_addr,

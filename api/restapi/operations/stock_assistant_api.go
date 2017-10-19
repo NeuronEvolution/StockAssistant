@@ -59,17 +59,17 @@ func NewStockAssistantAPI(spec *loads.Document) *StockAssistantAPI {
 		UserIndexSaveHandler: UserIndexSaveHandlerFunc(func(params UserIndexSaveParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserIndexSave has not yet been implemented")
 		}),
-		UserSettingsDeleteHandler: UserSettingsDeleteHandlerFunc(func(params UserSettingsDeleteParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserSettingsDelete has not yet been implemented")
+		UserSettingDeleteHandler: UserSettingDeleteHandlerFunc(func(params UserSettingDeleteParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserSettingDelete has not yet been implemented")
 		}),
-		UserSettingsGetHandler: UserSettingsGetHandlerFunc(func(params UserSettingsGetParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserSettingsGet has not yet been implemented")
+		UserSettingGetHandler: UserSettingGetHandlerFunc(func(params UserSettingGetParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserSettingGet has not yet been implemented")
 		}),
-		UserSettingsListHandler: UserSettingsListHandlerFunc(func(params UserSettingsListParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserSettingsList has not yet been implemented")
+		UserSettingListHandler: UserSettingListHandlerFunc(func(params UserSettingListParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserSettingList has not yet been implemented")
 		}),
-		UserSettingsSaveHandler: UserSettingsSaveHandlerFunc(func(params UserSettingsSaveParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserSettingsSave has not yet been implemented")
+		UserSettingSaveHandler: UserSettingSaveHandlerFunc(func(params UserSettingSaveParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserSettingSave has not yet been implemented")
 		}),
 		UserStockEvaluateGetHandler: UserStockEvaluateGetHandlerFunc(func(params UserStockEvaluateGetParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserStockEvaluateGet has not yet been implemented")
@@ -125,14 +125,14 @@ type StockAssistantAPI struct {
 	UserIndexRenameHandler UserIndexRenameHandler
 	// UserIndexSaveHandler sets the operation handler for the user index save operation
 	UserIndexSaveHandler UserIndexSaveHandler
-	// UserSettingsDeleteHandler sets the operation handler for the user settings delete operation
-	UserSettingsDeleteHandler UserSettingsDeleteHandler
-	// UserSettingsGetHandler sets the operation handler for the user settings get operation
-	UserSettingsGetHandler UserSettingsGetHandler
-	// UserSettingsListHandler sets the operation handler for the user settings list operation
-	UserSettingsListHandler UserSettingsListHandler
-	// UserSettingsSaveHandler sets the operation handler for the user settings save operation
-	UserSettingsSaveHandler UserSettingsSaveHandler
+	// UserSettingDeleteHandler sets the operation handler for the user setting delete operation
+	UserSettingDeleteHandler UserSettingDeleteHandler
+	// UserSettingGetHandler sets the operation handler for the user setting get operation
+	UserSettingGetHandler UserSettingGetHandler
+	// UserSettingListHandler sets the operation handler for the user setting list operation
+	UserSettingListHandler UserSettingListHandler
+	// UserSettingSaveHandler sets the operation handler for the user setting save operation
+	UserSettingSaveHandler UserSettingSaveHandler
 	// UserStockEvaluateGetHandler sets the operation handler for the user stock evaluate get operation
 	UserStockEvaluateGetHandler UserStockEvaluateGetHandler
 	// UserStockEvaluateListHandler sets the operation handler for the user stock evaluate list operation
@@ -234,20 +234,20 @@ func (o *StockAssistantAPI) Validate() error {
 		unregistered = append(unregistered, "UserIndexSaveHandler")
 	}
 
-	if o.UserSettingsDeleteHandler == nil {
-		unregistered = append(unregistered, "UserSettingsDeleteHandler")
+	if o.UserSettingDeleteHandler == nil {
+		unregistered = append(unregistered, "UserSettingDeleteHandler")
 	}
 
-	if o.UserSettingsGetHandler == nil {
-		unregistered = append(unregistered, "UserSettingsGetHandler")
+	if o.UserSettingGetHandler == nil {
+		unregistered = append(unregistered, "UserSettingGetHandler")
 	}
 
-	if o.UserSettingsListHandler == nil {
-		unregistered = append(unregistered, "UserSettingsListHandler")
+	if o.UserSettingListHandler == nil {
+		unregistered = append(unregistered, "UserSettingListHandler")
 	}
 
-	if o.UserSettingsSaveHandler == nil {
-		unregistered = append(unregistered, "UserSettingsSaveHandler")
+	if o.UserSettingSaveHandler == nil {
+		unregistered = append(unregistered, "UserSettingSaveHandler")
 	}
 
 	if o.UserStockEvaluateGetHandler == nil {
@@ -395,22 +395,22 @@ func (o *StockAssistantAPI) initHandlerCache() {
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/{userId}/settings/{configKey}"] = NewUserSettingsDelete(o.context, o.UserSettingsDeleteHandler)
+	o.handlers["DELETE"]["/{userId}/settings/{configKey}"] = NewUserSettingDelete(o.context, o.UserSettingDeleteHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/{userId}/settings/{configKey}"] = NewUserSettingsGet(o.context, o.UserSettingsGetHandler)
+	o.handlers["GET"]["/{userId}/settings/{configKey}"] = NewUserSettingGet(o.context, o.UserSettingGetHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/{userId}/settings"] = NewUserSettingsList(o.context, o.UserSettingsListHandler)
+	o.handlers["GET"]["/{userId}/settings"] = NewUserSettingList(o.context, o.UserSettingListHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/{userId}/settings"] = NewUserSettingsSave(o.context, o.UserSettingsSaveHandler)
+	o.handlers["POST"]["/{userId}/settings"] = NewUserSettingSave(o.context, o.UserSettingSaveHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

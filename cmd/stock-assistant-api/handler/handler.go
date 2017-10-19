@@ -105,29 +105,64 @@ func (h *StockAssistantHandler) UserStockEvaluateSave(p operations.UserStockEval
 }
 
 func (h *StockAssistantHandler) UserIndexEvaluateList(p operations.UserIndexEvaluateListParams) middleware.Responder {
-	return nil
+	list, err := h.service.UserIndexEvaluateList(p.UserID, p.StockID)
+	if err != nil {
+		return operations.NewUserIndexEvaluateListBadRequest().WithPayload(err.Error())
+	}
+
+	return operations.NewUserIndexEvaluateListOK().WithPayload(fromIndexEvaluateList(list))
 }
 
 func (h *StockAssistantHandler) UserIndexEvaluateGet(p operations.UserIndexEvaluateGetParams) middleware.Responder {
-	return nil
+	ie, err := h.service.UserIndexEvaluateGet(p.UserID, p.StockID, p.IndexName)
+	if err != nil {
+		return operations.NewUserIndexEvaluateGetBadRequest().WithPayload(err.Error())
+	}
+
+	return operations.NewUserIndexEvaluateGetOK().WithPayload(fromIndexEvaluate(ie))
 }
 
 func (h *StockAssistantHandler) UserIndexEvaluateSave(p operations.UserIndexEvaluateSaveParams) middleware.Responder {
-	return nil
+	ie, err := h.service.UserIndexEvaluateSave(p.UserID, p.StockID, toIndexEvaluate(p.IndexEvaluate))
+	if err != nil {
+		return operations.NewUserIndexEvaluateSaveBadRequest().WithPayload(err.Error())
+	}
+
+	return operations.NewUserIndexEvaluateSaveOK().WithPayload(fromIndexEvaluate(ie))
 }
 
-func (h *StockAssistantHandler) UserSettingsList(p operations.UserSettingsListParams) middleware.Responder {
-	return nil
+func (h *StockAssistantHandler) UserSettingsList(p operations.UserSettingListParams) middleware.Responder {
+	list, err := h.service.UserSettingList(p.UserID)
+	if err != nil {
+		return operations.NewUserSettingListBadRequest().WithPayload(err.Error())
+	}
+
+	return operations.NewUserSettingListOK().WithPayload(fromUserSettingList(list))
 }
 
-func (h *StockAssistantHandler) UserSettingsGet(p operations.UserSettingsGetParams) middleware.Responder {
-	return nil
+func (h *StockAssistantHandler) UserSettingsGet(p operations.UserSettingGetParams) middleware.Responder {
+	setting, err := h.service.UserSettingGet(p.UserID, p.ConfigKey)
+	if err != nil {
+		return operations.NewUserSettingGetBadRequest().WithPayload(err.Error())
+	}
+
+	return operations.NewUserSettingGetOK().WithPayload(fromUserSetting(setting))
 }
 
-func (h *StockAssistantHandler) UserSettingsSave(p operations.UserSettingsSaveParams) middleware.Responder {
-	return nil
+func (h *StockAssistantHandler) UserSettingsSave(p operations.UserSettingSaveParams) middleware.Responder {
+	setting, err := h.service.UserSettingSave(p.UserID, toUserSetting(p.Setting))
+	if err != nil {
+		return operations.NewUserSettingSaveBadRequest().WithPayload(err.Error())
+	}
+
+	return operations.NewUserSettingSaveOK().WithPayload(fromUserSetting(setting))
 }
 
-func (h *StockAssistantHandler) UserSettingsDelete(p operations.UserSettingsDeleteParams) middleware.Responder {
-	return nil
+func (h *StockAssistantHandler) UserSettingsDelete(p operations.UserSettingDeleteParams) middleware.Responder {
+	err := h.service.UserSettingDelete(p.UserID, p.ConfigKey)
+	if err != nil {
+		return operations.NewUserSettingDeleteBadRequest().WithPayload(err.Error())
+	}
+
+	return operations.NewUserSettingDeleteOK()
 }

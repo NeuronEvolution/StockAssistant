@@ -249,114 +249,114 @@ func (a *Client) UserIndexSave(params *UserIndexSaveParams) (*UserIndexSaveOK, e
 }
 
 /*
-UserSettingsDelete user settings delete API
+UserSettingDelete user setting delete API
 */
-func (a *Client) UserSettingsDelete(params *UserSettingsDeleteParams) (*UserSettingsDeleteOK, error) {
+func (a *Client) UserSettingDelete(params *UserSettingDeleteParams) (*UserSettingDeleteOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUserSettingsDeleteParams()
+		params = NewUserSettingDeleteParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UserSettingsDelete",
+		ID:                 "UserSettingDelete",
 		Method:             "DELETE",
 		PathPattern:        "/{userId}/settings/{configKey}",
 		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UserSettingsDeleteReader{formats: a.formats},
+		Reader:             &UserSettingDeleteReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UserSettingsDeleteOK), nil
+	return result.(*UserSettingDeleteOK), nil
 
 }
 
 /*
-UserSettingsGet user settings get API
+UserSettingGet user setting get API
 */
-func (a *Client) UserSettingsGet(params *UserSettingsGetParams) (*UserSettingsGetOK, error) {
+func (a *Client) UserSettingGet(params *UserSettingGetParams) (*UserSettingGetOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUserSettingsGetParams()
+		params = NewUserSettingGetParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UserSettingsGet",
+		ID:                 "UserSettingGet",
 		Method:             "GET",
 		PathPattern:        "/{userId}/settings/{configKey}",
 		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UserSettingsGetReader{formats: a.formats},
+		Reader:             &UserSettingGetReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UserSettingsGetOK), nil
+	return result.(*UserSettingGetOK), nil
 
 }
 
 /*
-UserSettingsList lists
+UserSettingList lists
 */
-func (a *Client) UserSettingsList(params *UserSettingsListParams) (*UserSettingsListOK, error) {
+func (a *Client) UserSettingList(params *UserSettingListParams) (*UserSettingListOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUserSettingsListParams()
+		params = NewUserSettingListParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UserSettingsList",
+		ID:                 "UserSettingList",
 		Method:             "GET",
 		PathPattern:        "/{userId}/settings",
 		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UserSettingsListReader{formats: a.formats},
+		Reader:             &UserSettingListReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UserSettingsListOK), nil
+	return result.(*UserSettingListOK), nil
 
 }
 
 /*
-UserSettingsSave saves
+UserSettingSave saves
 */
-func (a *Client) UserSettingsSave(params *UserSettingsSaveParams) (*UserSettingsSaveOK, error) {
+func (a *Client) UserSettingSave(params *UserSettingSaveParams) (*UserSettingSaveOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUserSettingsSaveParams()
+		params = NewUserSettingSaveParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UserSettingsSave",
+		ID:                 "UserSettingSave",
 		Method:             "POST",
 		PathPattern:        "/{userId}/settings",
 		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UserSettingsSaveReader{formats: a.formats},
+		Reader:             &UserSettingSaveReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UserSettingsSaveOK), nil
+	return result.(*UserSettingSaveOK), nil
 
 }
 

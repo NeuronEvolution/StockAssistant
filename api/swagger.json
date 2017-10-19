@@ -483,7 +483,7 @@
       ],
       "get": {
         "summary": "list",
-        "operationId": "UserSettingsList",
+        "operationId": "UserSettingList",
         "parameters": [
         ],
         "responses": {
@@ -512,7 +512,7 @@
       },
       "post": {
         "summary": "save",
-        "operationId": "UserSettingsSave",
+        "operationId": "UserSettingSave",
         "parameters": [
           {
             "in": "body",
@@ -565,7 +565,7 @@
       ],
       "get": {
         "summary": "",
-        "operationId": "UserSettingsGet",
+        "operationId": "UserSettingGet",
         "parameters": [
         ],
         "responses": {
@@ -591,7 +591,7 @@
       },
       "delete": {
         "summary": "",
-        "operationId": "UserSettingsDelete",
+        "operationId": "UserSettingDelete",
         "parameters": [
         ],
         "responses": {

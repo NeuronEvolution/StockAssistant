@@ -60,17 +60,17 @@ func configureAPI(api *operations.StockAssistantAPI) http.Handler {
 	api.UserIndexSaveHandler = operations.UserIndexSaveHandlerFunc(func(params operations.UserIndexSaveParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserIndexSave has not yet been implemented")
 	})
-	api.UserSettingsDeleteHandler = operations.UserSettingsDeleteHandlerFunc(func(params operations.UserSettingsDeleteParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserSettingsDelete has not yet been implemented")
+	api.UserSettingDeleteHandler = operations.UserSettingDeleteHandlerFunc(func(params operations.UserSettingDeleteParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UserSettingDelete has not yet been implemented")
 	})
-	api.UserSettingsGetHandler = operations.UserSettingsGetHandlerFunc(func(params operations.UserSettingsGetParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserSettingsGet has not yet been implemented")
+	api.UserSettingGetHandler = operations.UserSettingGetHandlerFunc(func(params operations.UserSettingGetParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UserSettingGet has not yet been implemented")
 	})
-	api.UserSettingsListHandler = operations.UserSettingsListHandlerFunc(func(params operations.UserSettingsListParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserSettingsList has not yet been implemented")
+	api.UserSettingListHandler = operations.UserSettingListHandlerFunc(func(params operations.UserSettingListParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UserSettingList has not yet been implemented")
 	})
-	api.UserSettingsSaveHandler = operations.UserSettingsSaveHandlerFunc(func(params operations.UserSettingsSaveParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserSettingsSave has not yet been implemented")
+	api.UserSettingSaveHandler = operations.UserSettingSaveHandlerFunc(func(params operations.UserSettingSaveParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UserSettingSave has not yet been implemented")
 	})
 	api.UserStockEvaluateGetHandler = operations.UserStockEvaluateGetHandlerFunc(func(params operations.UserStockEvaluateGetParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserStockEvaluateGet has not yet been implemented")

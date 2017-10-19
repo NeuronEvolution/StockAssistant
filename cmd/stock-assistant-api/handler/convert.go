@@ -4,6 +4,7 @@ import (
 	api "github.com/NeuronEvolution/StockAssistant/api/models"
 	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/go-openapi/strfmt"
+	"time"
 )
 
 func fromIndex(p *models.StockIndex) (r *api.StockIndex) {
@@ -59,6 +60,20 @@ func fromIndexEvaluate(p *models.IndexEvaluate) (r *api.IndexEvaluate) {
 	r.EvalStars = p.EvalStars
 	r.EvalRemark = p.EvalRemark
 	r.UpdateTime = strfmt.DateTime(p.UpdateTime)
+
+	return r
+}
+
+func toIndexEvaluate(p *api.IndexEvaluate) (r *models.IndexEvaluate) {
+	if p == nil {
+		return nil
+	}
+
+	r = &models.IndexEvaluate{}
+	r.IndexName = p.IndexName
+	r.EvalStars = p.EvalStars
+	r.EvalRemark = p.EvalRemark
+	r.UpdateTime = time.Time(p.UpdateTime)
 
 	return r
 }
@@ -121,6 +136,18 @@ func fromUserSetting(p *models.Setting) (r *api.Setting) {
 	r = &api.Setting{}
 	r.Key = p.ConfigKey
 	r.Value = p.ConfigValue
+
+	return r
+}
+
+func toUserSetting(p *api.Setting) (r *models.Setting) {
+	if p == nil {
+		return nil
+	}
+
+	r = &models.Setting{}
+	r.ConfigKey = p.Key
+	r.ConfigValue = p.Value
 
 	return r
 }

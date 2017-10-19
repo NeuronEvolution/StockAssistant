@@ -218,12 +218,12 @@ func init() {
     "/{userId}/settings": {
       "get": {
         "summary": "list",
-        "operationId": "UserSettingsList",
+        "operationId": "UserSettingList",
         "responses": {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/userSettingsListOKBody"
+              "$ref": "#/definitions/userSettingListOKBody"
             }
           },
           "400": {
@@ -242,7 +242,7 @@ func init() {
       },
       "post": {
         "summary": "save",
-        "operationId": "UserSettingsSave",
+        "operationId": "UserSettingSave",
         "parameters": [
           {
             "description": "setting",
@@ -287,7 +287,7 @@ func init() {
     },
     "/{userId}/settings/{configKey}": {
       "get": {
-        "operationId": "UserSettingsGet",
+        "operationId": "UserSettingGet",
         "responses": {
           "200": {
             "description": "ok",
@@ -310,7 +310,7 @@ func init() {
         }
       },
       "delete": {
-        "operationId": "UserSettingsDelete",
+        "operationId": "UserSettingDelete",
         "responses": {
           "200": {
             "description": "ok"
@@ -683,7 +683,7 @@ func init() {
       },
       "x-go-gen-location": "operations"
     },
-    "userSettingsListOKBody": {
+    "userSettingListOKBody": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Setting"

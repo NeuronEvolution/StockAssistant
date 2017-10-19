@@ -348,7 +348,7 @@ func (s *StockAssistantService) UserIndexEvaluateSave(userId string, stockId str
 	return fin_stock_assistant.FromIndexEvaluate(dbIndexEvaluate), nil
 }
 
-func (s *StockAssistantService) UserSettingsList(userId string) (settingsList []*models.Setting, err error) {
+func (s *StockAssistantService) UserSettingList(userId string) (settingsList []*models.Setting, err error) {
 	dbList, err := s.db.UserSetting.GetQuery().
 		UserId_Equal(userId).SelectList(context.Background())
 	if err != nil {
@@ -358,7 +358,7 @@ func (s *StockAssistantService) UserSettingsList(userId string) (settingsList []
 	return fin_stock_assistant.FromSettingList(dbList), nil
 }
 
-func (s *StockAssistantService) UserSettingsGet(userId string, configKey string) (setting *models.Setting, err error) {
+func (s *StockAssistantService) UserSettingGet(userId string, configKey string) (setting *models.Setting, err error) {
 	dbSetting, err := s.db.UserSetting.GetQuery().
 		UserId_Equal(userId).
 		ConfigKey_Equal(configKey).Select(context.Background())
@@ -369,7 +369,7 @@ func (s *StockAssistantService) UserSettingsGet(userId string, configKey string)
 	return fin_stock_assistant.FromSetting(dbSetting), nil
 }
 
-func (s *StockAssistantService) UserSettingsSave(userId string, setting *models.Setting) (settingSaved *models.Setting, err error) {
+func (s *StockAssistantService) UserSettingSave(userId string, setting *models.Setting) (settingSaved *models.Setting, err error) {
 	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
 	if err != nil {
 		return nil, err
@@ -410,7 +410,7 @@ func (s *StockAssistantService) UserSettingsSave(userId string, setting *models.
 	return fin_stock_assistant.FromSetting(dbSetting), nil
 }
 
-func (s *StockAssistantService) UserSettingsDelete(userId string, configKey string) (err error) {
+func (s *StockAssistantService) UserSettingDelete(userId string, configKey string) (err error) {
 	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
 	if err != nil {
 		return err
