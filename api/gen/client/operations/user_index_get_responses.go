@@ -32,22 +32,15 @@ func (o *UserIndexGetReader) ReadResponse(response runtime.ClientResponse, consu
 		}
 		return result, nil
 
-	case 400:
-		result := NewUserIndexGetBadRequest()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 500:
-		result := NewUserIndexGetInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewUserIndexGetDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -80,54 +73,38 @@ func (o *UserIndexGetOK) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
-// NewUserIndexGetBadRequest creates a UserIndexGetBadRequest with default headers values
-func NewUserIndexGetBadRequest() *UserIndexGetBadRequest {
-	return &UserIndexGetBadRequest{}
-}
-
-/*UserIndexGetBadRequest handles this case with default header values.
-
-Bad request
-*/
-type UserIndexGetBadRequest struct {
-	Payload string
-}
-
-func (o *UserIndexGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /{userId}/indices/{indexId}][%d] userIndexGetBadRequest  %+v", 400, o.Payload)
-}
-
-func (o *UserIndexGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
+// NewUserIndexGetDefault creates a UserIndexGetDefault with default headers values
+func NewUserIndexGetDefault(code int) *UserIndexGetDefault {
+	return &UserIndexGetDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewUserIndexGetInternalServerError creates a UserIndexGetInternalServerError with default headers values
-func NewUserIndexGetInternalServerError() *UserIndexGetInternalServerError {
-	return &UserIndexGetInternalServerError{}
-}
+/*UserIndexGetDefault handles this case with default header values.
 
-/*UserIndexGetInternalServerError handles this case with default header values.
-
-Internal server error
+Error response
 */
-type UserIndexGetInternalServerError struct {
-	Payload string
+type UserIndexGetDefault struct {
+	_statusCode int
+
+	Payload *models.UserIndexGetDefaultBody
 }
 
-func (o *UserIndexGetInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /{userId}/indices/{indexId}][%d] userIndexGetInternalServerError  %+v", 500, o.Payload)
+// Code gets the status code for the user index get default response
+func (o *UserIndexGetDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *UserIndexGetInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UserIndexGetDefault) Error() string {
+	return fmt.Sprintf("[GET /{userId}/indices/{indexId}][%d] UserIndexGet default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UserIndexGetDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.UserIndexGetDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

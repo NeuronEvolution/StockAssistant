@@ -56,86 +56,60 @@ func (o *UserIndexRenameOK) WriteResponse(rw http.ResponseWriter, producer runti
 	}
 }
 
-// UserIndexRenameBadRequestCode is the HTTP code returned for type UserIndexRenameBadRequest
-const UserIndexRenameBadRequestCode int = 400
+/*UserIndexRenameDefault Error response
 
-/*UserIndexRenameBadRequest Bad request
-
-swagger:response userIndexRenameBadRequest
+swagger:response userIndexRenameDefault
 */
-type UserIndexRenameBadRequest struct {
+type UserIndexRenameDefault struct {
+	_statusCode int
 
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *models.UserIndexRenameDefaultBody `json:"body,omitempty"`
 }
 
-// NewUserIndexRenameBadRequest creates UserIndexRenameBadRequest with default headers values
-func NewUserIndexRenameBadRequest() *UserIndexRenameBadRequest {
-	return &UserIndexRenameBadRequest{}
+// NewUserIndexRenameDefault creates UserIndexRenameDefault with default headers values
+func NewUserIndexRenameDefault(code int) *UserIndexRenameDefault {
+	if code <= 0 {
+		code = 500
+	}
+
+	return &UserIndexRenameDefault{
+		_statusCode: code,
+	}
 }
 
-// WithPayload adds the payload to the user index rename bad request response
-func (o *UserIndexRenameBadRequest) WithPayload(payload string) *UserIndexRenameBadRequest {
+// WithStatusCode adds the status to the user index rename default response
+func (o *UserIndexRenameDefault) WithStatusCode(code int) *UserIndexRenameDefault {
+	o._statusCode = code
+	return o
+}
+
+// SetStatusCode sets the status to the user index rename default response
+func (o *UserIndexRenameDefault) SetStatusCode(code int) {
+	o._statusCode = code
+}
+
+// WithPayload adds the payload to the user index rename default response
+func (o *UserIndexRenameDefault) WithPayload(payload *models.UserIndexRenameDefaultBody) *UserIndexRenameDefault {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the user index rename bad request response
-func (o *UserIndexRenameBadRequest) SetPayload(payload string) {
+// SetPayload sets the payload to the user index rename default response
+func (o *UserIndexRenameDefault) SetPayload(payload *models.UserIndexRenameDefaultBody) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UserIndexRenameBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UserIndexRenameDefault) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	rw.WriteHeader(o._statusCode)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-}
-
-// UserIndexRenameInternalServerErrorCode is the HTTP code returned for type UserIndexRenameInternalServerError
-const UserIndexRenameInternalServerErrorCode int = 500
-
-/*UserIndexRenameInternalServerError Internal server error
-
-swagger:response userIndexRenameInternalServerError
-*/
-type UserIndexRenameInternalServerError struct {
-
-	/*
-	  In: Body
-	*/
-	Payload string `json:"body,omitempty"`
-}
-
-// NewUserIndexRenameInternalServerError creates UserIndexRenameInternalServerError with default headers values
-func NewUserIndexRenameInternalServerError() *UserIndexRenameInternalServerError {
-	return &UserIndexRenameInternalServerError{}
-}
-
-// WithPayload adds the payload to the user index rename internal server error response
-func (o *UserIndexRenameInternalServerError) WithPayload(payload string) *UserIndexRenameInternalServerError {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the user index rename internal server error response
-func (o *UserIndexRenameInternalServerError) SetPayload(payload string) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UserIndexRenameInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }

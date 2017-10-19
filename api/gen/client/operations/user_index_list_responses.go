@@ -32,22 +32,15 @@ func (o *UserIndexListReader) ReadResponse(response runtime.ClientResponse, cons
 		}
 		return result, nil
 
-	case 400:
-		result := NewUserIndexListBadRequest()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 500:
-		result := NewUserIndexListInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewUserIndexListDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -78,54 +71,38 @@ func (o *UserIndexListOK) readResponse(response runtime.ClientResponse, consumer
 	return nil
 }
 
-// NewUserIndexListBadRequest creates a UserIndexListBadRequest with default headers values
-func NewUserIndexListBadRequest() *UserIndexListBadRequest {
-	return &UserIndexListBadRequest{}
-}
-
-/*UserIndexListBadRequest handles this case with default header values.
-
-Bad request
-*/
-type UserIndexListBadRequest struct {
-	Payload string
-}
-
-func (o *UserIndexListBadRequest) Error() string {
-	return fmt.Sprintf("[GET /{userId}/indices][%d] userIndexListBadRequest  %+v", 400, o.Payload)
-}
-
-func (o *UserIndexListBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
+// NewUserIndexListDefault creates a UserIndexListDefault with default headers values
+func NewUserIndexListDefault(code int) *UserIndexListDefault {
+	return &UserIndexListDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewUserIndexListInternalServerError creates a UserIndexListInternalServerError with default headers values
-func NewUserIndexListInternalServerError() *UserIndexListInternalServerError {
-	return &UserIndexListInternalServerError{}
-}
+/*UserIndexListDefault handles this case with default header values.
 
-/*UserIndexListInternalServerError handles this case with default header values.
-
-Internal server error
+Error response
 */
-type UserIndexListInternalServerError struct {
-	Payload string
+type UserIndexListDefault struct {
+	_statusCode int
+
+	Payload *models.UserIndexListDefaultBody
 }
 
-func (o *UserIndexListInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /{userId}/indices][%d] userIndexListInternalServerError  %+v", 500, o.Payload)
+// Code gets the status code for the user index list default response
+func (o *UserIndexListDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *UserIndexListInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UserIndexListDefault) Error() string {
+	return fmt.Sprintf("[GET /{userId}/indices][%d] UserIndexList default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UserIndexListDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.UserIndexListDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

@@ -59,86 +59,60 @@ func (o *UserSettingListOK) WriteResponse(rw http.ResponseWriter, producer runti
 
 }
 
-// UserSettingListBadRequestCode is the HTTP code returned for type UserSettingListBadRequest
-const UserSettingListBadRequestCode int = 400
+/*UserSettingListDefault Error response
 
-/*UserSettingListBadRequest Bad request
-
-swagger:response userSettingListBadRequest
+swagger:response userSettingListDefault
 */
-type UserSettingListBadRequest struct {
+type UserSettingListDefault struct {
+	_statusCode int
 
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *models.UserSettingListDefaultBody `json:"body,omitempty"`
 }
 
-// NewUserSettingListBadRequest creates UserSettingListBadRequest with default headers values
-func NewUserSettingListBadRequest() *UserSettingListBadRequest {
-	return &UserSettingListBadRequest{}
+// NewUserSettingListDefault creates UserSettingListDefault with default headers values
+func NewUserSettingListDefault(code int) *UserSettingListDefault {
+	if code <= 0 {
+		code = 500
+	}
+
+	return &UserSettingListDefault{
+		_statusCode: code,
+	}
 }
 
-// WithPayload adds the payload to the user setting list bad request response
-func (o *UserSettingListBadRequest) WithPayload(payload string) *UserSettingListBadRequest {
+// WithStatusCode adds the status to the user setting list default response
+func (o *UserSettingListDefault) WithStatusCode(code int) *UserSettingListDefault {
+	o._statusCode = code
+	return o
+}
+
+// SetStatusCode sets the status to the user setting list default response
+func (o *UserSettingListDefault) SetStatusCode(code int) {
+	o._statusCode = code
+}
+
+// WithPayload adds the payload to the user setting list default response
+func (o *UserSettingListDefault) WithPayload(payload *models.UserSettingListDefaultBody) *UserSettingListDefault {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the user setting list bad request response
-func (o *UserSettingListBadRequest) SetPayload(payload string) {
+// SetPayload sets the payload to the user setting list default response
+func (o *UserSettingListDefault) SetPayload(payload *models.UserSettingListDefaultBody) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UserSettingListBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UserSettingListDefault) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	rw.WriteHeader(o._statusCode)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-}
-
-// UserSettingListInternalServerErrorCode is the HTTP code returned for type UserSettingListInternalServerError
-const UserSettingListInternalServerErrorCode int = 500
-
-/*UserSettingListInternalServerError Internal server error
-
-swagger:response userSettingListInternalServerError
-*/
-type UserSettingListInternalServerError struct {
-
-	/*
-	  In: Body
-	*/
-	Payload string `json:"body,omitempty"`
-}
-
-// NewUserSettingListInternalServerError creates UserSettingListInternalServerError with default headers values
-func NewUserSettingListInternalServerError() *UserSettingListInternalServerError {
-	return &UserSettingListInternalServerError{}
-}
-
-// WithPayload adds the payload to the user setting list internal server error response
-func (o *UserSettingListInternalServerError) WithPayload(payload string) *UserSettingListInternalServerError {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the user setting list internal server error response
-func (o *UserSettingListInternalServerError) SetPayload(payload string) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UserSettingListInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }

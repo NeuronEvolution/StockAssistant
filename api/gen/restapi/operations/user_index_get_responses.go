@@ -56,86 +56,60 @@ func (o *UserIndexGetOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
-// UserIndexGetBadRequestCode is the HTTP code returned for type UserIndexGetBadRequest
-const UserIndexGetBadRequestCode int = 400
+/*UserIndexGetDefault Error response
 
-/*UserIndexGetBadRequest Bad request
-
-swagger:response userIndexGetBadRequest
+swagger:response userIndexGetDefault
 */
-type UserIndexGetBadRequest struct {
+type UserIndexGetDefault struct {
+	_statusCode int
 
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *models.UserIndexGetDefaultBody `json:"body,omitempty"`
 }
 
-// NewUserIndexGetBadRequest creates UserIndexGetBadRequest with default headers values
-func NewUserIndexGetBadRequest() *UserIndexGetBadRequest {
-	return &UserIndexGetBadRequest{}
+// NewUserIndexGetDefault creates UserIndexGetDefault with default headers values
+func NewUserIndexGetDefault(code int) *UserIndexGetDefault {
+	if code <= 0 {
+		code = 500
+	}
+
+	return &UserIndexGetDefault{
+		_statusCode: code,
+	}
 }
 
-// WithPayload adds the payload to the user index get bad request response
-func (o *UserIndexGetBadRequest) WithPayload(payload string) *UserIndexGetBadRequest {
+// WithStatusCode adds the status to the user index get default response
+func (o *UserIndexGetDefault) WithStatusCode(code int) *UserIndexGetDefault {
+	o._statusCode = code
+	return o
+}
+
+// SetStatusCode sets the status to the user index get default response
+func (o *UserIndexGetDefault) SetStatusCode(code int) {
+	o._statusCode = code
+}
+
+// WithPayload adds the payload to the user index get default response
+func (o *UserIndexGetDefault) WithPayload(payload *models.UserIndexGetDefaultBody) *UserIndexGetDefault {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the user index get bad request response
-func (o *UserIndexGetBadRequest) SetPayload(payload string) {
+// SetPayload sets the payload to the user index get default response
+func (o *UserIndexGetDefault) SetPayload(payload *models.UserIndexGetDefaultBody) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UserIndexGetBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UserIndexGetDefault) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	rw.WriteHeader(o._statusCode)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-}
-
-// UserIndexGetInternalServerErrorCode is the HTTP code returned for type UserIndexGetInternalServerError
-const UserIndexGetInternalServerErrorCode int = 500
-
-/*UserIndexGetInternalServerError Internal server error
-
-swagger:response userIndexGetInternalServerError
-*/
-type UserIndexGetInternalServerError struct {
-
-	/*
-	  In: Body
-	*/
-	Payload string `json:"body,omitempty"`
-}
-
-// NewUserIndexGetInternalServerError creates UserIndexGetInternalServerError with default headers values
-func NewUserIndexGetInternalServerError() *UserIndexGetInternalServerError {
-	return &UserIndexGetInternalServerError{}
-}
-
-// WithPayload adds the payload to the user index get internal server error response
-func (o *UserIndexGetInternalServerError) WithPayload(payload string) *UserIndexGetInternalServerError {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the user index get internal server error response
-func (o *UserIndexGetInternalServerError) SetPayload(payload string) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UserIndexGetInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }

@@ -32,22 +32,15 @@ func (o *UserIndexRenameReader) ReadResponse(response runtime.ClientResponse, co
 		}
 		return result, nil
 
-	case 400:
-		result := NewUserIndexRenameBadRequest()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 500:
-		result := NewUserIndexRenameInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewUserIndexRenameDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -80,54 +73,38 @@ func (o *UserIndexRenameOK) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-// NewUserIndexRenameBadRequest creates a UserIndexRenameBadRequest with default headers values
-func NewUserIndexRenameBadRequest() *UserIndexRenameBadRequest {
-	return &UserIndexRenameBadRequest{}
-}
-
-/*UserIndexRenameBadRequest handles this case with default header values.
-
-Bad request
-*/
-type UserIndexRenameBadRequest struct {
-	Payload string
-}
-
-func (o *UserIndexRenameBadRequest) Error() string {
-	return fmt.Sprintf("[POST /{userId}/indices/rename][%d] userIndexRenameBadRequest  %+v", 400, o.Payload)
-}
-
-func (o *UserIndexRenameBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
+// NewUserIndexRenameDefault creates a UserIndexRenameDefault with default headers values
+func NewUserIndexRenameDefault(code int) *UserIndexRenameDefault {
+	return &UserIndexRenameDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewUserIndexRenameInternalServerError creates a UserIndexRenameInternalServerError with default headers values
-func NewUserIndexRenameInternalServerError() *UserIndexRenameInternalServerError {
-	return &UserIndexRenameInternalServerError{}
-}
+/*UserIndexRenameDefault handles this case with default header values.
 
-/*UserIndexRenameInternalServerError handles this case with default header values.
-
-Internal server error
+Error response
 */
-type UserIndexRenameInternalServerError struct {
-	Payload string
+type UserIndexRenameDefault struct {
+	_statusCode int
+
+	Payload *models.UserIndexRenameDefaultBody
 }
 
-func (o *UserIndexRenameInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /{userId}/indices/rename][%d] userIndexRenameInternalServerError  %+v", 500, o.Payload)
+// Code gets the status code for the user index rename default response
+func (o *UserIndexRenameDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *UserIndexRenameInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UserIndexRenameDefault) Error() string {
+	return fmt.Sprintf("[POST /{userId}/indices/rename][%d] UserIndexRename default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UserIndexRenameDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.UserIndexRenameDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

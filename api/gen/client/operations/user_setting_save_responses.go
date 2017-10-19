@@ -32,22 +32,15 @@ func (o *UserSettingSaveReader) ReadResponse(response runtime.ClientResponse, co
 		}
 		return result, nil
 
-	case 400:
-		result := NewUserSettingSaveBadRequest()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 500:
-		result := NewUserSettingSaveInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewUserSettingSaveDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -80,54 +73,38 @@ func (o *UserSettingSaveOK) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-// NewUserSettingSaveBadRequest creates a UserSettingSaveBadRequest with default headers values
-func NewUserSettingSaveBadRequest() *UserSettingSaveBadRequest {
-	return &UserSettingSaveBadRequest{}
-}
-
-/*UserSettingSaveBadRequest handles this case with default header values.
-
-Bad request
-*/
-type UserSettingSaveBadRequest struct {
-	Payload string
-}
-
-func (o *UserSettingSaveBadRequest) Error() string {
-	return fmt.Sprintf("[POST /{userId}/settings][%d] userSettingSaveBadRequest  %+v", 400, o.Payload)
-}
-
-func (o *UserSettingSaveBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
+// NewUserSettingSaveDefault creates a UserSettingSaveDefault with default headers values
+func NewUserSettingSaveDefault(code int) *UserSettingSaveDefault {
+	return &UserSettingSaveDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewUserSettingSaveInternalServerError creates a UserSettingSaveInternalServerError with default headers values
-func NewUserSettingSaveInternalServerError() *UserSettingSaveInternalServerError {
-	return &UserSettingSaveInternalServerError{}
-}
+/*UserSettingSaveDefault handles this case with default header values.
 
-/*UserSettingSaveInternalServerError handles this case with default header values.
-
-Internal server error
+Error response
 */
-type UserSettingSaveInternalServerError struct {
-	Payload string
+type UserSettingSaveDefault struct {
+	_statusCode int
+
+	Payload *models.UserSettingSaveDefaultBody
 }
 
-func (o *UserSettingSaveInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /{userId}/settings][%d] userSettingSaveInternalServerError  %+v", 500, o.Payload)
+// Code gets the status code for the user setting save default response
+func (o *UserSettingSaveDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *UserSettingSaveInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UserSettingSaveDefault) Error() string {
+	return fmt.Sprintf("[POST /{userId}/settings][%d] UserSettingSave default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UserSettingSaveDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.UserSettingSaveDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

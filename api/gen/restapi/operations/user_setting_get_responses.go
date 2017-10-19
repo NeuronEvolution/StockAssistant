@@ -56,86 +56,60 @@ func (o *UserSettingGetOK) WriteResponse(rw http.ResponseWriter, producer runtim
 	}
 }
 
-// UserSettingGetBadRequestCode is the HTTP code returned for type UserSettingGetBadRequest
-const UserSettingGetBadRequestCode int = 400
+/*UserSettingGetDefault Error response
 
-/*UserSettingGetBadRequest Bad request
-
-swagger:response userSettingGetBadRequest
+swagger:response userSettingGetDefault
 */
-type UserSettingGetBadRequest struct {
+type UserSettingGetDefault struct {
+	_statusCode int
 
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *models.UserSettingGetDefaultBody `json:"body,omitempty"`
 }
 
-// NewUserSettingGetBadRequest creates UserSettingGetBadRequest with default headers values
-func NewUserSettingGetBadRequest() *UserSettingGetBadRequest {
-	return &UserSettingGetBadRequest{}
+// NewUserSettingGetDefault creates UserSettingGetDefault with default headers values
+func NewUserSettingGetDefault(code int) *UserSettingGetDefault {
+	if code <= 0 {
+		code = 500
+	}
+
+	return &UserSettingGetDefault{
+		_statusCode: code,
+	}
 }
 
-// WithPayload adds the payload to the user setting get bad request response
-func (o *UserSettingGetBadRequest) WithPayload(payload string) *UserSettingGetBadRequest {
+// WithStatusCode adds the status to the user setting get default response
+func (o *UserSettingGetDefault) WithStatusCode(code int) *UserSettingGetDefault {
+	o._statusCode = code
+	return o
+}
+
+// SetStatusCode sets the status to the user setting get default response
+func (o *UserSettingGetDefault) SetStatusCode(code int) {
+	o._statusCode = code
+}
+
+// WithPayload adds the payload to the user setting get default response
+func (o *UserSettingGetDefault) WithPayload(payload *models.UserSettingGetDefaultBody) *UserSettingGetDefault {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the user setting get bad request response
-func (o *UserSettingGetBadRequest) SetPayload(payload string) {
+// SetPayload sets the payload to the user setting get default response
+func (o *UserSettingGetDefault) SetPayload(payload *models.UserSettingGetDefaultBody) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UserSettingGetBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UserSettingGetDefault) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	rw.WriteHeader(o._statusCode)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-}
-
-// UserSettingGetInternalServerErrorCode is the HTTP code returned for type UserSettingGetInternalServerError
-const UserSettingGetInternalServerErrorCode int = 500
-
-/*UserSettingGetInternalServerError Internal server error
-
-swagger:response userSettingGetInternalServerError
-*/
-type UserSettingGetInternalServerError struct {
-
-	/*
-	  In: Body
-	*/
-	Payload string `json:"body,omitempty"`
-}
-
-// NewUserSettingGetInternalServerError creates UserSettingGetInternalServerError with default headers values
-func NewUserSettingGetInternalServerError() *UserSettingGetInternalServerError {
-	return &UserSettingGetInternalServerError{}
-}
-
-// WithPayload adds the payload to the user setting get internal server error response
-func (o *UserSettingGetInternalServerError) WithPayload(payload string) *UserSettingGetInternalServerError {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the user setting get internal server error response
-func (o *UserSettingGetInternalServerError) SetPayload(payload string) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UserSettingGetInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }

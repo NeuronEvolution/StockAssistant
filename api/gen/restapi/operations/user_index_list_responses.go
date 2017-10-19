@@ -59,86 +59,60 @@ func (o *UserIndexListOK) WriteResponse(rw http.ResponseWriter, producer runtime
 
 }
 
-// UserIndexListBadRequestCode is the HTTP code returned for type UserIndexListBadRequest
-const UserIndexListBadRequestCode int = 400
+/*UserIndexListDefault Error response
 
-/*UserIndexListBadRequest Bad request
-
-swagger:response userIndexListBadRequest
+swagger:response userIndexListDefault
 */
-type UserIndexListBadRequest struct {
+type UserIndexListDefault struct {
+	_statusCode int
 
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *models.UserIndexListDefaultBody `json:"body,omitempty"`
 }
 
-// NewUserIndexListBadRequest creates UserIndexListBadRequest with default headers values
-func NewUserIndexListBadRequest() *UserIndexListBadRequest {
-	return &UserIndexListBadRequest{}
+// NewUserIndexListDefault creates UserIndexListDefault with default headers values
+func NewUserIndexListDefault(code int) *UserIndexListDefault {
+	if code <= 0 {
+		code = 500
+	}
+
+	return &UserIndexListDefault{
+		_statusCode: code,
+	}
 }
 
-// WithPayload adds the payload to the user index list bad request response
-func (o *UserIndexListBadRequest) WithPayload(payload string) *UserIndexListBadRequest {
+// WithStatusCode adds the status to the user index list default response
+func (o *UserIndexListDefault) WithStatusCode(code int) *UserIndexListDefault {
+	o._statusCode = code
+	return o
+}
+
+// SetStatusCode sets the status to the user index list default response
+func (o *UserIndexListDefault) SetStatusCode(code int) {
+	o._statusCode = code
+}
+
+// WithPayload adds the payload to the user index list default response
+func (o *UserIndexListDefault) WithPayload(payload *models.UserIndexListDefaultBody) *UserIndexListDefault {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the user index list bad request response
-func (o *UserIndexListBadRequest) SetPayload(payload string) {
+// SetPayload sets the payload to the user index list default response
+func (o *UserIndexListDefault) SetPayload(payload *models.UserIndexListDefaultBody) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UserIndexListBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UserIndexListDefault) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	rw.WriteHeader(o._statusCode)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-}
-
-// UserIndexListInternalServerErrorCode is the HTTP code returned for type UserIndexListInternalServerError
-const UserIndexListInternalServerErrorCode int = 500
-
-/*UserIndexListInternalServerError Internal server error
-
-swagger:response userIndexListInternalServerError
-*/
-type UserIndexListInternalServerError struct {
-
-	/*
-	  In: Body
-	*/
-	Payload string `json:"body,omitempty"`
-}
-
-// NewUserIndexListInternalServerError creates UserIndexListInternalServerError with default headers values
-func NewUserIndexListInternalServerError() *UserIndexListInternalServerError {
-	return &UserIndexListInternalServerError{}
-}
-
-// WithPayload adds the payload to the user index list internal server error response
-func (o *UserIndexListInternalServerError) WithPayload(payload string) *UserIndexListInternalServerError {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the user index list internal server error response
-func (o *UserIndexListInternalServerError) SetPayload(payload string) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UserIndexListInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }

@@ -32,22 +32,15 @@ func (o *UserIndexEvaluateSaveReader) ReadResponse(response runtime.ClientRespon
 		}
 		return result, nil
 
-	case 400:
-		result := NewUserIndexEvaluateSaveBadRequest()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 500:
-		result := NewUserIndexEvaluateSaveInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewUserIndexEvaluateSaveDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -80,54 +73,38 @@ func (o *UserIndexEvaluateSaveOK) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-// NewUserIndexEvaluateSaveBadRequest creates a UserIndexEvaluateSaveBadRequest with default headers values
-func NewUserIndexEvaluateSaveBadRequest() *UserIndexEvaluateSaveBadRequest {
-	return &UserIndexEvaluateSaveBadRequest{}
-}
-
-/*UserIndexEvaluateSaveBadRequest handles this case with default header values.
-
-Bad request
-*/
-type UserIndexEvaluateSaveBadRequest struct {
-	Payload string
-}
-
-func (o *UserIndexEvaluateSaveBadRequest) Error() string {
-	return fmt.Sprintf("[POST /{userId}/stockEvaluates/{stockId}/indexEvaluates][%d] userIndexEvaluateSaveBadRequest  %+v", 400, o.Payload)
-}
-
-func (o *UserIndexEvaluateSaveBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
+// NewUserIndexEvaluateSaveDefault creates a UserIndexEvaluateSaveDefault with default headers values
+func NewUserIndexEvaluateSaveDefault(code int) *UserIndexEvaluateSaveDefault {
+	return &UserIndexEvaluateSaveDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewUserIndexEvaluateSaveInternalServerError creates a UserIndexEvaluateSaveInternalServerError with default headers values
-func NewUserIndexEvaluateSaveInternalServerError() *UserIndexEvaluateSaveInternalServerError {
-	return &UserIndexEvaluateSaveInternalServerError{}
-}
+/*UserIndexEvaluateSaveDefault handles this case with default header values.
 
-/*UserIndexEvaluateSaveInternalServerError handles this case with default header values.
-
-Internal server error
+Error response
 */
-type UserIndexEvaluateSaveInternalServerError struct {
-	Payload string
+type UserIndexEvaluateSaveDefault struct {
+	_statusCode int
+
+	Payload *models.UserIndexEvaluateSaveDefaultBody
 }
 
-func (o *UserIndexEvaluateSaveInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /{userId}/stockEvaluates/{stockId}/indexEvaluates][%d] userIndexEvaluateSaveInternalServerError  %+v", 500, o.Payload)
+// Code gets the status code for the user index evaluate save default response
+func (o *UserIndexEvaluateSaveDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *UserIndexEvaluateSaveInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UserIndexEvaluateSaveDefault) Error() string {
+	return fmt.Sprintf("[POST /{userId}/stockEvaluates/{stockId}/indexEvaluates][%d] UserIndexEvaluateSave default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UserIndexEvaluateSaveDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.UserIndexEvaluateSaveDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

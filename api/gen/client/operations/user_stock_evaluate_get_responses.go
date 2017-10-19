@@ -32,22 +32,15 @@ func (o *UserStockEvaluateGetReader) ReadResponse(response runtime.ClientRespons
 		}
 		return result, nil
 
-	case 400:
-		result := NewUserStockEvaluateGetBadRequest()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 500:
-		result := NewUserStockEvaluateGetInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewUserStockEvaluateGetDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -80,54 +73,38 @@ func (o *UserStockEvaluateGetOK) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-// NewUserStockEvaluateGetBadRequest creates a UserStockEvaluateGetBadRequest with default headers values
-func NewUserStockEvaluateGetBadRequest() *UserStockEvaluateGetBadRequest {
-	return &UserStockEvaluateGetBadRequest{}
-}
-
-/*UserStockEvaluateGetBadRequest handles this case with default header values.
-
-Bad request
-*/
-type UserStockEvaluateGetBadRequest struct {
-	Payload string
-}
-
-func (o *UserStockEvaluateGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /{userId}/stockEvaluates/{stockId}][%d] userStockEvaluateGetBadRequest  %+v", 400, o.Payload)
-}
-
-func (o *UserStockEvaluateGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
+// NewUserStockEvaluateGetDefault creates a UserStockEvaluateGetDefault with default headers values
+func NewUserStockEvaluateGetDefault(code int) *UserStockEvaluateGetDefault {
+	return &UserStockEvaluateGetDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewUserStockEvaluateGetInternalServerError creates a UserStockEvaluateGetInternalServerError with default headers values
-func NewUserStockEvaluateGetInternalServerError() *UserStockEvaluateGetInternalServerError {
-	return &UserStockEvaluateGetInternalServerError{}
-}
+/*UserStockEvaluateGetDefault handles this case with default header values.
 
-/*UserStockEvaluateGetInternalServerError handles this case with default header values.
-
-Internal server error
+Error response
 */
-type UserStockEvaluateGetInternalServerError struct {
-	Payload string
+type UserStockEvaluateGetDefault struct {
+	_statusCode int
+
+	Payload *models.UserStockEvaluateGetDefaultBody
 }
 
-func (o *UserStockEvaluateGetInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /{userId}/stockEvaluates/{stockId}][%d] userStockEvaluateGetInternalServerError  %+v", 500, o.Payload)
+// Code gets the status code for the user stock evaluate get default response
+func (o *UserStockEvaluateGetDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *UserStockEvaluateGetInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UserStockEvaluateGetDefault) Error() string {
+	return fmt.Sprintf("[GET /{userId}/stockEvaluates/{stockId}][%d] UserStockEvaluateGet default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UserStockEvaluateGetDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.UserStockEvaluateGetDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

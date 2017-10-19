@@ -12,6 +12,8 @@ import (
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	"github.com/NeuronEvolution/StockAssistant/api/gen/models"
 )
 
 // UserIndexDeleteReader is a Reader for the UserIndexDelete structure.
@@ -30,22 +32,15 @@ func (o *UserIndexDeleteReader) ReadResponse(response runtime.ClientResponse, co
 		}
 		return result, nil
 
-	case 400:
-		result := NewUserIndexDeleteBadRequest()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 500:
-		result := NewUserIndexDeleteInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewUserIndexDeleteDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -70,54 +65,38 @@ func (o *UserIndexDeleteOK) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-// NewUserIndexDeleteBadRequest creates a UserIndexDeleteBadRequest with default headers values
-func NewUserIndexDeleteBadRequest() *UserIndexDeleteBadRequest {
-	return &UserIndexDeleteBadRequest{}
-}
-
-/*UserIndexDeleteBadRequest handles this case with default header values.
-
-Bad request
-*/
-type UserIndexDeleteBadRequest struct {
-	Payload string
-}
-
-func (o *UserIndexDeleteBadRequest) Error() string {
-	return fmt.Sprintf("[DELETE /{userId}/indices/{indexId}][%d] userIndexDeleteBadRequest  %+v", 400, o.Payload)
-}
-
-func (o *UserIndexDeleteBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
+// NewUserIndexDeleteDefault creates a UserIndexDeleteDefault with default headers values
+func NewUserIndexDeleteDefault(code int) *UserIndexDeleteDefault {
+	return &UserIndexDeleteDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewUserIndexDeleteInternalServerError creates a UserIndexDeleteInternalServerError with default headers values
-func NewUserIndexDeleteInternalServerError() *UserIndexDeleteInternalServerError {
-	return &UserIndexDeleteInternalServerError{}
-}
+/*UserIndexDeleteDefault handles this case with default header values.
 
-/*UserIndexDeleteInternalServerError handles this case with default header values.
-
-Internal server error
+Error response
 */
-type UserIndexDeleteInternalServerError struct {
-	Payload string
+type UserIndexDeleteDefault struct {
+	_statusCode int
+
+	Payload *models.UserIndexDeleteDefaultBody
 }
 
-func (o *UserIndexDeleteInternalServerError) Error() string {
-	return fmt.Sprintf("[DELETE /{userId}/indices/{indexId}][%d] userIndexDeleteInternalServerError  %+v", 500, o.Payload)
+// Code gets the status code for the user index delete default response
+func (o *UserIndexDeleteDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *UserIndexDeleteInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UserIndexDeleteDefault) Error() string {
+	return fmt.Sprintf("[DELETE /{userId}/indices/{indexId}][%d] UserIndexDelete default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UserIndexDeleteDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.UserIndexDeleteDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

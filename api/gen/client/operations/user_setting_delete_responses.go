@@ -12,6 +12,8 @@ import (
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	"github.com/NeuronEvolution/StockAssistant/api/gen/models"
 )
 
 // UserSettingDeleteReader is a Reader for the UserSettingDelete structure.
@@ -30,22 +32,15 @@ func (o *UserSettingDeleteReader) ReadResponse(response runtime.ClientResponse, 
 		}
 		return result, nil
 
-	case 400:
-		result := NewUserSettingDeleteBadRequest()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 500:
-		result := NewUserSettingDeleteInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewUserSettingDeleteDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -70,54 +65,38 @@ func (o *UserSettingDeleteOK) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-// NewUserSettingDeleteBadRequest creates a UserSettingDeleteBadRequest with default headers values
-func NewUserSettingDeleteBadRequest() *UserSettingDeleteBadRequest {
-	return &UserSettingDeleteBadRequest{}
-}
-
-/*UserSettingDeleteBadRequest handles this case with default header values.
-
-Bad request
-*/
-type UserSettingDeleteBadRequest struct {
-	Payload string
-}
-
-func (o *UserSettingDeleteBadRequest) Error() string {
-	return fmt.Sprintf("[DELETE /{userId}/settings/{configKey}][%d] userSettingDeleteBadRequest  %+v", 400, o.Payload)
-}
-
-func (o *UserSettingDeleteBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
+// NewUserSettingDeleteDefault creates a UserSettingDeleteDefault with default headers values
+func NewUserSettingDeleteDefault(code int) *UserSettingDeleteDefault {
+	return &UserSettingDeleteDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewUserSettingDeleteInternalServerError creates a UserSettingDeleteInternalServerError with default headers values
-func NewUserSettingDeleteInternalServerError() *UserSettingDeleteInternalServerError {
-	return &UserSettingDeleteInternalServerError{}
-}
+/*UserSettingDeleteDefault handles this case with default header values.
 
-/*UserSettingDeleteInternalServerError handles this case with default header values.
-
-Internal server error
+Error response
 */
-type UserSettingDeleteInternalServerError struct {
-	Payload string
+type UserSettingDeleteDefault struct {
+	_statusCode int
+
+	Payload *models.UserSettingDeleteDefaultBody
 }
 
-func (o *UserSettingDeleteInternalServerError) Error() string {
-	return fmt.Sprintf("[DELETE /{userId}/settings/{configKey}][%d] userSettingDeleteInternalServerError  %+v", 500, o.Payload)
+// Code gets the status code for the user setting delete default response
+func (o *UserSettingDeleteDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *UserSettingDeleteInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UserSettingDeleteDefault) Error() string {
+	return fmt.Sprintf("[DELETE /{userId}/settings/{configKey}][%d] UserSettingDelete default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UserSettingDeleteDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.UserSettingDeleteDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

@@ -9,6 +9,8 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
+
+	"github.com/NeuronEvolution/StockAssistant/api/gen/models"
 )
 
 // UserIndexDeleteOKCode is the HTTP code returned for type UserIndexDeleteOK
@@ -32,86 +34,60 @@ func (o *UserIndexDeleteOK) WriteResponse(rw http.ResponseWriter, producer runti
 	rw.WriteHeader(200)
 }
 
-// UserIndexDeleteBadRequestCode is the HTTP code returned for type UserIndexDeleteBadRequest
-const UserIndexDeleteBadRequestCode int = 400
+/*UserIndexDeleteDefault Error response
 
-/*UserIndexDeleteBadRequest Bad request
-
-swagger:response userIndexDeleteBadRequest
+swagger:response userIndexDeleteDefault
 */
-type UserIndexDeleteBadRequest struct {
+type UserIndexDeleteDefault struct {
+	_statusCode int
 
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *models.UserIndexDeleteDefaultBody `json:"body,omitempty"`
 }
 
-// NewUserIndexDeleteBadRequest creates UserIndexDeleteBadRequest with default headers values
-func NewUserIndexDeleteBadRequest() *UserIndexDeleteBadRequest {
-	return &UserIndexDeleteBadRequest{}
+// NewUserIndexDeleteDefault creates UserIndexDeleteDefault with default headers values
+func NewUserIndexDeleteDefault(code int) *UserIndexDeleteDefault {
+	if code <= 0 {
+		code = 500
+	}
+
+	return &UserIndexDeleteDefault{
+		_statusCode: code,
+	}
 }
 
-// WithPayload adds the payload to the user index delete bad request response
-func (o *UserIndexDeleteBadRequest) WithPayload(payload string) *UserIndexDeleteBadRequest {
+// WithStatusCode adds the status to the user index delete default response
+func (o *UserIndexDeleteDefault) WithStatusCode(code int) *UserIndexDeleteDefault {
+	o._statusCode = code
+	return o
+}
+
+// SetStatusCode sets the status to the user index delete default response
+func (o *UserIndexDeleteDefault) SetStatusCode(code int) {
+	o._statusCode = code
+}
+
+// WithPayload adds the payload to the user index delete default response
+func (o *UserIndexDeleteDefault) WithPayload(payload *models.UserIndexDeleteDefaultBody) *UserIndexDeleteDefault {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the user index delete bad request response
-func (o *UserIndexDeleteBadRequest) SetPayload(payload string) {
+// SetPayload sets the payload to the user index delete default response
+func (o *UserIndexDeleteDefault) SetPayload(payload *models.UserIndexDeleteDefaultBody) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UserIndexDeleteBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UserIndexDeleteDefault) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	rw.WriteHeader(o._statusCode)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-}
-
-// UserIndexDeleteInternalServerErrorCode is the HTTP code returned for type UserIndexDeleteInternalServerError
-const UserIndexDeleteInternalServerErrorCode int = 500
-
-/*UserIndexDeleteInternalServerError Internal server error
-
-swagger:response userIndexDeleteInternalServerError
-*/
-type UserIndexDeleteInternalServerError struct {
-
-	/*
-	  In: Body
-	*/
-	Payload string `json:"body,omitempty"`
-}
-
-// NewUserIndexDeleteInternalServerError creates UserIndexDeleteInternalServerError with default headers values
-func NewUserIndexDeleteInternalServerError() *UserIndexDeleteInternalServerError {
-	return &UserIndexDeleteInternalServerError{}
-}
-
-// WithPayload adds the payload to the user index delete internal server error response
-func (o *UserIndexDeleteInternalServerError) WithPayload(payload string) *UserIndexDeleteInternalServerError {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the user index delete internal server error response
-func (o *UserIndexDeleteInternalServerError) SetPayload(payload string) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UserIndexDeleteInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }

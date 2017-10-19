@@ -56,86 +56,60 @@ func (o *UserStockEvaluateSaveOK) WriteResponse(rw http.ResponseWriter, producer
 	}
 }
 
-// UserStockEvaluateSaveBadRequestCode is the HTTP code returned for type UserStockEvaluateSaveBadRequest
-const UserStockEvaluateSaveBadRequestCode int = 400
+/*UserStockEvaluateSaveDefault Error response
 
-/*UserStockEvaluateSaveBadRequest Bad request
-
-swagger:response userStockEvaluateSaveBadRequest
+swagger:response userStockEvaluateSaveDefault
 */
-type UserStockEvaluateSaveBadRequest struct {
+type UserStockEvaluateSaveDefault struct {
+	_statusCode int
 
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *models.UserStockEvaluateSaveDefaultBody `json:"body,omitempty"`
 }
 
-// NewUserStockEvaluateSaveBadRequest creates UserStockEvaluateSaveBadRequest with default headers values
-func NewUserStockEvaluateSaveBadRequest() *UserStockEvaluateSaveBadRequest {
-	return &UserStockEvaluateSaveBadRequest{}
+// NewUserStockEvaluateSaveDefault creates UserStockEvaluateSaveDefault with default headers values
+func NewUserStockEvaluateSaveDefault(code int) *UserStockEvaluateSaveDefault {
+	if code <= 0 {
+		code = 500
+	}
+
+	return &UserStockEvaluateSaveDefault{
+		_statusCode: code,
+	}
 }
 
-// WithPayload adds the payload to the user stock evaluate save bad request response
-func (o *UserStockEvaluateSaveBadRequest) WithPayload(payload string) *UserStockEvaluateSaveBadRequest {
+// WithStatusCode adds the status to the user stock evaluate save default response
+func (o *UserStockEvaluateSaveDefault) WithStatusCode(code int) *UserStockEvaluateSaveDefault {
+	o._statusCode = code
+	return o
+}
+
+// SetStatusCode sets the status to the user stock evaluate save default response
+func (o *UserStockEvaluateSaveDefault) SetStatusCode(code int) {
+	o._statusCode = code
+}
+
+// WithPayload adds the payload to the user stock evaluate save default response
+func (o *UserStockEvaluateSaveDefault) WithPayload(payload *models.UserStockEvaluateSaveDefaultBody) *UserStockEvaluateSaveDefault {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the user stock evaluate save bad request response
-func (o *UserStockEvaluateSaveBadRequest) SetPayload(payload string) {
+// SetPayload sets the payload to the user stock evaluate save default response
+func (o *UserStockEvaluateSaveDefault) SetPayload(payload *models.UserStockEvaluateSaveDefaultBody) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UserStockEvaluateSaveBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UserStockEvaluateSaveDefault) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	rw.WriteHeader(o._statusCode)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-}
-
-// UserStockEvaluateSaveInternalServerErrorCode is the HTTP code returned for type UserStockEvaluateSaveInternalServerError
-const UserStockEvaluateSaveInternalServerErrorCode int = 500
-
-/*UserStockEvaluateSaveInternalServerError Internal server error
-
-swagger:response userStockEvaluateSaveInternalServerError
-*/
-type UserStockEvaluateSaveInternalServerError struct {
-
-	/*
-	  In: Body
-	*/
-	Payload string `json:"body,omitempty"`
-}
-
-// NewUserStockEvaluateSaveInternalServerError creates UserStockEvaluateSaveInternalServerError with default headers values
-func NewUserStockEvaluateSaveInternalServerError() *UserStockEvaluateSaveInternalServerError {
-	return &UserStockEvaluateSaveInternalServerError{}
-}
-
-// WithPayload adds the payload to the user stock evaluate save internal server error response
-func (o *UserStockEvaluateSaveInternalServerError) WithPayload(payload string) *UserStockEvaluateSaveInternalServerError {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the user stock evaluate save internal server error response
-func (o *UserStockEvaluateSaveInternalServerError) SetPayload(payload string) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UserStockEvaluateSaveInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }

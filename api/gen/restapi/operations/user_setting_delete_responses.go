@@ -9,6 +9,8 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
+
+	"github.com/NeuronEvolution/StockAssistant/api/gen/models"
 )
 
 // UserSettingDeleteOKCode is the HTTP code returned for type UserSettingDeleteOK
@@ -32,86 +34,60 @@ func (o *UserSettingDeleteOK) WriteResponse(rw http.ResponseWriter, producer run
 	rw.WriteHeader(200)
 }
 
-// UserSettingDeleteBadRequestCode is the HTTP code returned for type UserSettingDeleteBadRequest
-const UserSettingDeleteBadRequestCode int = 400
+/*UserSettingDeleteDefault Error response
 
-/*UserSettingDeleteBadRequest Bad request
-
-swagger:response userSettingDeleteBadRequest
+swagger:response userSettingDeleteDefault
 */
-type UserSettingDeleteBadRequest struct {
+type UserSettingDeleteDefault struct {
+	_statusCode int
 
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *models.UserSettingDeleteDefaultBody `json:"body,omitempty"`
 }
 
-// NewUserSettingDeleteBadRequest creates UserSettingDeleteBadRequest with default headers values
-func NewUserSettingDeleteBadRequest() *UserSettingDeleteBadRequest {
-	return &UserSettingDeleteBadRequest{}
+// NewUserSettingDeleteDefault creates UserSettingDeleteDefault with default headers values
+func NewUserSettingDeleteDefault(code int) *UserSettingDeleteDefault {
+	if code <= 0 {
+		code = 500
+	}
+
+	return &UserSettingDeleteDefault{
+		_statusCode: code,
+	}
 }
 
-// WithPayload adds the payload to the user setting delete bad request response
-func (o *UserSettingDeleteBadRequest) WithPayload(payload string) *UserSettingDeleteBadRequest {
+// WithStatusCode adds the status to the user setting delete default response
+func (o *UserSettingDeleteDefault) WithStatusCode(code int) *UserSettingDeleteDefault {
+	o._statusCode = code
+	return o
+}
+
+// SetStatusCode sets the status to the user setting delete default response
+func (o *UserSettingDeleteDefault) SetStatusCode(code int) {
+	o._statusCode = code
+}
+
+// WithPayload adds the payload to the user setting delete default response
+func (o *UserSettingDeleteDefault) WithPayload(payload *models.UserSettingDeleteDefaultBody) *UserSettingDeleteDefault {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the user setting delete bad request response
-func (o *UserSettingDeleteBadRequest) SetPayload(payload string) {
+// SetPayload sets the payload to the user setting delete default response
+func (o *UserSettingDeleteDefault) SetPayload(payload *models.UserSettingDeleteDefaultBody) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UserSettingDeleteBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UserSettingDeleteDefault) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	rw.WriteHeader(o._statusCode)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-}
-
-// UserSettingDeleteInternalServerErrorCode is the HTTP code returned for type UserSettingDeleteInternalServerError
-const UserSettingDeleteInternalServerErrorCode int = 500
-
-/*UserSettingDeleteInternalServerError Internal server error
-
-swagger:response userSettingDeleteInternalServerError
-*/
-type UserSettingDeleteInternalServerError struct {
-
-	/*
-	  In: Body
-	*/
-	Payload string `json:"body,omitempty"`
-}
-
-// NewUserSettingDeleteInternalServerError creates UserSettingDeleteInternalServerError with default headers values
-func NewUserSettingDeleteInternalServerError() *UserSettingDeleteInternalServerError {
-	return &UserSettingDeleteInternalServerError{}
-}
-
-// WithPayload adds the payload to the user setting delete internal server error response
-func (o *UserSettingDeleteInternalServerError) WithPayload(payload string) *UserSettingDeleteInternalServerError {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the user setting delete internal server error response
-func (o *UserSettingDeleteInternalServerError) SetPayload(payload string) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UserSettingDeleteInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }

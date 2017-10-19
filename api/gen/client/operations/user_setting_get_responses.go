@@ -32,22 +32,15 @@ func (o *UserSettingGetReader) ReadResponse(response runtime.ClientResponse, con
 		}
 		return result, nil
 
-	case 400:
-		result := NewUserSettingGetBadRequest()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 500:
-		result := NewUserSettingGetInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewUserSettingGetDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -80,54 +73,38 @@ func (o *UserSettingGetOK) readResponse(response runtime.ClientResponse, consume
 	return nil
 }
 
-// NewUserSettingGetBadRequest creates a UserSettingGetBadRequest with default headers values
-func NewUserSettingGetBadRequest() *UserSettingGetBadRequest {
-	return &UserSettingGetBadRequest{}
-}
-
-/*UserSettingGetBadRequest handles this case with default header values.
-
-Bad request
-*/
-type UserSettingGetBadRequest struct {
-	Payload string
-}
-
-func (o *UserSettingGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /{userId}/settings/{configKey}][%d] userSettingGetBadRequest  %+v", 400, o.Payload)
-}
-
-func (o *UserSettingGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
+// NewUserSettingGetDefault creates a UserSettingGetDefault with default headers values
+func NewUserSettingGetDefault(code int) *UserSettingGetDefault {
+	return &UserSettingGetDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewUserSettingGetInternalServerError creates a UserSettingGetInternalServerError with default headers values
-func NewUserSettingGetInternalServerError() *UserSettingGetInternalServerError {
-	return &UserSettingGetInternalServerError{}
-}
+/*UserSettingGetDefault handles this case with default header values.
 
-/*UserSettingGetInternalServerError handles this case with default header values.
-
-Internal server error
+Error response
 */
-type UserSettingGetInternalServerError struct {
-	Payload string
+type UserSettingGetDefault struct {
+	_statusCode int
+
+	Payload *models.UserSettingGetDefaultBody
 }
 
-func (o *UserSettingGetInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /{userId}/settings/{configKey}][%d] userSettingGetInternalServerError  %+v", 500, o.Payload)
+// Code gets the status code for the user setting get default response
+func (o *UserSettingGetDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *UserSettingGetInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UserSettingGetDefault) Error() string {
+	return fmt.Sprintf("[GET /{userId}/settings/{configKey}][%d] UserSettingGet default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UserSettingGetDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.UserSettingGetDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

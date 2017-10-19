@@ -23,10 +23,46 @@
     }
   },
   "responses": {
-    "InternalServerError":{
-      "description": "Internal server error",
+    "ErrorResponse":{
+      "description": "Error response",
       "schema": {
-        "type": "string"
+        "type": "object",
+        "properties": {
+          "status":{
+            "default": "Http status",
+            "type": "string",
+            "format": "int32"
+          },
+          "code": {
+            "description": "Error code",
+            "type": "string"
+          },
+          "message": {
+            "description": "Error message",
+            "type": "string"
+          },
+          "errors": {
+            "description": "Errors",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "description": "field name",
+                  "type": "string"
+                },
+                "code": {
+                  "description": "error code",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "error message",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -60,14 +96,8 @@
               }
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       },
@@ -92,19 +122,13 @@
               "$ref": "#/definitions/StockIndex"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
     },
-    "/{userId}/indices/rename":{
+    "/{userId}/indices/rename": {
       "parameters": [
         {
           "in": "path",
@@ -140,14 +164,8 @@
               "$ref": "#/definitions/StockIndex"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -181,14 +199,8 @@
               "$ref": "#/definitions/StockIndex"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       },
@@ -201,14 +213,8 @@
           "200": {
             "description": "ok"
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -238,14 +244,8 @@
               }
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       },
@@ -270,14 +270,8 @@
               "$ref": "#/definitions/StockEvaluate"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -311,14 +305,8 @@
               "$ref": "#/definitions/StockEvaluate"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -355,14 +343,8 @@
               }
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       },
@@ -386,14 +368,8 @@
               "$ref": "#/definitions/IndexEvaluate"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -434,14 +410,8 @@
               "$ref": "#/definitions/IndexEvaluate"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -471,14 +441,8 @@
               }
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       },
@@ -503,14 +467,8 @@
               "$ref": "#/definitions/Setting"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -544,14 +502,8 @@
               "$ref": "#/definitions/Setting"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       },
@@ -564,14 +516,8 @@
           "200": {
             "description": "ok"
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "$ref": "#/responses/InternalServerError"
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
           }
         }
       }

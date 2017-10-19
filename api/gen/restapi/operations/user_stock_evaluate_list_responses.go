@@ -59,86 +59,60 @@ func (o *UserStockEvaluateListOK) WriteResponse(rw http.ResponseWriter, producer
 
 }
 
-// UserStockEvaluateListBadRequestCode is the HTTP code returned for type UserStockEvaluateListBadRequest
-const UserStockEvaluateListBadRequestCode int = 400
+/*UserStockEvaluateListDefault Error response
 
-/*UserStockEvaluateListBadRequest Bad request
-
-swagger:response userStockEvaluateListBadRequest
+swagger:response userStockEvaluateListDefault
 */
-type UserStockEvaluateListBadRequest struct {
+type UserStockEvaluateListDefault struct {
+	_statusCode int
 
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *models.UserStockEvaluateListDefaultBody `json:"body,omitempty"`
 }
 
-// NewUserStockEvaluateListBadRequest creates UserStockEvaluateListBadRequest with default headers values
-func NewUserStockEvaluateListBadRequest() *UserStockEvaluateListBadRequest {
-	return &UserStockEvaluateListBadRequest{}
+// NewUserStockEvaluateListDefault creates UserStockEvaluateListDefault with default headers values
+func NewUserStockEvaluateListDefault(code int) *UserStockEvaluateListDefault {
+	if code <= 0 {
+		code = 500
+	}
+
+	return &UserStockEvaluateListDefault{
+		_statusCode: code,
+	}
 }
 
-// WithPayload adds the payload to the user stock evaluate list bad request response
-func (o *UserStockEvaluateListBadRequest) WithPayload(payload string) *UserStockEvaluateListBadRequest {
+// WithStatusCode adds the status to the user stock evaluate list default response
+func (o *UserStockEvaluateListDefault) WithStatusCode(code int) *UserStockEvaluateListDefault {
+	o._statusCode = code
+	return o
+}
+
+// SetStatusCode sets the status to the user stock evaluate list default response
+func (o *UserStockEvaluateListDefault) SetStatusCode(code int) {
+	o._statusCode = code
+}
+
+// WithPayload adds the payload to the user stock evaluate list default response
+func (o *UserStockEvaluateListDefault) WithPayload(payload *models.UserStockEvaluateListDefaultBody) *UserStockEvaluateListDefault {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the user stock evaluate list bad request response
-func (o *UserStockEvaluateListBadRequest) SetPayload(payload string) {
+// SetPayload sets the payload to the user stock evaluate list default response
+func (o *UserStockEvaluateListDefault) SetPayload(payload *models.UserStockEvaluateListDefaultBody) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UserStockEvaluateListBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UserStockEvaluateListDefault) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	rw.WriteHeader(o._statusCode)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-}
-
-// UserStockEvaluateListInternalServerErrorCode is the HTTP code returned for type UserStockEvaluateListInternalServerError
-const UserStockEvaluateListInternalServerErrorCode int = 500
-
-/*UserStockEvaluateListInternalServerError Internal server error
-
-swagger:response userStockEvaluateListInternalServerError
-*/
-type UserStockEvaluateListInternalServerError struct {
-
-	/*
-	  In: Body
-	*/
-	Payload string `json:"body,omitempty"`
-}
-
-// NewUserStockEvaluateListInternalServerError creates UserStockEvaluateListInternalServerError with default headers values
-func NewUserStockEvaluateListInternalServerError() *UserStockEvaluateListInternalServerError {
-	return &UserStockEvaluateListInternalServerError{}
-}
-
-// WithPayload adds the payload to the user stock evaluate list internal server error response
-func (o *UserStockEvaluateListInternalServerError) WithPayload(payload string) *UserStockEvaluateListInternalServerError {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the user stock evaluate list internal server error response
-func (o *UserStockEvaluateListInternalServerError) SetPayload(payload string) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UserStockEvaluateListInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }
