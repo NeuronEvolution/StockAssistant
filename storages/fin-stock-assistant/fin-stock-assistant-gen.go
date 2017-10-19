@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/NeuronEvolution/log"
-	"github.com/NeuronEvolution/sql/runtime"
+	"github.com/NeuronEvolution/sql/wrap"
 	_ "github.com/go-sql-driver/mysql"
 	"go.uber.org/zap"
 	"time"
@@ -16,19 +16,19 @@ const INDEX_EVALUATE_TABLE_NAME = "index_evaluate"
 const INDEX_EVALUATE_FIELD_ID = "id"
 const INDEX_EVALUATE_FIELD_USER_ID = "user_id"
 const INDEX_EVALUATE_FIELD_STOCK_ID = "stock_id"
-const INDEX_EVALUATE_FIELD_INDEX_ID = "index_id"
+const INDEX_EVALUATE_FIELD_INDEX_NAME = "index_name"
 const INDEX_EVALUATE_FIELD_EVAL_STARS = "eval_stars"
 const INDEX_EVALUATE_FIELD_EVAL_REMARK = "eval_remark"
 const INDEX_EVALUATE_FIELD_CREATE_TIME = "create_time"
 const INDEX_EVALUATE_FIELD_UPDATE_TIME = "update_time"
 
-const INDEX_EVALUATE_ALL_FIELDS_STRING = "id,user_id,stock_id,index_id,eval_stars,eval_remark,create_time,update_time"
+const INDEX_EVALUATE_ALL_FIELDS_STRING = "id,user_id,stock_id,index_name,eval_stars,eval_remark,create_time,update_time"
 
 var INDEX_EVALUATE_ALL_FIELDS = []string{
 	"id",
 	"user_id",
 	"stock_id",
-	"index_id",
+	"index_name",
 	"eval_stars",
 	"eval_remark",
 	"create_time",
@@ -39,7 +39,7 @@ type IndexEvaluate struct {
 	Id         int64  //size=20
 	UserId     string //size=32
 	StockId    string //size=32
-	IndexId    string //size=32
+	IndexName  string //size=32
 	EvalStars  int32  //size=10
 	EvalRemark string //size=256
 	CreateTime time.Time
@@ -47,150 +47,382 @@ type IndexEvaluate struct {
 }
 
 type IndexEvaluateQuery struct {
-	dao *IndexEvaluateDao
-	runtime.Query
+	dao         *IndexEvaluateDao
+	forUpdate   bool
+	forShare    bool
+	whereBuffer *bytes.Buffer
+	limitBuffer *bytes.Buffer
+	orderBuffer *bytes.Buffer
 }
 
 func NewIndexEvaluateQuery(dao *IndexEvaluateDao) *IndexEvaluateQuery {
 	q := &IndexEvaluateQuery{}
 	q.dao = dao
-	q.WhereBuffer = bytes.NewBufferString("")
-	q.LimitBuffer = bytes.NewBufferString("")
-	q.OrderBuffer = bytes.NewBufferString("")
+	q.whereBuffer = bytes.NewBufferString("")
+	q.limitBuffer = bytes.NewBufferString("")
+	q.orderBuffer = bytes.NewBufferString("")
 
 	return q
 }
 
+func (q *IndexEvaluateQuery) buildQueryString() string {
+	buf := bytes.NewBufferString("")
+
+	if q.forShare {
+		buf.WriteString(" FOR UPDATE ")
+	}
+
+	if q.forUpdate {
+		buf.WriteString(" LOCK IN SHARE MODE ")
+	}
+
+	whereSql := q.whereBuffer.String()
+	if whereSql != "" {
+		buf.WriteString(" WHERE ")
+		buf.WriteString(whereSql)
+	}
+
+	limitSql := q.limitBuffer.String()
+	if limitSql != "" {
+		buf.WriteString(limitSql)
+	}
+
+	orderSql := q.orderBuffer.String()
+	if orderSql != "" {
+		buf.WriteString(orderSql)
+	}
+
+	return buf.String()
+}
+
 func (q *IndexEvaluateQuery) Select(ctx context.Context) (*IndexEvaluate, error) {
-	return q.dao.Select(ctx, nil, q.BuildQueryString())
+	return q.dao.doSelect(ctx, nil, q.buildQueryString())
 }
 
-func (q *IndexEvaluateQuery) SelectForUpdate(ctx context.Context, tx *runtime.Tx) (*IndexEvaluate, error) {
-	q.ForUpdate = true
-	return q.dao.Select(ctx, tx, q.BuildQueryString())
+func (q *IndexEvaluateQuery) SelectForUpdate(ctx context.Context, tx *wrap.Tx) (*IndexEvaluate, error) {
+	q.forUpdate = true
+	return q.dao.doSelect(ctx, tx, q.buildQueryString())
 }
 
-func (q *IndexEvaluateQuery) SelectForShare(ctx context.Context, tx *runtime.Tx) (*IndexEvaluate, error) {
-	q.ForShare = true
-	return q.dao.Select(ctx, tx, q.BuildQueryString())
+func (q *IndexEvaluateQuery) SelectForShare(ctx context.Context, tx *wrap.Tx) (*IndexEvaluate, error) {
+	q.forShare = true
+	return q.dao.doSelect(ctx, tx, q.buildQueryString())
 }
 
 func (q *IndexEvaluateQuery) SelectList(ctx context.Context) (list []*IndexEvaluate, err error) {
-	return q.dao.SelectList(ctx, nil, q.BuildQueryString())
+	return q.dao.doSelectList(ctx, nil, q.buildQueryString())
 }
 
-func (q *IndexEvaluateQuery) SelectListForUpdate(ctx context.Context, tx *runtime.Tx) (list []*IndexEvaluate, err error) {
-	q.ForUpdate = true
-	return q.dao.SelectList(ctx, tx, q.BuildQueryString())
+func (q *IndexEvaluateQuery) SelectListForUpdate(ctx context.Context, tx *wrap.Tx) (list []*IndexEvaluate, err error) {
+	q.forUpdate = true
+	return q.dao.doSelectList(ctx, tx, q.buildQueryString())
 }
 
-func (q *IndexEvaluateQuery) SelectListForShare(ctx context.Context, tx *runtime.Tx) (list []*IndexEvaluate, err error) {
-	q.ForShare = true
-	return q.dao.SelectList(ctx, tx, q.BuildQueryString())
+func (q *IndexEvaluateQuery) SelectListForShare(ctx context.Context, tx *wrap.Tx) (list []*IndexEvaluate, err error) {
+	q.forShare = true
+	return q.dao.doSelectList(ctx, tx, q.buildQueryString())
 }
 
 func (q *IndexEvaluateQuery) Left() *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString(" ( ")
+	q.whereBuffer.WriteString(" ( ")
 	return q
 }
 
 func (q *IndexEvaluateQuery) Right() *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString(" ) ")
+	q.whereBuffer.WriteString(" ) ")
 	return q
 }
 
 func (q *IndexEvaluateQuery) And() *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString(" AND ")
+	q.whereBuffer.WriteString(" AND ")
 	return q
 }
 
 func (q *IndexEvaluateQuery) Or() *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString(" OR ")
+	q.whereBuffer.WriteString(" OR ")
 	return q
 }
 
 func (q *IndexEvaluateQuery) Not() *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString(" NOT ")
+	q.whereBuffer.WriteString(" NOT ")
 	return q
 }
 
 func (q *IndexEvaluateQuery) Limit(startIncluded int64, count int64) *IndexEvaluateQuery {
-	q.LimitBuffer.WriteString(fmt.Sprintf(" limit %d,%d", startIncluded, count))
+	q.limitBuffer.WriteString(fmt.Sprintf(" limit %d,%d", startIncluded, count))
 	return q
 }
 
 func (q *IndexEvaluateQuery) Sort(fieldName string, asc bool) *IndexEvaluateQuery {
 	if asc {
-		q.OrderBuffer.WriteString(fmt.Sprintf(" order by %s asc", fieldName))
+		q.orderBuffer.WriteString(fmt.Sprintf(" order by %s asc", fieldName))
 	} else {
-		q.OrderBuffer.WriteString(fmt.Sprintf(" order by %s desc", fieldName))
+		q.orderBuffer.WriteString(fmt.Sprintf(" order by %s desc", fieldName))
 	}
 
 	return q
 }
-func (q *IndexEvaluateQuery) Id_Column(r runtime.Relation, v int64) *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString("id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *IndexEvaluateQuery) Id_Equal(v int64) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("id='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *IndexEvaluateQuery) UserId_Column(r runtime.Relation, v string) *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString("user_id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *IndexEvaluateQuery) Id_NotEqual(v int64) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("id<>'" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *IndexEvaluateQuery) StockId_Column(r runtime.Relation, v string) *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString("stock_id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *IndexEvaluateQuery) Id_Less(v int64) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("id<'" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *IndexEvaluateQuery) IndexId_Column(r runtime.Relation, v string) *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString("index_id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *IndexEvaluateQuery) Id_LessEqual(v int64) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("id<='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *IndexEvaluateQuery) EvalStars_Column(r runtime.Relation, v int32) *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString("eval_stars" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *IndexEvaluateQuery) Id_Greater(v int64) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("id>='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *IndexEvaluateQuery) EvalRemark_Column(r runtime.Relation, v string) *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString("eval_remark" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *IndexEvaluateQuery) Id_GreaterEqual(v int64) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("id='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *IndexEvaluateQuery) CreateTime_Column(r runtime.Relation, v time.Time) *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString("create_time" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *IndexEvaluateQuery) UserId_Equal(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("user_id='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *IndexEvaluateQuery) UpdateTime_Column(r runtime.Relation, v time.Time) *IndexEvaluateQuery {
-	q.WhereBuffer.WriteString("update_time" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *IndexEvaluateQuery) UserId_NotEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("user_id<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) UserId_Less(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("user_id<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) UserId_LessEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("user_id<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) UserId_Greater(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("user_id>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) UserId_GreaterEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("user_id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) StockId_Equal(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) StockId_NotEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) StockId_Less(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) StockId_LessEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) StockId_Greater(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) StockId_GreaterEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) IndexName_Equal(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("index_name='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) IndexName_NotEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("index_name<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) IndexName_Less(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("index_name<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) IndexName_LessEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("index_name<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) IndexName_Greater(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("index_name>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) IndexName_GreaterEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("index_name='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalStars_Equal(v int32) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_stars='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalStars_NotEqual(v int32) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_stars<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalStars_Less(v int32) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_stars<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalStars_LessEqual(v int32) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_stars<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalStars_Greater(v int32) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_stars>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalStars_GreaterEqual(v int32) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_stars='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalRemark_Equal(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalRemark_NotEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalRemark_Less(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalRemark_LessEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalRemark_Greater(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) EvalRemark_GreaterEqual(v string) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) CreateTime_Equal(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("create_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) CreateTime_NotEqual(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("create_time<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) CreateTime_Less(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("create_time<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) CreateTime_LessEqual(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("create_time<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) CreateTime_Greater(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("create_time>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) CreateTime_GreaterEqual(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("create_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) UpdateTime_Equal(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("update_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) UpdateTime_NotEqual(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("update_time<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) UpdateTime_Less(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("update_time<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) UpdateTime_LessEqual(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("update_time<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) UpdateTime_Greater(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("update_time>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *IndexEvaluateQuery) UpdateTime_GreaterEqual(v time.Time) *IndexEvaluateQuery {
+	q.whereBuffer.WriteString("update_time='" + fmt.Sprint(v) + "'")
 	return q
 }
 
 type IndexEvaluateDao struct {
-	logger                                 *zap.Logger
-	db                                     *DB
-	insertStmt                             *runtime.Stmt
-	updateStmt                             *runtime.Stmt
-	deleteStmt                             *runtime.Stmt
-	selectStmtAll                          *runtime.Stmt
-	selectStmtById                         *runtime.Stmt
-	selectStmtByUpdateTime                 *runtime.Stmt
-	selectStmtByUserId                     *runtime.Stmt
-	selectStmtByUserIdAndStockId           *runtime.Stmt
-	selectStmtByUserIdAndStockIdAndIndexId *runtime.Stmt
+	logger     *zap.Logger
+	db         *DB
+	insertStmt *wrap.Stmt
+	updateStmt *wrap.Stmt
+	deleteStmt *wrap.Stmt
 }
 
-func NewIndexEvaluateDao(db *DB) (t *IndexEvaluateDao) {
+func NewIndexEvaluateDao(db *DB) (t *IndexEvaluateDao, err error) {
 	t = &IndexEvaluateDao{}
 	t.logger = log.TypedLogger(t)
 	t.db = db
+	err = t.init()
+	if err != nil {
+		return nil, err
+	}
 
-	return t
+	return t, nil
 }
 
-func (dao *IndexEvaluateDao) Init() (err error) {
+func (dao *IndexEvaluateDao) init() (err error) {
 	err = dao.prepareInsertStmt()
 	if err != nil {
 		return err
@@ -206,45 +438,15 @@ func (dao *IndexEvaluateDao) Init() (err error) {
 		return err
 	}
 
-	err = dao.prepareSelectStmtAll()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtById()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUpdateTime()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUserId()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUserIdAndStockId()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUserIdAndStockIdAndIndexId()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 func (dao *IndexEvaluateDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO index_evaluate (user_id,stock_id,index_id,eval_stars,eval_remark,create_time,update_time) VALUES (?,?,?,?,?,?,?)")
+	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO index_evaluate (user_id,stock_id,index_name,eval_stars,eval_remark,create_time,update_time) VALUES (?,?,?,?,?,?,?)")
 	return err
 }
 
 func (dao *IndexEvaluateDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE index_evaluate SET user_id=?,stock_id=?,index_id=?,eval_stars=?,eval_remark=?,create_time=?,update_time=? WHERE id=?")
+	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE index_evaluate SET user_id=?,stock_id=?,index_name=?,eval_stars=?,eval_remark=?,create_time=?,update_time=? WHERE id=?")
 	return err
 }
 
@@ -253,43 +455,13 @@ func (dao *IndexEvaluateDao) prepareDeleteStmt() (err error) {
 	return err
 }
 
-func (dao *IndexEvaluateDao) prepareSelectStmtAll() (err error) {
-	dao.selectStmtAll, err = dao.db.Prepare(context.Background(), "SELECT "+INDEX_EVALUATE_ALL_FIELDS_STRING+" FROM index_evaluate")
-	return err
-}
-
-func (dao *IndexEvaluateDao) prepareSelectStmtById() (err error) {
-	dao.selectStmtById, err = dao.db.Prepare(context.Background(), "SELECT "+INDEX_EVALUATE_ALL_FIELDS_STRING+" FROM index_evaluate WHERE id=?")
-	return err
-}
-
-func (dao *IndexEvaluateDao) prepareSelectStmtByUpdateTime() (err error) {
-	dao.selectStmtByUpdateTime, err = dao.db.Prepare(context.Background(), "SELECT "+INDEX_EVALUATE_ALL_FIELDS_STRING+" FROM index_evaluate WHERE update_time=?")
-	return err
-}
-
-func (dao *IndexEvaluateDao) prepareSelectStmtByUserId() (err error) {
-	dao.selectStmtByUserId, err = dao.db.Prepare(context.Background(), "SELECT "+INDEX_EVALUATE_ALL_FIELDS_STRING+" FROM index_evaluate WHERE user_id=?")
-	return err
-}
-
-func (dao *IndexEvaluateDao) prepareSelectStmtByUserIdAndStockId() (err error) {
-	dao.selectStmtByUserIdAndStockId, err = dao.db.Prepare(context.Background(), "SELECT "+INDEX_EVALUATE_ALL_FIELDS_STRING+" FROM index_evaluate WHERE user_id=? AND stock_id=?")
-	return err
-}
-
-func (dao *IndexEvaluateDao) prepareSelectStmtByUserIdAndStockIdAndIndexId() (err error) {
-	dao.selectStmtByUserIdAndStockIdAndIndexId, err = dao.db.Prepare(context.Background(), "SELECT "+INDEX_EVALUATE_ALL_FIELDS_STRING+" FROM index_evaluate WHERE user_id=? AND stock_id=? AND index_id=?")
-	return err
-}
-
-func (dao *IndexEvaluateDao) Insert(ctx context.Context, tx *runtime.Tx, e *IndexEvaluate) (id int64, err error) {
+func (dao *IndexEvaluateDao) Insert(ctx context.Context, tx *wrap.Tx, e *IndexEvaluate) (id int64, err error) {
 	stmt := dao.insertStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.IndexId, e.EvalStars, e.EvalRemark, e.CreateTime, e.UpdateTime)
+	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.IndexName, e.EvalStars, e.EvalRemark, e.CreateTime, e.UpdateTime)
 	if err != nil {
 		return 0, err
 	}
@@ -302,13 +474,13 @@ func (dao *IndexEvaluateDao) Insert(ctx context.Context, tx *runtime.Tx, e *Inde
 	return id, nil
 }
 
-func (dao *IndexEvaluateDao) Update(ctx context.Context, tx *runtime.Tx, e *IndexEvaluate) (err error) {
+func (dao *IndexEvaluateDao) Update(ctx context.Context, tx *wrap.Tx, e *IndexEvaluate) (err error) {
 	stmt := dao.updateStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.IndexId, e.EvalStars, e.EvalRemark, e.CreateTime, e.UpdateTime, e.Id)
+	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.IndexName, e.EvalStars, e.EvalRemark, e.CreateTime, e.UpdateTime, e.Id)
 	if err != nil {
 		return err
 	}
@@ -325,7 +497,7 @@ func (dao *IndexEvaluateDao) Update(ctx context.Context, tx *runtime.Tx, e *Inde
 	return nil
 }
 
-func (dao *IndexEvaluateDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (err error) {
+func (dao *IndexEvaluateDao) Delete(ctx context.Context, tx *wrap.Tx, id int64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -348,11 +520,11 @@ func (dao *IndexEvaluateDao) Delete(ctx context.Context, tx *runtime.Tx, id int6
 	return nil
 }
 
-func (dao *IndexEvaluateDao) ScanRow(row *runtime.Row) (*IndexEvaluate, error) {
+func (dao *IndexEvaluateDao) scanRow(row *wrap.Row) (*IndexEvaluate, error) {
 	e := &IndexEvaluate{}
-	err := row.Scan(&e.Id, &e.UserId, &e.StockId, &e.IndexId, &e.EvalStars, &e.EvalRemark, &e.CreateTime, &e.UpdateTime)
+	err := row.Scan(&e.Id, &e.UserId, &e.StockId, &e.IndexName, &e.EvalStars, &e.EvalRemark, &e.CreateTime, &e.UpdateTime)
 	if err != nil {
-		if err == runtime.ErrNoRows {
+		if err == wrap.ErrNoRows {
 			return nil, nil
 		} else {
 			return nil, err
@@ -362,11 +534,11 @@ func (dao *IndexEvaluateDao) ScanRow(row *runtime.Row) (*IndexEvaluate, error) {
 	return e, nil
 }
 
-func (dao *IndexEvaluateDao) ScanRows(rows *runtime.Rows) (list []*IndexEvaluate, err error) {
+func (dao *IndexEvaluateDao) scanRows(rows *wrap.Rows) (list []*IndexEvaluate, err error) {
 	list = make([]*IndexEvaluate, 0)
 	for rows.Next() {
 		e := IndexEvaluate{}
-		err = rows.Scan(&e.Id, &e.UserId, &e.StockId, &e.IndexId, &e.EvalStars, &e.EvalRemark, &e.CreateTime, &e.UpdateTime)
+		err = rows.Scan(&e.Id, &e.UserId, &e.StockId, &e.IndexName, &e.EvalStars, &e.EvalRemark, &e.CreateTime, &e.UpdateTime)
 		if err != nil {
 			return nil, err
 		}
@@ -380,112 +552,19 @@ func (dao *IndexEvaluateDao) ScanRows(rows *runtime.Rows) (list []*IndexEvaluate
 	return list, nil
 }
 
-func (dao *IndexEvaluateDao) SelectAll(ctx context.Context, tx *runtime.Tx) (list []*IndexEvaluate, err error) {
-	stmt := dao.selectStmtAll
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *IndexEvaluateDao) Select(ctx context.Context, tx *runtime.Tx, query string) (*IndexEvaluate, error) {
+func (dao *IndexEvaluateDao) doSelect(ctx context.Context, tx *wrap.Tx, query string) (*IndexEvaluate, error) {
 	row := dao.db.QueryRow(ctx, "SELECT "+INDEX_EVALUATE_ALL_FIELDS_STRING+" FROM index_evaluate "+query)
-	return dao.ScanRow(row)
+	return dao.scanRow(row)
 }
 
-func (dao *IndexEvaluateDao) SelectList(ctx context.Context, tx *runtime.Tx, query string) (list []*IndexEvaluate, err error) {
+func (dao *IndexEvaluateDao) doSelectList(ctx context.Context, tx *wrap.Tx, query string) (list []*IndexEvaluate, err error) {
 	rows, err := dao.db.Query(ctx, "SELECT "+INDEX_EVALUATE_ALL_FIELDS_STRING+" FROM index_evaluate "+query)
 	if err != nil {
 		dao.logger.Error("sqlDriver", zap.Error(err))
 		return nil, err
 	}
 
-	return dao.ScanRows(rows)
-}
-
-func (dao *IndexEvaluateDao) SelectById(ctx context.Context, tx *runtime.Tx, Id int64) (*IndexEvaluate, error) {
-	stmt := dao.selectStmtById
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, Id))
-}
-
-func (dao *IndexEvaluateDao) SelectByUpdateTime(ctx context.Context, tx *runtime.Tx, UpdateTime time.Time) (*IndexEvaluate, error) {
-	stmt := dao.selectStmtByUpdateTime
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, UpdateTime))
-}
-
-func (dao *IndexEvaluateDao) SelectListByUpdateTime(ctx context.Context, tx *runtime.Tx, UpdateTime time.Time) (list []*IndexEvaluate, err error) {
-	stmt := dao.selectStmtByUpdateTime
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UpdateTime)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *IndexEvaluateDao) SelectListByUserId(ctx context.Context, tx *runtime.Tx, UserId string) (list []*IndexEvaluate, err error) {
-	stmt := dao.selectStmtByUserId
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UserId)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *IndexEvaluateDao) SelectListByUserIdAndStockId(ctx context.Context, tx *runtime.Tx, UserId string, StockId string) (list []*IndexEvaluate, err error) {
-	stmt := dao.selectStmtByUserIdAndStockId
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UserId, StockId)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *IndexEvaluateDao) SelectListByUserIdAndStockIdAndIndexId(ctx context.Context, tx *runtime.Tx, UserId string, StockId string, IndexId string) (list []*IndexEvaluate, err error) {
-	stmt := dao.selectStmtByUserIdAndStockIdAndIndexId
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UserId, StockId, IndexId)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
+	return dao.scanRows(rows)
 }
 
 func (dao *IndexEvaluateDao) GetQuery() *IndexEvaluateQuery {
@@ -525,144 +604,352 @@ type StockEvaluate struct {
 }
 
 type StockEvaluateQuery struct {
-	dao *StockEvaluateDao
-	runtime.Query
+	dao         *StockEvaluateDao
+	forUpdate   bool
+	forShare    bool
+	whereBuffer *bytes.Buffer
+	limitBuffer *bytes.Buffer
+	orderBuffer *bytes.Buffer
 }
 
 func NewStockEvaluateQuery(dao *StockEvaluateDao) *StockEvaluateQuery {
 	q := &StockEvaluateQuery{}
 	q.dao = dao
-	q.WhereBuffer = bytes.NewBufferString("")
-	q.LimitBuffer = bytes.NewBufferString("")
-	q.OrderBuffer = bytes.NewBufferString("")
+	q.whereBuffer = bytes.NewBufferString("")
+	q.limitBuffer = bytes.NewBufferString("")
+	q.orderBuffer = bytes.NewBufferString("")
 
 	return q
 }
 
+func (q *StockEvaluateQuery) buildQueryString() string {
+	buf := bytes.NewBufferString("")
+
+	if q.forShare {
+		buf.WriteString(" FOR UPDATE ")
+	}
+
+	if q.forUpdate {
+		buf.WriteString(" LOCK IN SHARE MODE ")
+	}
+
+	whereSql := q.whereBuffer.String()
+	if whereSql != "" {
+		buf.WriteString(" WHERE ")
+		buf.WriteString(whereSql)
+	}
+
+	limitSql := q.limitBuffer.String()
+	if limitSql != "" {
+		buf.WriteString(limitSql)
+	}
+
+	orderSql := q.orderBuffer.String()
+	if orderSql != "" {
+		buf.WriteString(orderSql)
+	}
+
+	return buf.String()
+}
+
 func (q *StockEvaluateQuery) Select(ctx context.Context) (*StockEvaluate, error) {
-	return q.dao.Select(ctx, nil, q.BuildQueryString())
+	return q.dao.doSelect(ctx, nil, q.buildQueryString())
 }
 
-func (q *StockEvaluateQuery) SelectForUpdate(ctx context.Context, tx *runtime.Tx) (*StockEvaluate, error) {
-	q.ForUpdate = true
-	return q.dao.Select(ctx, tx, q.BuildQueryString())
+func (q *StockEvaluateQuery) SelectForUpdate(ctx context.Context, tx *wrap.Tx) (*StockEvaluate, error) {
+	q.forUpdate = true
+	return q.dao.doSelect(ctx, tx, q.buildQueryString())
 }
 
-func (q *StockEvaluateQuery) SelectForShare(ctx context.Context, tx *runtime.Tx) (*StockEvaluate, error) {
-	q.ForShare = true
-	return q.dao.Select(ctx, tx, q.BuildQueryString())
+func (q *StockEvaluateQuery) SelectForShare(ctx context.Context, tx *wrap.Tx) (*StockEvaluate, error) {
+	q.forShare = true
+	return q.dao.doSelect(ctx, tx, q.buildQueryString())
 }
 
 func (q *StockEvaluateQuery) SelectList(ctx context.Context) (list []*StockEvaluate, err error) {
-	return q.dao.SelectList(ctx, nil, q.BuildQueryString())
+	return q.dao.doSelectList(ctx, nil, q.buildQueryString())
 }
 
-func (q *StockEvaluateQuery) SelectListForUpdate(ctx context.Context, tx *runtime.Tx) (list []*StockEvaluate, err error) {
-	q.ForUpdate = true
-	return q.dao.SelectList(ctx, tx, q.BuildQueryString())
+func (q *StockEvaluateQuery) SelectListForUpdate(ctx context.Context, tx *wrap.Tx) (list []*StockEvaluate, err error) {
+	q.forUpdate = true
+	return q.dao.doSelectList(ctx, tx, q.buildQueryString())
 }
 
-func (q *StockEvaluateQuery) SelectListForShare(ctx context.Context, tx *runtime.Tx) (list []*StockEvaluate, err error) {
-	q.ForShare = true
-	return q.dao.SelectList(ctx, tx, q.BuildQueryString())
+func (q *StockEvaluateQuery) SelectListForShare(ctx context.Context, tx *wrap.Tx) (list []*StockEvaluate, err error) {
+	q.forShare = true
+	return q.dao.doSelectList(ctx, tx, q.buildQueryString())
 }
 
 func (q *StockEvaluateQuery) Left() *StockEvaluateQuery {
-	q.WhereBuffer.WriteString(" ( ")
+	q.whereBuffer.WriteString(" ( ")
 	return q
 }
 
 func (q *StockEvaluateQuery) Right() *StockEvaluateQuery {
-	q.WhereBuffer.WriteString(" ) ")
+	q.whereBuffer.WriteString(" ) ")
 	return q
 }
 
 func (q *StockEvaluateQuery) And() *StockEvaluateQuery {
-	q.WhereBuffer.WriteString(" AND ")
+	q.whereBuffer.WriteString(" AND ")
 	return q
 }
 
 func (q *StockEvaluateQuery) Or() *StockEvaluateQuery {
-	q.WhereBuffer.WriteString(" OR ")
+	q.whereBuffer.WriteString(" OR ")
 	return q
 }
 
 func (q *StockEvaluateQuery) Not() *StockEvaluateQuery {
-	q.WhereBuffer.WriteString(" NOT ")
+	q.whereBuffer.WriteString(" NOT ")
 	return q
 }
 
 func (q *StockEvaluateQuery) Limit(startIncluded int64, count int64) *StockEvaluateQuery {
-	q.LimitBuffer.WriteString(fmt.Sprintf(" limit %d,%d", startIncluded, count))
+	q.limitBuffer.WriteString(fmt.Sprintf(" limit %d,%d", startIncluded, count))
 	return q
 }
 
 func (q *StockEvaluateQuery) Sort(fieldName string, asc bool) *StockEvaluateQuery {
 	if asc {
-		q.OrderBuffer.WriteString(fmt.Sprintf(" order by %s asc", fieldName))
+		q.orderBuffer.WriteString(fmt.Sprintf(" order by %s asc", fieldName))
 	} else {
-		q.OrderBuffer.WriteString(fmt.Sprintf(" order by %s desc", fieldName))
+		q.orderBuffer.WriteString(fmt.Sprintf(" order by %s desc", fieldName))
 	}
 
 	return q
 }
-func (q *StockEvaluateQuery) Id_Column(r runtime.Relation, v int64) *StockEvaluateQuery {
-	q.WhereBuffer.WriteString("id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockEvaluateQuery) Id_Equal(v int64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("id='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockEvaluateQuery) UserId_Column(r runtime.Relation, v string) *StockEvaluateQuery {
-	q.WhereBuffer.WriteString("user_id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockEvaluateQuery) Id_NotEqual(v int64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("id<>'" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockEvaluateQuery) StockId_Column(r runtime.Relation, v string) *StockEvaluateQuery {
-	q.WhereBuffer.WriteString("stock_id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockEvaluateQuery) Id_Less(v int64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("id<'" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockEvaluateQuery) TotalScore_Column(r runtime.Relation, v float64) *StockEvaluateQuery {
-	q.WhereBuffer.WriteString("total_score" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockEvaluateQuery) Id_LessEqual(v int64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("id<='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockEvaluateQuery) EvalRemark_Column(r runtime.Relation, v string) *StockEvaluateQuery {
-	q.WhereBuffer.WriteString("eval_remark" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockEvaluateQuery) Id_Greater(v int64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("id>='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockEvaluateQuery) CreateTime_Column(r runtime.Relation, v time.Time) *StockEvaluateQuery {
-	q.WhereBuffer.WriteString("create_time" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockEvaluateQuery) Id_GreaterEqual(v int64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("id='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockEvaluateQuery) UpdateTime_Column(r runtime.Relation, v time.Time) *StockEvaluateQuery {
-	q.WhereBuffer.WriteString("update_time" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockEvaluateQuery) UserId_Equal(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("user_id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UserId_NotEqual(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("user_id<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UserId_Less(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("user_id<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UserId_LessEqual(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("user_id<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UserId_Greater(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("user_id>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UserId_GreaterEqual(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("user_id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) StockId_Equal(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) StockId_NotEqual(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) StockId_Less(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) StockId_LessEqual(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) StockId_Greater(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) StockId_GreaterEqual(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("stock_id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) TotalScore_Equal(v float64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("total_score='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) TotalScore_NotEqual(v float64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("total_score<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) TotalScore_Less(v float64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("total_score<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) TotalScore_LessEqual(v float64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("total_score<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) TotalScore_Greater(v float64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("total_score>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) TotalScore_GreaterEqual(v float64) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("total_score='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) EvalRemark_Equal(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) EvalRemark_NotEqual(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) EvalRemark_Less(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) EvalRemark_LessEqual(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) EvalRemark_Greater(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) EvalRemark_GreaterEqual(v string) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("eval_remark='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) CreateTime_Equal(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("create_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) CreateTime_NotEqual(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("create_time<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) CreateTime_Less(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("create_time<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) CreateTime_LessEqual(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("create_time<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) CreateTime_Greater(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("create_time>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) CreateTime_GreaterEqual(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("create_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UpdateTime_Equal(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("update_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UpdateTime_NotEqual(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("update_time<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UpdateTime_Less(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("update_time<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UpdateTime_LessEqual(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("update_time<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UpdateTime_Greater(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("update_time>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockEvaluateQuery) UpdateTime_GreaterEqual(v time.Time) *StockEvaluateQuery {
+	q.whereBuffer.WriteString("update_time='" + fmt.Sprint(v) + "'")
 	return q
 }
 
 type StockEvaluateDao struct {
-	logger                       *zap.Logger
-	db                           *DB
-	insertStmt                   *runtime.Stmt
-	updateStmt                   *runtime.Stmt
-	deleteStmt                   *runtime.Stmt
-	selectStmtAll                *runtime.Stmt
-	selectStmtById               *runtime.Stmt
-	selectStmtByUpdateTime       *runtime.Stmt
-	selectStmtByUserId           *runtime.Stmt
-	selectStmtByUserIdAndStockId *runtime.Stmt
+	logger     *zap.Logger
+	db         *DB
+	insertStmt *wrap.Stmt
+	updateStmt *wrap.Stmt
+	deleteStmt *wrap.Stmt
 }
 
-func NewStockEvaluateDao(db *DB) (t *StockEvaluateDao) {
+func NewStockEvaluateDao(db *DB) (t *StockEvaluateDao, err error) {
 	t = &StockEvaluateDao{}
 	t.logger = log.TypedLogger(t)
 	t.db = db
+	err = t.init()
+	if err != nil {
+		return nil, err
+	}
 
-	return t
+	return t, nil
 }
 
-func (dao *StockEvaluateDao) Init() (err error) {
+func (dao *StockEvaluateDao) init() (err error) {
 	err = dao.prepareInsertStmt()
 	if err != nil {
 		return err
@@ -674,31 +961,6 @@ func (dao *StockEvaluateDao) Init() (err error) {
 	}
 
 	err = dao.prepareDeleteStmt()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtAll()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtById()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUpdateTime()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUserId()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUserIdAndStockId()
 	if err != nil {
 		return err
 	}
@@ -720,32 +982,7 @@ func (dao *StockEvaluateDao) prepareDeleteStmt() (err error) {
 	return err
 }
 
-func (dao *StockEvaluateDao) prepareSelectStmtAll() (err error) {
-	dao.selectStmtAll, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_EVALUATE_ALL_FIELDS_STRING+" FROM stock_evaluate")
-	return err
-}
-
-func (dao *StockEvaluateDao) prepareSelectStmtById() (err error) {
-	dao.selectStmtById, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_EVALUATE_ALL_FIELDS_STRING+" FROM stock_evaluate WHERE id=?")
-	return err
-}
-
-func (dao *StockEvaluateDao) prepareSelectStmtByUpdateTime() (err error) {
-	dao.selectStmtByUpdateTime, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_EVALUATE_ALL_FIELDS_STRING+" FROM stock_evaluate WHERE update_time=?")
-	return err
-}
-
-func (dao *StockEvaluateDao) prepareSelectStmtByUserId() (err error) {
-	dao.selectStmtByUserId, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_EVALUATE_ALL_FIELDS_STRING+" FROM stock_evaluate WHERE user_id=?")
-	return err
-}
-
-func (dao *StockEvaluateDao) prepareSelectStmtByUserIdAndStockId() (err error) {
-	dao.selectStmtByUserIdAndStockId, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_EVALUATE_ALL_FIELDS_STRING+" FROM stock_evaluate WHERE user_id=? AND stock_id=?")
-	return err
-}
-
-func (dao *StockEvaluateDao) Insert(ctx context.Context, tx *runtime.Tx, e *StockEvaluate) (id int64, err error) {
+func (dao *StockEvaluateDao) Insert(ctx context.Context, tx *wrap.Tx, e *StockEvaluate) (id int64, err error) {
 	stmt := dao.insertStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -764,7 +1001,7 @@ func (dao *StockEvaluateDao) Insert(ctx context.Context, tx *runtime.Tx, e *Stoc
 	return id, nil
 }
 
-func (dao *StockEvaluateDao) Update(ctx context.Context, tx *runtime.Tx, e *StockEvaluate) (err error) {
+func (dao *StockEvaluateDao) Update(ctx context.Context, tx *wrap.Tx, e *StockEvaluate) (err error) {
 	stmt := dao.updateStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -787,7 +1024,7 @@ func (dao *StockEvaluateDao) Update(ctx context.Context, tx *runtime.Tx, e *Stoc
 	return nil
 }
 
-func (dao *StockEvaluateDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (err error) {
+func (dao *StockEvaluateDao) Delete(ctx context.Context, tx *wrap.Tx, id int64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -810,11 +1047,11 @@ func (dao *StockEvaluateDao) Delete(ctx context.Context, tx *runtime.Tx, id int6
 	return nil
 }
 
-func (dao *StockEvaluateDao) ScanRow(row *runtime.Row) (*StockEvaluate, error) {
+func (dao *StockEvaluateDao) scanRow(row *wrap.Row) (*StockEvaluate, error) {
 	e := &StockEvaluate{}
 	err := row.Scan(&e.Id, &e.UserId, &e.StockId, &e.TotalScore, &e.EvalRemark, &e.CreateTime, &e.UpdateTime)
 	if err != nil {
-		if err == runtime.ErrNoRows {
+		if err == wrap.ErrNoRows {
 			return nil, nil
 		} else {
 			return nil, err
@@ -824,7 +1061,7 @@ func (dao *StockEvaluateDao) ScanRow(row *runtime.Row) (*StockEvaluate, error) {
 	return e, nil
 }
 
-func (dao *StockEvaluateDao) ScanRows(rows *runtime.Rows) (list []*StockEvaluate, err error) {
+func (dao *StockEvaluateDao) scanRows(rows *wrap.Rows) (list []*StockEvaluate, err error) {
 	list = make([]*StockEvaluate, 0)
 	for rows.Next() {
 		e := StockEvaluate{}
@@ -842,91 +1079,19 @@ func (dao *StockEvaluateDao) ScanRows(rows *runtime.Rows) (list []*StockEvaluate
 	return list, nil
 }
 
-func (dao *StockEvaluateDao) SelectAll(ctx context.Context, tx *runtime.Tx) (list []*StockEvaluate, err error) {
-	stmt := dao.selectStmtAll
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *StockEvaluateDao) Select(ctx context.Context, tx *runtime.Tx, query string) (*StockEvaluate, error) {
+func (dao *StockEvaluateDao) doSelect(ctx context.Context, tx *wrap.Tx, query string) (*StockEvaluate, error) {
 	row := dao.db.QueryRow(ctx, "SELECT "+STOCK_EVALUATE_ALL_FIELDS_STRING+" FROM stock_evaluate "+query)
-	return dao.ScanRow(row)
+	return dao.scanRow(row)
 }
 
-func (dao *StockEvaluateDao) SelectList(ctx context.Context, tx *runtime.Tx, query string) (list []*StockEvaluate, err error) {
+func (dao *StockEvaluateDao) doSelectList(ctx context.Context, tx *wrap.Tx, query string) (list []*StockEvaluate, err error) {
 	rows, err := dao.db.Query(ctx, "SELECT "+STOCK_EVALUATE_ALL_FIELDS_STRING+" FROM stock_evaluate "+query)
 	if err != nil {
 		dao.logger.Error("sqlDriver", zap.Error(err))
 		return nil, err
 	}
 
-	return dao.ScanRows(rows)
-}
-
-func (dao *StockEvaluateDao) SelectById(ctx context.Context, tx *runtime.Tx, Id int64) (*StockEvaluate, error) {
-	stmt := dao.selectStmtById
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, Id))
-}
-
-func (dao *StockEvaluateDao) SelectByUpdateTime(ctx context.Context, tx *runtime.Tx, UpdateTime time.Time) (*StockEvaluate, error) {
-	stmt := dao.selectStmtByUpdateTime
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, UpdateTime))
-}
-
-func (dao *StockEvaluateDao) SelectListByUpdateTime(ctx context.Context, tx *runtime.Tx, UpdateTime time.Time) (list []*StockEvaluate, err error) {
-	stmt := dao.selectStmtByUpdateTime
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UpdateTime)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *StockEvaluateDao) SelectByUserIdAndStockId(ctx context.Context, tx *runtime.Tx, UserId string, StockId string) (*StockEvaluate, error) {
-	stmt := dao.selectStmtByUserIdAndStockId
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, UserId, StockId))
-}
-
-func (dao *StockEvaluateDao) SelectListByUserId(ctx context.Context, tx *runtime.Tx, UserId string) (list []*StockEvaluate, err error) {
-	stmt := dao.selectStmtByUserId
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UserId)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
+	return dao.scanRows(rows)
 }
 
 func (dao *StockEvaluateDao) GetQuery() *StockEvaluateQuery {
@@ -936,9 +1101,9 @@ func (dao *StockEvaluateDao) GetQuery() *StockEvaluateQuery {
 const STOCK_INDEX_TABLE_NAME = "stock_index"
 
 const STOCK_INDEX_FIELD_ID = "id"
-const STOCK_INDEX_FIELD_INDEX_ID = "index_id"
 const STOCK_INDEX_FIELD_USER_ID = "user_id"
 const STOCK_INDEX_FIELD_INDEX_NAME = "index_name"
+const STOCK_INDEX_FIELD_UI_ORDER = "ui_order"
 const STOCK_INDEX_FIELD_INDEX_DESC = "index_desc"
 const STOCK_INDEX_FIELD_EVAL_WEIGHT = "eval_weight"
 const STOCK_INDEX_FIELD_AI_WEIGHT = "ai_weight"
@@ -946,13 +1111,13 @@ const STOCK_INDEX_FIELD_NI_WEIGHT = "ni_weight"
 const STOCK_INDEX_FIELD_CREATE_TIME = "create_time"
 const STOCK_INDEX_FIELD_UPDATE_TIME = "update_time"
 
-const STOCK_INDEX_ALL_FIELDS_STRING = "id,index_id,user_id,index_name,index_desc,eval_weight,ai_weight,ni_weight,create_time,update_time"
+const STOCK_INDEX_ALL_FIELDS_STRING = "id,user_id,index_name,ui_order,index_desc,eval_weight,ai_weight,ni_weight,create_time,update_time"
 
 var STOCK_INDEX_ALL_FIELDS = []string{
 	"id",
-	"index_id",
 	"user_id",
 	"index_name",
+	"ui_order",
 	"index_desc",
 	"eval_weight",
 	"ai_weight",
@@ -963,9 +1128,9 @@ var STOCK_INDEX_ALL_FIELDS = []string{
 
 type StockIndex struct {
 	Id         int64  //size=20
-	IndexId    string //size=32
 	UserId     string //size=32
 	IndexName  string //size=32
+	UiOrder    int32  //size=11
 	IndexDesc  string //size=256
 	EvalWeight int32  //size=11
 	AiWeight   int32  //size=11
@@ -975,161 +1140,442 @@ type StockIndex struct {
 }
 
 type StockIndexQuery struct {
-	dao *StockIndexDao
-	runtime.Query
+	dao         *StockIndexDao
+	forUpdate   bool
+	forShare    bool
+	whereBuffer *bytes.Buffer
+	limitBuffer *bytes.Buffer
+	orderBuffer *bytes.Buffer
 }
 
 func NewStockIndexQuery(dao *StockIndexDao) *StockIndexQuery {
 	q := &StockIndexQuery{}
 	q.dao = dao
-	q.WhereBuffer = bytes.NewBufferString("")
-	q.LimitBuffer = bytes.NewBufferString("")
-	q.OrderBuffer = bytes.NewBufferString("")
+	q.whereBuffer = bytes.NewBufferString("")
+	q.limitBuffer = bytes.NewBufferString("")
+	q.orderBuffer = bytes.NewBufferString("")
 
 	return q
 }
 
+func (q *StockIndexQuery) buildQueryString() string {
+	buf := bytes.NewBufferString("")
+
+	if q.forShare {
+		buf.WriteString(" FOR UPDATE ")
+	}
+
+	if q.forUpdate {
+		buf.WriteString(" LOCK IN SHARE MODE ")
+	}
+
+	whereSql := q.whereBuffer.String()
+	if whereSql != "" {
+		buf.WriteString(" WHERE ")
+		buf.WriteString(whereSql)
+	}
+
+	limitSql := q.limitBuffer.String()
+	if limitSql != "" {
+		buf.WriteString(limitSql)
+	}
+
+	orderSql := q.orderBuffer.String()
+	if orderSql != "" {
+		buf.WriteString(orderSql)
+	}
+
+	return buf.String()
+}
+
 func (q *StockIndexQuery) Select(ctx context.Context) (*StockIndex, error) {
-	return q.dao.Select(ctx, nil, q.BuildQueryString())
+	return q.dao.doSelect(ctx, nil, q.buildQueryString())
 }
 
-func (q *StockIndexQuery) SelectForUpdate(ctx context.Context, tx *runtime.Tx) (*StockIndex, error) {
-	q.ForUpdate = true
-	return q.dao.Select(ctx, tx, q.BuildQueryString())
+func (q *StockIndexQuery) SelectForUpdate(ctx context.Context, tx *wrap.Tx) (*StockIndex, error) {
+	q.forUpdate = true
+	return q.dao.doSelect(ctx, tx, q.buildQueryString())
 }
 
-func (q *StockIndexQuery) SelectForShare(ctx context.Context, tx *runtime.Tx) (*StockIndex, error) {
-	q.ForShare = true
-	return q.dao.Select(ctx, tx, q.BuildQueryString())
+func (q *StockIndexQuery) SelectForShare(ctx context.Context, tx *wrap.Tx) (*StockIndex, error) {
+	q.forShare = true
+	return q.dao.doSelect(ctx, tx, q.buildQueryString())
 }
 
 func (q *StockIndexQuery) SelectList(ctx context.Context) (list []*StockIndex, err error) {
-	return q.dao.SelectList(ctx, nil, q.BuildQueryString())
+	return q.dao.doSelectList(ctx, nil, q.buildQueryString())
 }
 
-func (q *StockIndexQuery) SelectListForUpdate(ctx context.Context, tx *runtime.Tx) (list []*StockIndex, err error) {
-	q.ForUpdate = true
-	return q.dao.SelectList(ctx, tx, q.BuildQueryString())
+func (q *StockIndexQuery) SelectListForUpdate(ctx context.Context, tx *wrap.Tx) (list []*StockIndex, err error) {
+	q.forUpdate = true
+	return q.dao.doSelectList(ctx, tx, q.buildQueryString())
 }
 
-func (q *StockIndexQuery) SelectListForShare(ctx context.Context, tx *runtime.Tx) (list []*StockIndex, err error) {
-	q.ForShare = true
-	return q.dao.SelectList(ctx, tx, q.BuildQueryString())
+func (q *StockIndexQuery) SelectListForShare(ctx context.Context, tx *wrap.Tx) (list []*StockIndex, err error) {
+	q.forShare = true
+	return q.dao.doSelectList(ctx, tx, q.buildQueryString())
 }
 
 func (q *StockIndexQuery) Left() *StockIndexQuery {
-	q.WhereBuffer.WriteString(" ( ")
+	q.whereBuffer.WriteString(" ( ")
 	return q
 }
 
 func (q *StockIndexQuery) Right() *StockIndexQuery {
-	q.WhereBuffer.WriteString(" ) ")
+	q.whereBuffer.WriteString(" ) ")
 	return q
 }
 
 func (q *StockIndexQuery) And() *StockIndexQuery {
-	q.WhereBuffer.WriteString(" AND ")
+	q.whereBuffer.WriteString(" AND ")
 	return q
 }
 
 func (q *StockIndexQuery) Or() *StockIndexQuery {
-	q.WhereBuffer.WriteString(" OR ")
+	q.whereBuffer.WriteString(" OR ")
 	return q
 }
 
 func (q *StockIndexQuery) Not() *StockIndexQuery {
-	q.WhereBuffer.WriteString(" NOT ")
+	q.whereBuffer.WriteString(" NOT ")
 	return q
 }
 
 func (q *StockIndexQuery) Limit(startIncluded int64, count int64) *StockIndexQuery {
-	q.LimitBuffer.WriteString(fmt.Sprintf(" limit %d,%d", startIncluded, count))
+	q.limitBuffer.WriteString(fmt.Sprintf(" limit %d,%d", startIncluded, count))
 	return q
 }
 
 func (q *StockIndexQuery) Sort(fieldName string, asc bool) *StockIndexQuery {
 	if asc {
-		q.OrderBuffer.WriteString(fmt.Sprintf(" order by %s asc", fieldName))
+		q.orderBuffer.WriteString(fmt.Sprintf(" order by %s asc", fieldName))
 	} else {
-		q.OrderBuffer.WriteString(fmt.Sprintf(" order by %s desc", fieldName))
+		q.orderBuffer.WriteString(fmt.Sprintf(" order by %s desc", fieldName))
 	}
 
 	return q
 }
-func (q *StockIndexQuery) Id_Column(r runtime.Relation, v int64) *StockIndexQuery {
-	q.WhereBuffer.WriteString("id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockIndexQuery) Id_Equal(v int64) *StockIndexQuery {
+	q.whereBuffer.WriteString("id='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockIndexQuery) IndexId_Column(r runtime.Relation, v string) *StockIndexQuery {
-	q.WhereBuffer.WriteString("index_id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockIndexQuery) Id_NotEqual(v int64) *StockIndexQuery {
+	q.whereBuffer.WriteString("id<>'" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockIndexQuery) UserId_Column(r runtime.Relation, v string) *StockIndexQuery {
-	q.WhereBuffer.WriteString("user_id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockIndexQuery) Id_Less(v int64) *StockIndexQuery {
+	q.whereBuffer.WriteString("id<'" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockIndexQuery) IndexName_Column(r runtime.Relation, v string) *StockIndexQuery {
-	q.WhereBuffer.WriteString("index_name" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockIndexQuery) Id_LessEqual(v int64) *StockIndexQuery {
+	q.whereBuffer.WriteString("id<='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockIndexQuery) IndexDesc_Column(r runtime.Relation, v string) *StockIndexQuery {
-	q.WhereBuffer.WriteString("index_desc" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockIndexQuery) Id_Greater(v int64) *StockIndexQuery {
+	q.whereBuffer.WriteString("id>='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockIndexQuery) EvalWeight_Column(r runtime.Relation, v int32) *StockIndexQuery {
-	q.WhereBuffer.WriteString("eval_weight" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockIndexQuery) Id_GreaterEqual(v int64) *StockIndexQuery {
+	q.whereBuffer.WriteString("id='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockIndexQuery) AiWeight_Column(r runtime.Relation, v int32) *StockIndexQuery {
-	q.WhereBuffer.WriteString("ai_weight" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockIndexQuery) UserId_Equal(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("user_id='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockIndexQuery) NiWeight_Column(r runtime.Relation, v int32) *StockIndexQuery {
-	q.WhereBuffer.WriteString("ni_weight" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockIndexQuery) UserId_NotEqual(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("user_id<>'" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockIndexQuery) CreateTime_Column(r runtime.Relation, v time.Time) *StockIndexQuery {
-	q.WhereBuffer.WriteString("create_time" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockIndexQuery) UserId_Less(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("user_id<'" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *StockIndexQuery) UpdateTime_Column(r runtime.Relation, v time.Time) *StockIndexQuery {
-	q.WhereBuffer.WriteString("update_time" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *StockIndexQuery) UserId_LessEqual(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("user_id<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UserId_Greater(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("user_id>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UserId_GreaterEqual(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("user_id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexName_Equal(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_name='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexName_NotEqual(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_name<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexName_Less(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_name<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexName_LessEqual(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_name<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexName_Greater(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_name>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexName_GreaterEqual(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_name='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UiOrder_Equal(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ui_order='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UiOrder_NotEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ui_order<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UiOrder_Less(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ui_order<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UiOrder_LessEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ui_order<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UiOrder_Greater(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ui_order>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UiOrder_GreaterEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ui_order='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexDesc_Equal(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_desc='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexDesc_NotEqual(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_desc<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexDesc_Less(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_desc<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexDesc_LessEqual(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_desc<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexDesc_Greater(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_desc>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) IndexDesc_GreaterEqual(v string) *StockIndexQuery {
+	q.whereBuffer.WriteString("index_desc='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) EvalWeight_Equal(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("eval_weight='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) EvalWeight_NotEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("eval_weight<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) EvalWeight_Less(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("eval_weight<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) EvalWeight_LessEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("eval_weight<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) EvalWeight_Greater(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("eval_weight>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) EvalWeight_GreaterEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("eval_weight='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) AiWeight_Equal(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ai_weight='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) AiWeight_NotEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ai_weight<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) AiWeight_Less(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ai_weight<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) AiWeight_LessEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ai_weight<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) AiWeight_Greater(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ai_weight>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) AiWeight_GreaterEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ai_weight='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) NiWeight_Equal(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ni_weight='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) NiWeight_NotEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ni_weight<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) NiWeight_Less(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ni_weight<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) NiWeight_LessEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ni_weight<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) NiWeight_Greater(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ni_weight>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) NiWeight_GreaterEqual(v int32) *StockIndexQuery {
+	q.whereBuffer.WriteString("ni_weight='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) CreateTime_Equal(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("create_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) CreateTime_NotEqual(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("create_time<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) CreateTime_Less(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("create_time<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) CreateTime_LessEqual(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("create_time<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) CreateTime_Greater(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("create_time>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) CreateTime_GreaterEqual(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("create_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UpdateTime_Equal(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("update_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UpdateTime_NotEqual(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("update_time<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UpdateTime_Less(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("update_time<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UpdateTime_LessEqual(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("update_time<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UpdateTime_Greater(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("update_time>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *StockIndexQuery) UpdateTime_GreaterEqual(v time.Time) *StockIndexQuery {
+	q.whereBuffer.WriteString("update_time='" + fmt.Sprint(v) + "'")
 	return q
 }
 
 type StockIndexDao struct {
-	logger                         *zap.Logger
-	db                             *DB
-	insertStmt                     *runtime.Stmt
-	updateStmt                     *runtime.Stmt
-	deleteStmt                     *runtime.Stmt
-	selectStmtAll                  *runtime.Stmt
-	selectStmtById                 *runtime.Stmt
-	selectStmtByUpdateTime         *runtime.Stmt
-	selectStmtByIndexName          *runtime.Stmt
-	selectStmtByIndexId            *runtime.Stmt
-	selectStmtByUserId             *runtime.Stmt
-	selectStmtByUserIdAndIndexName *runtime.Stmt
+	logger     *zap.Logger
+	db         *DB
+	insertStmt *wrap.Stmt
+	updateStmt *wrap.Stmt
+	deleteStmt *wrap.Stmt
 }
 
-func NewStockIndexDao(db *DB) (t *StockIndexDao) {
+func NewStockIndexDao(db *DB) (t *StockIndexDao, err error) {
 	t = &StockIndexDao{}
 	t.logger = log.TypedLogger(t)
 	t.db = db
+	err = t.init()
+	if err != nil {
+		return nil, err
+	}
 
-	return t
+	return t, nil
 }
 
-func (dao *StockIndexDao) Init() (err error) {
+func (dao *StockIndexDao) init() (err error) {
 	err = dao.prepareInsertStmt()
 	if err != nil {
 		return err
@@ -1145,50 +1591,15 @@ func (dao *StockIndexDao) Init() (err error) {
 		return err
 	}
 
-	err = dao.prepareSelectStmtAll()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtById()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUpdateTime()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByIndexName()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByIndexId()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUserId()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUserIdAndIndexName()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 func (dao *StockIndexDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO stock_index (index_id,user_id,index_name,index_desc,eval_weight,ai_weight,ni_weight,create_time,update_time) VALUES (?,?,?,?,?,?,?,?,?)")
+	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO stock_index (user_id,index_name,ui_order,index_desc,eval_weight,ai_weight,ni_weight,create_time,update_time) VALUES (?,?,?,?,?,?,?,?,?)")
 	return err
 }
 
 func (dao *StockIndexDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE stock_index SET index_id=?,user_id=?,index_name=?,index_desc=?,eval_weight=?,ai_weight=?,ni_weight=?,create_time=?,update_time=? WHERE id=?")
+	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE stock_index SET user_id=?,index_name=?,ui_order=?,index_desc=?,eval_weight=?,ai_weight=?,ni_weight=?,create_time=?,update_time=? WHERE id=?")
 	return err
 }
 
@@ -1197,48 +1608,13 @@ func (dao *StockIndexDao) prepareDeleteStmt() (err error) {
 	return err
 }
 
-func (dao *StockIndexDao) prepareSelectStmtAll() (err error) {
-	dao.selectStmtAll, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_INDEX_ALL_FIELDS_STRING+" FROM stock_index")
-	return err
-}
-
-func (dao *StockIndexDao) prepareSelectStmtById() (err error) {
-	dao.selectStmtById, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_INDEX_ALL_FIELDS_STRING+" FROM stock_index WHERE id=?")
-	return err
-}
-
-func (dao *StockIndexDao) prepareSelectStmtByUpdateTime() (err error) {
-	dao.selectStmtByUpdateTime, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_INDEX_ALL_FIELDS_STRING+" FROM stock_index WHERE update_time=?")
-	return err
-}
-
-func (dao *StockIndexDao) prepareSelectStmtByIndexName() (err error) {
-	dao.selectStmtByIndexName, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_INDEX_ALL_FIELDS_STRING+" FROM stock_index WHERE index_name=?")
-	return err
-}
-
-func (dao *StockIndexDao) prepareSelectStmtByIndexId() (err error) {
-	dao.selectStmtByIndexId, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_INDEX_ALL_FIELDS_STRING+" FROM stock_index WHERE index_id=?")
-	return err
-}
-
-func (dao *StockIndexDao) prepareSelectStmtByUserId() (err error) {
-	dao.selectStmtByUserId, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_INDEX_ALL_FIELDS_STRING+" FROM stock_index WHERE user_id=?")
-	return err
-}
-
-func (dao *StockIndexDao) prepareSelectStmtByUserIdAndIndexName() (err error) {
-	dao.selectStmtByUserIdAndIndexName, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_INDEX_ALL_FIELDS_STRING+" FROM stock_index WHERE user_id=? AND index_name=?")
-	return err
-}
-
-func (dao *StockIndexDao) Insert(ctx context.Context, tx *runtime.Tx, e *StockIndex) (id int64, err error) {
+func (dao *StockIndexDao) Insert(ctx context.Context, tx *wrap.Tx, e *StockIndex) (id int64, err error) {
 	stmt := dao.insertStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.IndexId, e.UserId, e.IndexName, e.IndexDesc, e.EvalWeight, e.AiWeight, e.NiWeight, e.CreateTime, e.UpdateTime)
+	result, err := stmt.Exec(ctx, e.UserId, e.IndexName, e.UiOrder, e.IndexDesc, e.EvalWeight, e.AiWeight, e.NiWeight, e.CreateTime, e.UpdateTime)
 	if err != nil {
 		return 0, err
 	}
@@ -1251,13 +1627,13 @@ func (dao *StockIndexDao) Insert(ctx context.Context, tx *runtime.Tx, e *StockIn
 	return id, nil
 }
 
-func (dao *StockIndexDao) Update(ctx context.Context, tx *runtime.Tx, e *StockIndex) (err error) {
+func (dao *StockIndexDao) Update(ctx context.Context, tx *wrap.Tx, e *StockIndex) (err error) {
 	stmt := dao.updateStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.IndexId, e.UserId, e.IndexName, e.IndexDesc, e.EvalWeight, e.AiWeight, e.NiWeight, e.CreateTime, e.UpdateTime, e.Id)
+	result, err := stmt.Exec(ctx, e.UserId, e.IndexName, e.UiOrder, e.IndexDesc, e.EvalWeight, e.AiWeight, e.NiWeight, e.CreateTime, e.UpdateTime, e.Id)
 	if err != nil {
 		return err
 	}
@@ -1274,7 +1650,7 @@ func (dao *StockIndexDao) Update(ctx context.Context, tx *runtime.Tx, e *StockIn
 	return nil
 }
 
-func (dao *StockIndexDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (err error) {
+func (dao *StockIndexDao) Delete(ctx context.Context, tx *wrap.Tx, id int64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -1297,11 +1673,11 @@ func (dao *StockIndexDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) 
 	return nil
 }
 
-func (dao *StockIndexDao) ScanRow(row *runtime.Row) (*StockIndex, error) {
+func (dao *StockIndexDao) scanRow(row *wrap.Row) (*StockIndex, error) {
 	e := &StockIndex{}
-	err := row.Scan(&e.Id, &e.IndexId, &e.UserId, &e.IndexName, &e.IndexDesc, &e.EvalWeight, &e.AiWeight, &e.NiWeight, &e.CreateTime, &e.UpdateTime)
+	err := row.Scan(&e.Id, &e.UserId, &e.IndexName, &e.UiOrder, &e.IndexDesc, &e.EvalWeight, &e.AiWeight, &e.NiWeight, &e.CreateTime, &e.UpdateTime)
 	if err != nil {
-		if err == runtime.ErrNoRows {
+		if err == wrap.ErrNoRows {
 			return nil, nil
 		} else {
 			return nil, err
@@ -1311,11 +1687,11 @@ func (dao *StockIndexDao) ScanRow(row *runtime.Row) (*StockIndex, error) {
 	return e, nil
 }
 
-func (dao *StockIndexDao) ScanRows(rows *runtime.Rows) (list []*StockIndex, err error) {
+func (dao *StockIndexDao) scanRows(rows *wrap.Rows) (list []*StockIndex, err error) {
 	list = make([]*StockIndex, 0)
 	for rows.Next() {
 		e := StockIndex{}
-		err = rows.Scan(&e.Id, &e.IndexId, &e.UserId, &e.IndexName, &e.IndexDesc, &e.EvalWeight, &e.AiWeight, &e.NiWeight, &e.CreateTime, &e.UpdateTime)
+		err = rows.Scan(&e.Id, &e.UserId, &e.IndexName, &e.UiOrder, &e.IndexDesc, &e.EvalWeight, &e.AiWeight, &e.NiWeight, &e.CreateTime, &e.UpdateTime)
 		if err != nil {
 			return nil, err
 		}
@@ -1329,464 +1705,23 @@ func (dao *StockIndexDao) ScanRows(rows *runtime.Rows) (list []*StockIndex, err 
 	return list, nil
 }
 
-func (dao *StockIndexDao) SelectAll(ctx context.Context, tx *runtime.Tx) (list []*StockIndex, err error) {
-	stmt := dao.selectStmtAll
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *StockIndexDao) Select(ctx context.Context, tx *runtime.Tx, query string) (*StockIndex, error) {
+func (dao *StockIndexDao) doSelect(ctx context.Context, tx *wrap.Tx, query string) (*StockIndex, error) {
 	row := dao.db.QueryRow(ctx, "SELECT "+STOCK_INDEX_ALL_FIELDS_STRING+" FROM stock_index "+query)
-	return dao.ScanRow(row)
+	return dao.scanRow(row)
 }
 
-func (dao *StockIndexDao) SelectList(ctx context.Context, tx *runtime.Tx, query string) (list []*StockIndex, err error) {
+func (dao *StockIndexDao) doSelectList(ctx context.Context, tx *wrap.Tx, query string) (list []*StockIndex, err error) {
 	rows, err := dao.db.Query(ctx, "SELECT "+STOCK_INDEX_ALL_FIELDS_STRING+" FROM stock_index "+query)
 	if err != nil {
 		dao.logger.Error("sqlDriver", zap.Error(err))
 		return nil, err
 	}
 
-	return dao.ScanRows(rows)
-}
-
-func (dao *StockIndexDao) SelectById(ctx context.Context, tx *runtime.Tx, Id int64) (*StockIndex, error) {
-	stmt := dao.selectStmtById
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, Id))
-}
-
-func (dao *StockIndexDao) SelectByUpdateTime(ctx context.Context, tx *runtime.Tx, UpdateTime time.Time) (*StockIndex, error) {
-	stmt := dao.selectStmtByUpdateTime
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, UpdateTime))
-}
-
-func (dao *StockIndexDao) SelectListByUpdateTime(ctx context.Context, tx *runtime.Tx, UpdateTime time.Time) (list []*StockIndex, err error) {
-	stmt := dao.selectStmtByUpdateTime
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UpdateTime)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *StockIndexDao) SelectByIndexName(ctx context.Context, tx *runtime.Tx, IndexName string) (*StockIndex, error) {
-	stmt := dao.selectStmtByIndexName
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, IndexName))
-}
-
-func (dao *StockIndexDao) SelectListByIndexName(ctx context.Context, tx *runtime.Tx, IndexName string) (list []*StockIndex, err error) {
-	stmt := dao.selectStmtByIndexName
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, IndexName)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *StockIndexDao) SelectByIndexId(ctx context.Context, tx *runtime.Tx, IndexId string) (*StockIndex, error) {
-	stmt := dao.selectStmtByIndexId
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, IndexId))
-}
-
-func (dao *StockIndexDao) SelectByUserIdAndIndexName(ctx context.Context, tx *runtime.Tx, UserId string, IndexName string) (*StockIndex, error) {
-	stmt := dao.selectStmtByUserIdAndIndexName
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, UserId, IndexName))
-}
-
-func (dao *StockIndexDao) SelectListByUserId(ctx context.Context, tx *runtime.Tx, UserId string) (list []*StockIndex, err error) {
-	stmt := dao.selectStmtByUserId
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UserId)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
+	return dao.scanRows(rows)
 }
 
 func (dao *StockIndexDao) GetQuery() *StockIndexQuery {
 	return NewStockIndexQuery(dao)
-}
-
-const STOCK_INDEX_ID_GEN_TABLE_NAME = "stock_index_id_gen"
-
-const STOCK_INDEX_ID_GEN_FIELD_ID = "id"
-const STOCK_INDEX_ID_GEN_FIELD_CURRENT_INDEX_ID = "current_index_id"
-const STOCK_INDEX_ID_GEN_FIELD_CREATE_TIME = "create_time"
-const STOCK_INDEX_ID_GEN_FIELD_UPDATE_TIME = "update_time"
-
-const STOCK_INDEX_ID_GEN_ALL_FIELDS_STRING = "id,current_index_id,create_time,update_time"
-
-var STOCK_INDEX_ID_GEN_ALL_FIELDS = []string{
-	"id",
-	"current_index_id",
-	"create_time",
-	"update_time",
-}
-
-type StockIndexIdGen struct {
-	Id             int64 //size=20
-	CurrentIndexId int64 //size=20
-	CreateTime     time.Time
-	UpdateTime     time.Time
-}
-
-type StockIndexIdGenQuery struct {
-	dao *StockIndexIdGenDao
-	runtime.Query
-}
-
-func NewStockIndexIdGenQuery(dao *StockIndexIdGenDao) *StockIndexIdGenQuery {
-	q := &StockIndexIdGenQuery{}
-	q.dao = dao
-	q.WhereBuffer = bytes.NewBufferString("")
-	q.LimitBuffer = bytes.NewBufferString("")
-	q.OrderBuffer = bytes.NewBufferString("")
-
-	return q
-}
-
-func (q *StockIndexIdGenQuery) Select(ctx context.Context) (*StockIndexIdGen, error) {
-	return q.dao.Select(ctx, nil, q.BuildQueryString())
-}
-
-func (q *StockIndexIdGenQuery) SelectForUpdate(ctx context.Context, tx *runtime.Tx) (*StockIndexIdGen, error) {
-	q.ForUpdate = true
-	return q.dao.Select(ctx, tx, q.BuildQueryString())
-}
-
-func (q *StockIndexIdGenQuery) SelectForShare(ctx context.Context, tx *runtime.Tx) (*StockIndexIdGen, error) {
-	q.ForShare = true
-	return q.dao.Select(ctx, tx, q.BuildQueryString())
-}
-
-func (q *StockIndexIdGenQuery) SelectList(ctx context.Context) (list []*StockIndexIdGen, err error) {
-	return q.dao.SelectList(ctx, nil, q.BuildQueryString())
-}
-
-func (q *StockIndexIdGenQuery) SelectListForUpdate(ctx context.Context, tx *runtime.Tx) (list []*StockIndexIdGen, err error) {
-	q.ForUpdate = true
-	return q.dao.SelectList(ctx, tx, q.BuildQueryString())
-}
-
-func (q *StockIndexIdGenQuery) SelectListForShare(ctx context.Context, tx *runtime.Tx) (list []*StockIndexIdGen, err error) {
-	q.ForShare = true
-	return q.dao.SelectList(ctx, tx, q.BuildQueryString())
-}
-
-func (q *StockIndexIdGenQuery) Left() *StockIndexIdGenQuery {
-	q.WhereBuffer.WriteString(" ( ")
-	return q
-}
-
-func (q *StockIndexIdGenQuery) Right() *StockIndexIdGenQuery {
-	q.WhereBuffer.WriteString(" ) ")
-	return q
-}
-
-func (q *StockIndexIdGenQuery) And() *StockIndexIdGenQuery {
-	q.WhereBuffer.WriteString(" AND ")
-	return q
-}
-
-func (q *StockIndexIdGenQuery) Or() *StockIndexIdGenQuery {
-	q.WhereBuffer.WriteString(" OR ")
-	return q
-}
-
-func (q *StockIndexIdGenQuery) Not() *StockIndexIdGenQuery {
-	q.WhereBuffer.WriteString(" NOT ")
-	return q
-}
-
-func (q *StockIndexIdGenQuery) Limit(startIncluded int64, count int64) *StockIndexIdGenQuery {
-	q.LimitBuffer.WriteString(fmt.Sprintf(" limit %d,%d", startIncluded, count))
-	return q
-}
-
-func (q *StockIndexIdGenQuery) Sort(fieldName string, asc bool) *StockIndexIdGenQuery {
-	if asc {
-		q.OrderBuffer.WriteString(fmt.Sprintf(" order by %s asc", fieldName))
-	} else {
-		q.OrderBuffer.WriteString(fmt.Sprintf(" order by %s desc", fieldName))
-	}
-
-	return q
-}
-func (q *StockIndexIdGenQuery) Id_Column(r runtime.Relation, v int64) *StockIndexIdGenQuery {
-	q.WhereBuffer.WriteString("id" + string(r) + "'" + fmt.Sprint(v) + "'")
-	return q
-}
-
-func (q *StockIndexIdGenQuery) CurrentIndexId_Column(r runtime.Relation, v int64) *StockIndexIdGenQuery {
-	q.WhereBuffer.WriteString("current_index_id" + string(r) + "'" + fmt.Sprint(v) + "'")
-	return q
-}
-
-func (q *StockIndexIdGenQuery) CreateTime_Column(r runtime.Relation, v time.Time) *StockIndexIdGenQuery {
-	q.WhereBuffer.WriteString("create_time" + string(r) + "'" + fmt.Sprint(v) + "'")
-	return q
-}
-
-func (q *StockIndexIdGenQuery) UpdateTime_Column(r runtime.Relation, v time.Time) *StockIndexIdGenQuery {
-	q.WhereBuffer.WriteString("update_time" + string(r) + "'" + fmt.Sprint(v) + "'")
-	return q
-}
-
-type StockIndexIdGenDao struct {
-	logger         *zap.Logger
-	db             *DB
-	insertStmt     *runtime.Stmt
-	updateStmt     *runtime.Stmt
-	deleteStmt     *runtime.Stmt
-	selectStmtAll  *runtime.Stmt
-	selectStmtById *runtime.Stmt
-}
-
-func NewStockIndexIdGenDao(db *DB) (t *StockIndexIdGenDao) {
-	t = &StockIndexIdGenDao{}
-	t.logger = log.TypedLogger(t)
-	t.db = db
-
-	return t
-}
-
-func (dao *StockIndexIdGenDao) Init() (err error) {
-	err = dao.prepareInsertStmt()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareUpdateStmt()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareDeleteStmt()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtAll()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtById()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-func (dao *StockIndexIdGenDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO stock_index_id_gen (current_index_id,create_time,update_time) VALUES (?,?,?)")
-	return err
-}
-
-func (dao *StockIndexIdGenDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE stock_index_id_gen SET current_index_id=?,create_time=?,update_time=? WHERE id=?")
-	return err
-}
-
-func (dao *StockIndexIdGenDao) prepareDeleteStmt() (err error) {
-	dao.deleteStmt, err = dao.db.Prepare(context.Background(), "DELETE FROM stock_index_id_gen WHERE id=?")
-	return err
-}
-
-func (dao *StockIndexIdGenDao) prepareSelectStmtAll() (err error) {
-	dao.selectStmtAll, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_INDEX_ID_GEN_ALL_FIELDS_STRING+" FROM stock_index_id_gen")
-	return err
-}
-
-func (dao *StockIndexIdGenDao) prepareSelectStmtById() (err error) {
-	dao.selectStmtById, err = dao.db.Prepare(context.Background(), "SELECT "+STOCK_INDEX_ID_GEN_ALL_FIELDS_STRING+" FROM stock_index_id_gen WHERE id=?")
-	return err
-}
-
-func (dao *StockIndexIdGenDao) Insert(ctx context.Context, tx *runtime.Tx, e *StockIndexIdGen) (id int64, err error) {
-	stmt := dao.insertStmt
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	result, err := stmt.Exec(ctx, e.CurrentIndexId, e.CreateTime, e.UpdateTime)
-	if err != nil {
-		return 0, err
-	}
-
-	id, err = result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return id, nil
-}
-
-func (dao *StockIndexIdGenDao) Update(ctx context.Context, tx *runtime.Tx, e *StockIndexIdGen) (err error) {
-	stmt := dao.updateStmt
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	result, err := stmt.Exec(ctx, e.CurrentIndexId, e.CreateTime, e.UpdateTime, e.Id)
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if rowsAffected != 1 {
-		return fmt.Errorf("rowsAffected:%s", rowsAffected)
-	}
-
-	return nil
-}
-
-func (dao *StockIndexIdGenDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (err error) {
-	stmt := dao.deleteStmt
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	result, err := stmt.Exec(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if rowsAffected != 1 {
-		return fmt.Errorf("rowsAffected:%s", rowsAffected)
-	}
-
-	return nil
-}
-
-func (dao *StockIndexIdGenDao) ScanRow(row *runtime.Row) (*StockIndexIdGen, error) {
-	e := &StockIndexIdGen{}
-	err := row.Scan(&e.Id, &e.CurrentIndexId, &e.CreateTime, &e.UpdateTime)
-	if err != nil {
-		if err == runtime.ErrNoRows {
-			return nil, nil
-		} else {
-			return nil, err
-		}
-	}
-
-	return e, nil
-}
-
-func (dao *StockIndexIdGenDao) ScanRows(rows *runtime.Rows) (list []*StockIndexIdGen, err error) {
-	list = make([]*StockIndexIdGen, 0)
-	for rows.Next() {
-		e := StockIndexIdGen{}
-		err = rows.Scan(&e.Id, &e.CurrentIndexId, &e.CreateTime, &e.UpdateTime)
-		if err != nil {
-			return nil, err
-		}
-		list = append(list, &e)
-	}
-	if rows.Err() != nil {
-		err = rows.Err()
-		return nil, err
-	}
-
-	return list, nil
-}
-
-func (dao *StockIndexIdGenDao) SelectAll(ctx context.Context, tx *runtime.Tx) (list []*StockIndexIdGen, err error) {
-	stmt := dao.selectStmtAll
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *StockIndexIdGenDao) Select(ctx context.Context, tx *runtime.Tx, query string) (*StockIndexIdGen, error) {
-	row := dao.db.QueryRow(ctx, "SELECT "+STOCK_INDEX_ID_GEN_ALL_FIELDS_STRING+" FROM stock_index_id_gen "+query)
-	return dao.ScanRow(row)
-}
-
-func (dao *StockIndexIdGenDao) SelectList(ctx context.Context, tx *runtime.Tx, query string) (list []*StockIndexIdGen, err error) {
-	rows, err := dao.db.Query(ctx, "SELECT "+STOCK_INDEX_ID_GEN_ALL_FIELDS_STRING+" FROM stock_index_id_gen "+query)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *StockIndexIdGenDao) SelectById(ctx context.Context, tx *runtime.Tx, Id int64) (*StockIndexIdGen, error) {
-	stmt := dao.selectStmtById
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, Id))
-}
-
-func (dao *StockIndexIdGenDao) GetQuery() *StockIndexIdGenQuery {
-	return NewStockIndexIdGenQuery(dao)
 }
 
 const USER_SETTING_TABLE_NAME = "user_setting"
@@ -1819,139 +1754,322 @@ type UserSetting struct {
 }
 
 type UserSettingQuery struct {
-	dao *UserSettingDao
-	runtime.Query
+	dao         *UserSettingDao
+	forUpdate   bool
+	forShare    bool
+	whereBuffer *bytes.Buffer
+	limitBuffer *bytes.Buffer
+	orderBuffer *bytes.Buffer
 }
 
 func NewUserSettingQuery(dao *UserSettingDao) *UserSettingQuery {
 	q := &UserSettingQuery{}
 	q.dao = dao
-	q.WhereBuffer = bytes.NewBufferString("")
-	q.LimitBuffer = bytes.NewBufferString("")
-	q.OrderBuffer = bytes.NewBufferString("")
+	q.whereBuffer = bytes.NewBufferString("")
+	q.limitBuffer = bytes.NewBufferString("")
+	q.orderBuffer = bytes.NewBufferString("")
 
 	return q
 }
 
+func (q *UserSettingQuery) buildQueryString() string {
+	buf := bytes.NewBufferString("")
+
+	if q.forShare {
+		buf.WriteString(" FOR UPDATE ")
+	}
+
+	if q.forUpdate {
+		buf.WriteString(" LOCK IN SHARE MODE ")
+	}
+
+	whereSql := q.whereBuffer.String()
+	if whereSql != "" {
+		buf.WriteString(" WHERE ")
+		buf.WriteString(whereSql)
+	}
+
+	limitSql := q.limitBuffer.String()
+	if limitSql != "" {
+		buf.WriteString(limitSql)
+	}
+
+	orderSql := q.orderBuffer.String()
+	if orderSql != "" {
+		buf.WriteString(orderSql)
+	}
+
+	return buf.String()
+}
+
 func (q *UserSettingQuery) Select(ctx context.Context) (*UserSetting, error) {
-	return q.dao.Select(ctx, nil, q.BuildQueryString())
+	return q.dao.doSelect(ctx, nil, q.buildQueryString())
 }
 
-func (q *UserSettingQuery) SelectForUpdate(ctx context.Context, tx *runtime.Tx) (*UserSetting, error) {
-	q.ForUpdate = true
-	return q.dao.Select(ctx, tx, q.BuildQueryString())
+func (q *UserSettingQuery) SelectForUpdate(ctx context.Context, tx *wrap.Tx) (*UserSetting, error) {
+	q.forUpdate = true
+	return q.dao.doSelect(ctx, tx, q.buildQueryString())
 }
 
-func (q *UserSettingQuery) SelectForShare(ctx context.Context, tx *runtime.Tx) (*UserSetting, error) {
-	q.ForShare = true
-	return q.dao.Select(ctx, tx, q.BuildQueryString())
+func (q *UserSettingQuery) SelectForShare(ctx context.Context, tx *wrap.Tx) (*UserSetting, error) {
+	q.forShare = true
+	return q.dao.doSelect(ctx, tx, q.buildQueryString())
 }
 
 func (q *UserSettingQuery) SelectList(ctx context.Context) (list []*UserSetting, err error) {
-	return q.dao.SelectList(ctx, nil, q.BuildQueryString())
+	return q.dao.doSelectList(ctx, nil, q.buildQueryString())
 }
 
-func (q *UserSettingQuery) SelectListForUpdate(ctx context.Context, tx *runtime.Tx) (list []*UserSetting, err error) {
-	q.ForUpdate = true
-	return q.dao.SelectList(ctx, tx, q.BuildQueryString())
+func (q *UserSettingQuery) SelectListForUpdate(ctx context.Context, tx *wrap.Tx) (list []*UserSetting, err error) {
+	q.forUpdate = true
+	return q.dao.doSelectList(ctx, tx, q.buildQueryString())
 }
 
-func (q *UserSettingQuery) SelectListForShare(ctx context.Context, tx *runtime.Tx) (list []*UserSetting, err error) {
-	q.ForShare = true
-	return q.dao.SelectList(ctx, tx, q.BuildQueryString())
+func (q *UserSettingQuery) SelectListForShare(ctx context.Context, tx *wrap.Tx) (list []*UserSetting, err error) {
+	q.forShare = true
+	return q.dao.doSelectList(ctx, tx, q.buildQueryString())
 }
 
 func (q *UserSettingQuery) Left() *UserSettingQuery {
-	q.WhereBuffer.WriteString(" ( ")
+	q.whereBuffer.WriteString(" ( ")
 	return q
 }
 
 func (q *UserSettingQuery) Right() *UserSettingQuery {
-	q.WhereBuffer.WriteString(" ) ")
+	q.whereBuffer.WriteString(" ) ")
 	return q
 }
 
 func (q *UserSettingQuery) And() *UserSettingQuery {
-	q.WhereBuffer.WriteString(" AND ")
+	q.whereBuffer.WriteString(" AND ")
 	return q
 }
 
 func (q *UserSettingQuery) Or() *UserSettingQuery {
-	q.WhereBuffer.WriteString(" OR ")
+	q.whereBuffer.WriteString(" OR ")
 	return q
 }
 
 func (q *UserSettingQuery) Not() *UserSettingQuery {
-	q.WhereBuffer.WriteString(" NOT ")
+	q.whereBuffer.WriteString(" NOT ")
 	return q
 }
 
 func (q *UserSettingQuery) Limit(startIncluded int64, count int64) *UserSettingQuery {
-	q.LimitBuffer.WriteString(fmt.Sprintf(" limit %d,%d", startIncluded, count))
+	q.limitBuffer.WriteString(fmt.Sprintf(" limit %d,%d", startIncluded, count))
 	return q
 }
 
 func (q *UserSettingQuery) Sort(fieldName string, asc bool) *UserSettingQuery {
 	if asc {
-		q.OrderBuffer.WriteString(fmt.Sprintf(" order by %s asc", fieldName))
+		q.orderBuffer.WriteString(fmt.Sprintf(" order by %s asc", fieldName))
 	} else {
-		q.OrderBuffer.WriteString(fmt.Sprintf(" order by %s desc", fieldName))
+		q.orderBuffer.WriteString(fmt.Sprintf(" order by %s desc", fieldName))
 	}
 
 	return q
 }
-func (q *UserSettingQuery) Id_Column(r runtime.Relation, v int64) *UserSettingQuery {
-	q.WhereBuffer.WriteString("id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *UserSettingQuery) Id_Equal(v int64) *UserSettingQuery {
+	q.whereBuffer.WriteString("id='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *UserSettingQuery) UserId_Column(r runtime.Relation, v string) *UserSettingQuery {
-	q.WhereBuffer.WriteString("user_id" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *UserSettingQuery) Id_NotEqual(v int64) *UserSettingQuery {
+	q.whereBuffer.WriteString("id<>'" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *UserSettingQuery) ConfigKey_Column(r runtime.Relation, v string) *UserSettingQuery {
-	q.WhereBuffer.WriteString("config_key" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *UserSettingQuery) Id_Less(v int64) *UserSettingQuery {
+	q.whereBuffer.WriteString("id<'" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *UserSettingQuery) ConfigValue_Column(r runtime.Relation, v string) *UserSettingQuery {
-	q.WhereBuffer.WriteString("config_value" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *UserSettingQuery) Id_LessEqual(v int64) *UserSettingQuery {
+	q.whereBuffer.WriteString("id<='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *UserSettingQuery) CreateTime_Column(r runtime.Relation, v time.Time) *UserSettingQuery {
-	q.WhereBuffer.WriteString("create_time" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *UserSettingQuery) Id_Greater(v int64) *UserSettingQuery {
+	q.whereBuffer.WriteString("id>='" + fmt.Sprint(v) + "'")
 	return q
 }
 
-func (q *UserSettingQuery) UpdateTime_Column(r runtime.Relation, v time.Time) *UserSettingQuery {
-	q.WhereBuffer.WriteString("update_time" + string(r) + "'" + fmt.Sprint(v) + "'")
+func (q *UserSettingQuery) Id_GreaterEqual(v int64) *UserSettingQuery {
+	q.whereBuffer.WriteString("id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UserId_Equal(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("user_id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UserId_NotEqual(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("user_id<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UserId_Less(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("user_id<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UserId_LessEqual(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("user_id<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UserId_Greater(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("user_id>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UserId_GreaterEqual(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("user_id='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigKey_Equal(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_key='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigKey_NotEqual(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_key<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigKey_Less(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_key<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigKey_LessEqual(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_key<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigKey_Greater(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_key>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigKey_GreaterEqual(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_key='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigValue_Equal(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_value='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigValue_NotEqual(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_value<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigValue_Less(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_value<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigValue_LessEqual(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_value<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigValue_Greater(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_value>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) ConfigValue_GreaterEqual(v string) *UserSettingQuery {
+	q.whereBuffer.WriteString("config_value='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) CreateTime_Equal(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("create_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) CreateTime_NotEqual(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("create_time<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) CreateTime_Less(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("create_time<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) CreateTime_LessEqual(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("create_time<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) CreateTime_Greater(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("create_time>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) CreateTime_GreaterEqual(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("create_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UpdateTime_Equal(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("update_time='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UpdateTime_NotEqual(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("update_time<>'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UpdateTime_Less(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("update_time<'" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UpdateTime_LessEqual(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("update_time<='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UpdateTime_Greater(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("update_time>='" + fmt.Sprint(v) + "'")
+	return q
+}
+
+func (q *UserSettingQuery) UpdateTime_GreaterEqual(v time.Time) *UserSettingQuery {
+	q.whereBuffer.WriteString("update_time='" + fmt.Sprint(v) + "'")
 	return q
 }
 
 type UserSettingDao struct {
-	logger                         *zap.Logger
-	db                             *DB
-	insertStmt                     *runtime.Stmt
-	updateStmt                     *runtime.Stmt
-	deleteStmt                     *runtime.Stmt
-	selectStmtAll                  *runtime.Stmt
-	selectStmtById                 *runtime.Stmt
-	selectStmtByUpdateTime         *runtime.Stmt
-	selectStmtByUserId             *runtime.Stmt
-	selectStmtByUserIdAndConfigKey *runtime.Stmt
+	logger     *zap.Logger
+	db         *DB
+	insertStmt *wrap.Stmt
+	updateStmt *wrap.Stmt
+	deleteStmt *wrap.Stmt
 }
 
-func NewUserSettingDao(db *DB) (t *UserSettingDao) {
+func NewUserSettingDao(db *DB) (t *UserSettingDao, err error) {
 	t = &UserSettingDao{}
 	t.logger = log.TypedLogger(t)
 	t.db = db
+	err = t.init()
+	if err != nil {
+		return nil, err
+	}
 
-	return t
+	return t, nil
 }
 
-func (dao *UserSettingDao) Init() (err error) {
+func (dao *UserSettingDao) init() (err error) {
 	err = dao.prepareInsertStmt()
 	if err != nil {
 		return err
@@ -1963,31 +2081,6 @@ func (dao *UserSettingDao) Init() (err error) {
 	}
 
 	err = dao.prepareDeleteStmt()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtAll()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtById()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUpdateTime()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUserId()
-	if err != nil {
-		return err
-	}
-
-	err = dao.prepareSelectStmtByUserIdAndConfigKey()
 	if err != nil {
 		return err
 	}
@@ -2009,32 +2102,7 @@ func (dao *UserSettingDao) prepareDeleteStmt() (err error) {
 	return err
 }
 
-func (dao *UserSettingDao) prepareSelectStmtAll() (err error) {
-	dao.selectStmtAll, err = dao.db.Prepare(context.Background(), "SELECT "+USER_SETTING_ALL_FIELDS_STRING+" FROM user_setting")
-	return err
-}
-
-func (dao *UserSettingDao) prepareSelectStmtById() (err error) {
-	dao.selectStmtById, err = dao.db.Prepare(context.Background(), "SELECT "+USER_SETTING_ALL_FIELDS_STRING+" FROM user_setting WHERE id=?")
-	return err
-}
-
-func (dao *UserSettingDao) prepareSelectStmtByUpdateTime() (err error) {
-	dao.selectStmtByUpdateTime, err = dao.db.Prepare(context.Background(), "SELECT "+USER_SETTING_ALL_FIELDS_STRING+" FROM user_setting WHERE update_time=?")
-	return err
-}
-
-func (dao *UserSettingDao) prepareSelectStmtByUserId() (err error) {
-	dao.selectStmtByUserId, err = dao.db.Prepare(context.Background(), "SELECT "+USER_SETTING_ALL_FIELDS_STRING+" FROM user_setting WHERE user_id=?")
-	return err
-}
-
-func (dao *UserSettingDao) prepareSelectStmtByUserIdAndConfigKey() (err error) {
-	dao.selectStmtByUserIdAndConfigKey, err = dao.db.Prepare(context.Background(), "SELECT "+USER_SETTING_ALL_FIELDS_STRING+" FROM user_setting WHERE user_id=? AND config_key=?")
-	return err
-}
-
-func (dao *UserSettingDao) Insert(ctx context.Context, tx *runtime.Tx, e *UserSetting) (id int64, err error) {
+func (dao *UserSettingDao) Insert(ctx context.Context, tx *wrap.Tx, e *UserSetting) (id int64, err error) {
 	stmt := dao.insertStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -2053,7 +2121,7 @@ func (dao *UserSettingDao) Insert(ctx context.Context, tx *runtime.Tx, e *UserSe
 	return id, nil
 }
 
-func (dao *UserSettingDao) Update(ctx context.Context, tx *runtime.Tx, e *UserSetting) (err error) {
+func (dao *UserSettingDao) Update(ctx context.Context, tx *wrap.Tx, e *UserSetting) (err error) {
 	stmt := dao.updateStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -2076,7 +2144,7 @@ func (dao *UserSettingDao) Update(ctx context.Context, tx *runtime.Tx, e *UserSe
 	return nil
 }
 
-func (dao *UserSettingDao) Delete(ctx context.Context, tx *runtime.Tx, id int64) (err error) {
+func (dao *UserSettingDao) Delete(ctx context.Context, tx *wrap.Tx, id int64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -2099,11 +2167,11 @@ func (dao *UserSettingDao) Delete(ctx context.Context, tx *runtime.Tx, id int64)
 	return nil
 }
 
-func (dao *UserSettingDao) ScanRow(row *runtime.Row) (*UserSetting, error) {
+func (dao *UserSettingDao) scanRow(row *wrap.Row) (*UserSetting, error) {
 	e := &UserSetting{}
 	err := row.Scan(&e.Id, &e.UserId, &e.ConfigKey, &e.ConfigValue, &e.CreateTime, &e.UpdateTime)
 	if err != nil {
-		if err == runtime.ErrNoRows {
+		if err == wrap.ErrNoRows {
 			return nil, nil
 		} else {
 			return nil, err
@@ -2113,7 +2181,7 @@ func (dao *UserSettingDao) ScanRow(row *runtime.Row) (*UserSetting, error) {
 	return e, nil
 }
 
-func (dao *UserSettingDao) ScanRows(rows *runtime.Rows) (list []*UserSetting, err error) {
+func (dao *UserSettingDao) scanRows(rows *wrap.Rows) (list []*UserSetting, err error) {
 	list = make([]*UserSetting, 0)
 	for rows.Next() {
 		e := UserSetting{}
@@ -2131,97 +2199,19 @@ func (dao *UserSettingDao) ScanRows(rows *runtime.Rows) (list []*UserSetting, er
 	return list, nil
 }
 
-func (dao *UserSettingDao) SelectAll(ctx context.Context, tx *runtime.Tx) (list []*UserSetting, err error) {
-	stmt := dao.selectStmtAll
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *UserSettingDao) Select(ctx context.Context, tx *runtime.Tx, query string) (*UserSetting, error) {
+func (dao *UserSettingDao) doSelect(ctx context.Context, tx *wrap.Tx, query string) (*UserSetting, error) {
 	row := dao.db.QueryRow(ctx, "SELECT "+USER_SETTING_ALL_FIELDS_STRING+" FROM user_setting "+query)
-	return dao.ScanRow(row)
+	return dao.scanRow(row)
 }
 
-func (dao *UserSettingDao) SelectList(ctx context.Context, tx *runtime.Tx, query string) (list []*UserSetting, err error) {
+func (dao *UserSettingDao) doSelectList(ctx context.Context, tx *wrap.Tx, query string) (list []*UserSetting, err error) {
 	rows, err := dao.db.Query(ctx, "SELECT "+USER_SETTING_ALL_FIELDS_STRING+" FROM user_setting "+query)
 	if err != nil {
 		dao.logger.Error("sqlDriver", zap.Error(err))
 		return nil, err
 	}
 
-	return dao.ScanRows(rows)
-}
-
-func (dao *UserSettingDao) SelectById(ctx context.Context, tx *runtime.Tx, Id int64) (*UserSetting, error) {
-	stmt := dao.selectStmtById
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, Id))
-}
-
-func (dao *UserSettingDao) SelectByUpdateTime(ctx context.Context, tx *runtime.Tx, UpdateTime time.Time) (*UserSetting, error) {
-	stmt := dao.selectStmtByUpdateTime
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	return dao.ScanRow(stmt.QueryRow(ctx, UpdateTime))
-}
-
-func (dao *UserSettingDao) SelectListByUpdateTime(ctx context.Context, tx *runtime.Tx, UpdateTime time.Time) (list []*UserSetting, err error) {
-	stmt := dao.selectStmtByUpdateTime
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UpdateTime)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *UserSettingDao) SelectListByUserId(ctx context.Context, tx *runtime.Tx, UserId string) (list []*UserSetting, err error) {
-	stmt := dao.selectStmtByUserId
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UserId)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
-}
-
-func (dao *UserSettingDao) SelectListByUserIdAndConfigKey(ctx context.Context, tx *runtime.Tx, UserId string, ConfigKey string) (list []*UserSetting, err error) {
-	stmt := dao.selectStmtByUserIdAndConfigKey
-	if tx != nil {
-		stmt = tx.Stmt(ctx, stmt)
-	}
-
-	rows, err := stmt.Query(ctx, UserId, ConfigKey)
-	if err != nil {
-		dao.logger.Error("sqlDriver", zap.Error(err))
-		return nil, err
-	}
-
-	return dao.ScanRows(rows)
+	return dao.scanRows(rows)
 }
 
 func (dao *UserSettingDao) GetQuery() *UserSettingQuery {
@@ -2229,12 +2219,11 @@ func (dao *UserSettingDao) GetQuery() *UserSettingQuery {
 }
 
 type DB struct {
-	runtime.DB
-	IndexEvaluate   *IndexEvaluateDao
-	StockEvaluate   *StockEvaluateDao
-	StockIndex      *StockIndexDao
-	StockIndexIdGen *StockIndexIdGenDao
-	UserSetting     *UserSettingDao
+	wrap.DB
+	IndexEvaluate *IndexEvaluateDao
+	StockEvaluate *StockEvaluateDao
+	StockIndex    *StockIndexDao
+	UserSetting   *UserSettingDao
 }
 
 func NewDB(connectionString string) (d *DB, err error) {
@@ -2244,7 +2233,7 @@ func NewDB(connectionString string) (d *DB, err error) {
 
 	d = &DB{}
 
-	db, err := runtime.Open("mysql", connectionString)
+	db, err := wrap.Open("mysql", connectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -2255,32 +2244,22 @@ func NewDB(connectionString string) (d *DB, err error) {
 		return nil, err
 	}
 
-	d.IndexEvaluate = NewIndexEvaluateDao(d)
-	err = d.IndexEvaluate.Init()
+	d.IndexEvaluate, err = NewIndexEvaluateDao(d)
 	if err != nil {
 		return nil, err
 	}
 
-	d.StockEvaluate = NewStockEvaluateDao(d)
-	err = d.StockEvaluate.Init()
+	d.StockEvaluate, err = NewStockEvaluateDao(d)
 	if err != nil {
 		return nil, err
 	}
 
-	d.StockIndex = NewStockIndexDao(d)
-	err = d.StockIndex.Init()
+	d.StockIndex, err = NewStockIndexDao(d)
 	if err != nil {
 		return nil, err
 	}
 
-	d.StockIndexIdGen = NewStockIndexIdGenDao(d)
-	err = d.StockIndexIdGen.Init()
-	if err != nil {
-		return nil, err
-	}
-
-	d.UserSetting = NewUserSettingDao(d)
-	err = d.UserSetting.Init()
+	d.UserSetting, err = NewUserSettingDao(d)
 	if err != nil {
 		return nil, err
 	}

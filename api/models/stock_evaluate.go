@@ -20,9 +20,6 @@ type StockEvaluate struct {
 	// remark
 	EvalRemark string `json:"evalRemark,omitempty"`
 
-	// index evaluates
-	IndexEvaluates StockEvaluateIndexEvaluates `json:"indexEvaluates"`
-
 	// stock id
 	StockID string `json:"stockId,omitempty"`
 
@@ -31,8 +28,6 @@ type StockEvaluate struct {
 }
 
 /* polymorph StockEvaluate evalRemark false */
-
-/* polymorph StockEvaluate indexEvaluates false */
 
 /* polymorph StockEvaluate stockId false */
 

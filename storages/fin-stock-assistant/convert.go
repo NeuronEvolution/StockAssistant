@@ -10,7 +10,6 @@ func FromStockIndex(p *StockIndex) (r *models.StockIndex) {
 	}
 
 	r = &models.StockIndex{}
-	r.IndexId = p.IndexId
 	r.IndexName = p.IndexName
 	r.IndexDesc = p.IndexDesc
 	r.EvalWeight = p.EvalWeight
@@ -65,7 +64,7 @@ func FromIndexEvaluate(p *IndexEvaluate) (r *models.IndexEvaluate) {
 	}
 
 	r = &models.IndexEvaluate{}
-	r.IndexId = p.IndexId
+	r.IndexName = p.IndexName
 	r.EvalStars = p.EvalStars
 	r.EvalRemark = p.EvalRemark
 	r.UpdateTime = p.UpdateTime
@@ -92,8 +91,8 @@ func FromSetting(p *UserSetting) (r *models.Setting) {
 	}
 
 	r = &models.Setting{}
-	r.Key = p.ConfigKey
-	r.Value = p.ConfigValue
+	r.ConfigKey = p.ConfigKey
+	r.ConfigValue = p.ConfigValue
 
 	return r
 }

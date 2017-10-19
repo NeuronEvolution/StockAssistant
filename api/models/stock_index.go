@@ -26,9 +26,6 @@ type StockIndex struct {
 	// Eval weight
 	EvalWeight int32 `json:"evalWeight,omitempty"`
 
-	// Id
-	ID string `json:"id,omitempty"`
-
 	// name
 	Name string `json:"name,omitempty"`
 
@@ -41,8 +38,6 @@ type StockIndex struct {
 /* polymorph StockIndex desc false */
 
 /* polymorph StockIndex evalWeight false */
-
-/* polymorph StockIndex id false */
 
 /* polymorph StockIndex name false */
 

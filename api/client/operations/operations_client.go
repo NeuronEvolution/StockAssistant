@@ -25,34 +25,6 @@ type Client struct {
 }
 
 /*
-UserIndexAdd users add new index
-*/
-func (a *Client) UserIndexAdd(params *UserIndexAddParams) (*UserIndexAddOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewUserIndexAddParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UserIndexAdd",
-		Method:             "PUT",
-		PathPattern:        "/{userId}/indices",
-		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
-		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &UserIndexAddReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*UserIndexAddOK), nil
-
-}
-
-/*
 UserIndexDelete user index delete API
 */
 func (a *Client) UserIndexDelete(params *UserIndexDeleteParams) (*UserIndexDeleteOK, error) {
@@ -77,6 +49,90 @@ func (a *Client) UserIndexDelete(params *UserIndexDeleteParams) (*UserIndexDelet
 		return nil, err
 	}
 	return result.(*UserIndexDeleteOK), nil
+
+}
+
+/*
+UserIndexEvaluateGet user index evaluate get API
+*/
+func (a *Client) UserIndexEvaluateGet(params *UserIndexEvaluateGetParams) (*UserIndexEvaluateGetOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUserIndexEvaluateGetParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "UserIndexEvaluateGet",
+		Method:             "GET",
+		PathPattern:        "/{userId}/stockEvaluates/{stockId}/indexEvaluates/{indexName}",
+		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UserIndexEvaluateGetReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UserIndexEvaluateGetOK), nil
+
+}
+
+/*
+UserIndexEvaluateList user index evaluate list API
+*/
+func (a *Client) UserIndexEvaluateList(params *UserIndexEvaluateListParams) (*UserIndexEvaluateListOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUserIndexEvaluateListParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "UserIndexEvaluateList",
+		Method:             "GET",
+		PathPattern:        "/{userId}/stockEvaluates/{stockId}/indexEvaluates",
+		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UserIndexEvaluateListReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UserIndexEvaluateListOK), nil
+
+}
+
+/*
+UserIndexEvaluateSave user index evaluate save API
+*/
+func (a *Client) UserIndexEvaluateSave(params *UserIndexEvaluateSaveParams) (*UserIndexEvaluateSaveOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUserIndexEvaluateSaveParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "UserIndexEvaluateSave",
+		Method:             "POST",
+		PathPattern:        "/{userId}/stockEvaluates/{stockId}/indexEvaluates",
+		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UserIndexEvaluateSaveReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UserIndexEvaluateSaveOK), nil
 
 }
 
@@ -137,58 +193,58 @@ func (a *Client) UserIndexList(params *UserIndexListParams) (*UserIndexListOK, e
 }
 
 /*
-UserIndexUpdate users modify index
+UserIndexRename user index rename API
 */
-func (a *Client) UserIndexUpdate(params *UserIndexUpdateParams) (*UserIndexUpdateOK, error) {
+func (a *Client) UserIndexRename(params *UserIndexRenameParams) (*UserIndexRenameOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUserIndexUpdateParams()
+		params = NewUserIndexRenameParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UserIndexUpdate",
-		Method:             "PATCH",
-		PathPattern:        "/{userId}/indices/{indexId}",
+		ID:                 "UserIndexRename",
+		Method:             "POST",
+		PathPattern:        "/{userId}/indices/rename",
 		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UserIndexUpdateReader{formats: a.formats},
+		Reader:             &UserIndexRenameReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UserIndexUpdateOK), nil
+	return result.(*UserIndexRenameOK), nil
 
 }
 
 /*
-UserSettingsAdd adds
+UserIndexSave saves
 */
-func (a *Client) UserSettingsAdd(params *UserSettingsAddParams) (*UserSettingsAddOK, error) {
+func (a *Client) UserIndexSave(params *UserIndexSaveParams) (*UserIndexSaveOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUserSettingsAddParams()
+		params = NewUserIndexSaveParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UserSettingsAdd",
-		Method:             "PUT",
-		PathPattern:        "/{userId}/settings",
+		ID:                 "UserIndexSave",
+		Method:             "POST",
+		PathPattern:        "/{userId}/indices",
 		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UserSettingsAddReader{formats: a.formats},
+		Reader:             &UserIndexSaveReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UserSettingsAddOK), nil
+	return result.(*UserIndexSaveOK), nil
 
 }
 
@@ -277,58 +333,30 @@ func (a *Client) UserSettingsList(params *UserSettingsListParams) (*UserSettings
 }
 
 /*
-UserSettingsUpdate user settings update API
+UserSettingsSave saves
 */
-func (a *Client) UserSettingsUpdate(params *UserSettingsUpdateParams) (*UserSettingsUpdateOK, error) {
+func (a *Client) UserSettingsSave(params *UserSettingsSaveParams) (*UserSettingsSaveOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUserSettingsUpdateParams()
+		params = NewUserSettingsSaveParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UserSettingsUpdate",
-		Method:             "PATCH",
-		PathPattern:        "/{userId}/settings/{configKey}",
-		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
-		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &UserSettingsUpdateReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*UserSettingsUpdateOK), nil
-
-}
-
-/*
-UserStockEvaluateAddOrUpdate adds or update
-*/
-func (a *Client) UserStockEvaluateAddOrUpdate(params *UserStockEvaluateAddOrUpdateParams) (*UserStockEvaluateAddOrUpdateOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewUserStockEvaluateAddOrUpdateParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UserStockEvaluateAddOrUpdate",
+		ID:                 "UserSettingsSave",
 		Method:             "POST",
-		PathPattern:        "/{userId}/stockEvaluates/{stockId}",
+		PathPattern:        "/{userId}/settings",
 		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UserStockEvaluateAddOrUpdateReader{formats: a.formats},
+		Reader:             &UserSettingsSaveReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UserStockEvaluateAddOrUpdateOK), nil
+	return result.(*UserSettingsSaveOK), nil
 
 }
 
@@ -385,6 +413,34 @@ func (a *Client) UserStockEvaluateList(params *UserStockEvaluateListParams) (*Us
 		return nil, err
 	}
 	return result.(*UserStockEvaluateListOK), nil
+
+}
+
+/*
+UserStockEvaluateSave saves
+*/
+func (a *Client) UserStockEvaluateSave(params *UserStockEvaluateSaveParams) (*UserStockEvaluateSaveOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUserStockEvaluateSaveParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "UserStockEvaluateSave",
+		Method:             "POST",
+		PathPattern:        "/{userId}/stockEvaluates",
+		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UserStockEvaluateSaveReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UserStockEvaluateSaveOK), nil
 
 }
 

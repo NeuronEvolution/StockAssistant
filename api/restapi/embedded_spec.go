@@ -58,9 +58,9 @@ func init() {
           }
         }
       },
-      "put": {
-        "summary": "User add new index",
-        "operationId": "UserIndexAdd",
+      "post": {
+        "summary": "save",
+        "operationId": "UserIndexSave",
         "parameters": [
           {
             "description": "Index",
@@ -70,6 +70,56 @@ func init() {
             "schema": {
               "$ref": "#/definitions/StockIndex"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/StockIndex"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "User id",
+          "name": "userId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/{userId}/indices/rename": {
+      "post": {
+        "operationId": "UserIndexRename",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "old name",
+            "name": "oldName",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "new name",
+            "name": "newName",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -148,41 +198,6 @@ func init() {
           }
         }
       },
-      "patch": {
-        "summary": "User modify index",
-        "operationId": "UserIndexUpdate",
-        "parameters": [
-          {
-            "description": "Index",
-            "name": "Index",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/StockIndex"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "$ref": "#/definitions/StockIndex"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
-          }
-        }
-      },
       "parameters": [
         {
           "type": "string",
@@ -225,9 +240,9 @@ func init() {
           }
         }
       },
-      "put": {
-        "summary": "add",
-        "operationId": "UserSettingsAdd",
+      "post": {
+        "summary": "save",
+        "operationId": "UserSettingsSave",
         "parameters": [
           {
             "description": "setting",
@@ -314,40 +329,6 @@ func init() {
           }
         }
       },
-      "patch": {
-        "operationId": "UserSettingsUpdate",
-        "parameters": [
-          {
-            "description": "setting",
-            "name": "Setting",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Setting"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "$ref": "#/definitions/Setting"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "type": "string"
-            }
-          }
-        }
-      },
       "parameters": [
         {
           "type": "string",
@@ -373,6 +354,40 @@ func init() {
             "description": "ok",
             "schema": {
               "$ref": "#/definitions/userStockEvaluateListOKBody"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "save",
+        "operationId": "UserStockEvaluateSave",
+        "parameters": [
+          {
+            "name": "stockEvaluate",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StockEvaluate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/StockEvaluate"
             }
           },
           "400": {
@@ -423,16 +438,56 @@ func init() {
           }
         }
       },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "User id",
+          "name": "userId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "description": "stock id",
+          "name": "stockId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/{userId}/stockEvaluates/{stockId}/indexEvaluates": {
+      "get": {
+        "operationId": "UserIndexEvaluateList",
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/userIndexEvaluateListOKBody"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "post": {
-        "summary": "add or update",
-        "operationId": "UserStockEvaluateAddOrUpdate",
+        "operationId": "UserIndexEvaluateSave",
         "parameters": [
           {
-            "name": "stockEvaluate",
+            "name": "indexEvaluate",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/StockEvaluate"
+              "$ref": "#/definitions/IndexEvaluate"
             }
           }
         ],
@@ -440,7 +495,7 @@ func init() {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/StockEvaluate"
+              "$ref": "#/definitions/IndexEvaluate"
             }
           },
           "400": {
@@ -473,6 +528,54 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/{userId}/stockEvaluates/{stockId}/indexEvaluates/{indexName}": {
+      "get": {
+        "operationId": "UserIndexEvaluateGet",
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/IndexEvaluate"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "User id",
+          "name": "userId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "description": "stock id",
+          "name": "stockId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "description": "index name",
+          "name": "indexName",
+          "in": "path",
+          "required": true
+        }
+      ]
     }
   },
   "definitions": {
@@ -490,8 +593,8 @@ func init() {
           "type": "string",
           "format": "int32"
         },
-        "indexId": {
-          "description": "index id",
+        "indexName": {
+          "description": "index name",
           "type": "string"
         },
         "updateTime": {
@@ -525,9 +628,6 @@ func init() {
           "description": "remark",
           "type": "string"
         },
-        "indexEvaluates": {
-          "$ref": "#/definitions/stockEvaluateIndexEvaluates"
-        },
         "stockId": {
           "description": "stock id",
           "type": "string"
@@ -558,10 +658,6 @@ func init() {
           "type": "string",
           "format": "int32"
         },
-        "id": {
-          "description": "Id",
-          "type": "string"
-        },
         "name": {
           "description": "name",
           "type": "string"
@@ -573,13 +669,12 @@ func init() {
         }
       }
     },
-    "stockEvaluateIndexEvaluates": {
-      "description": "index evaluates",
+    "userIndexEvaluateListOKBody": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/IndexEvaluate"
       },
-      "x-go-gen-location": "models"
+      "x-go-gen-location": "operations"
     },
     "userIndexListOKBody": {
       "type": "array",

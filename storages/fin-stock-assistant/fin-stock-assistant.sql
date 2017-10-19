@@ -26,14 +26,15 @@ CREATE TABLE `index_evaluate` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` varchar(32) NOT NULL,
   `stock_id` varchar(32) NOT NULL,
-  `index_id` varchar(32) NOT NULL,
+  `index_name` varchar(32) NOT NULL,
   `eval_stars` int(10) unsigned NOT NULL,
   `eval_remark` varchar(256) NOT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_user_stock_index` (`user_id`,`stock_id`,`index_name`),
   KEY `idx_update_time` (`update_time`),
-  KEY `idx_user_stock_index` (`user_id`,`stock_id`,`index_id`)
+  KEY `idx_index_name` (`index_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -67,9 +68,9 @@ DROP TABLE IF EXISTS `stock_index`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `stock_index` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `index_id` varchar(32) NOT NULL,
   `user_id` varchar(32) NOT NULL,
   `index_name` varchar(32) NOT NULL,
+  `ui_order` int(11) NOT NULL,
   `index_desc` varchar(256) NOT NULL,
   `eval_weight` int(11) NOT NULL,
   `ai_weight` int(11) NOT NULL,
@@ -77,26 +78,9 @@ CREATE TABLE `stock_index` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_index_id` (`index_id`),
   UNIQUE KEY `idx_uid_name` (`user_id`,`index_name`),
   KEY `idx_update_time` (`update_time`),
   KEY `idx_name` (`index_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `stock_index_id_gen`
---
-
-DROP TABLE IF EXISTS `stock_index_id_gen`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `stock_index_id_gen` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `current_index_id` bigint(20) unsigned NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -115,7 +99,7 @@ CREATE TABLE `user_setting` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `idx_user_key` (`user_id`,`config_key`),
+  UNIQUE KEY `idx_user_key` (`user_id`,`config_key`),
   KEY `idx_update_time` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -129,4 +113,4 @@ CREATE TABLE `user_setting` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-17 21:26:09
+-- Dump completed on 2017-10-19 12:11:14

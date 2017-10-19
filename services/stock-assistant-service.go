@@ -5,11 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/NeuronEvolution/StockAssistant/models"
-	"github.com/NeuronEvolution/StockAssistant/storages"
 	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
 	"github.com/NeuronEvolution/log"
-	"github.com/NeuronEvolution/sql/runtime"
 	"go.uber.org/zap"
+	"time"
 )
 
 type StockAssistantServiceOptions struct {
@@ -19,24 +18,23 @@ type StockAssistantServiceOptions struct {
 type StockAssistantService struct {
 	logger  *zap.Logger
 	options *StockAssistantServiceOptions
-	storage *storages.Storage
+	db      *fin_stock_assistant.DB
 }
 
 func NewStockAssistantService(options *StockAssistantServiceOptions) (s *StockAssistantService, err error) {
 	s = &StockAssistantService{}
 	s.logger = log.TypedLogger(s)
 	s.options = options
-	storage, err := storages.NewStorage(&storages.StorageOptions{FinStockAssistantConnectionString: options.FinStockAssistantConnectionString})
+	s.db, err = fin_stock_assistant.NewDB(options.FinStockAssistantConnectionString)
 	if err != nil {
 		return nil, err
 	}
-	s.storage = storage
 
 	return s, nil
 }
 
 func (s *StockAssistantService) UserIndexList(userId string) (indexList []*models.StockIndex, err error) {
-	dbIndexList, err := s.storage.StockAssistant.StockIndex.SelectList(context.Background(), nil, "")
+	dbIndexList, err := s.db.StockIndex.GetQuery().SelectList(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +42,9 @@ func (s *StockAssistantService) UserIndexList(userId string) (indexList []*model
 	return fin_stock_assistant.FromStockIndexList(dbIndexList), nil
 }
 
-func (s *StockAssistantService) UserIndexAdd(userId string, index *models.StockIndex) (indexAdded *models.StockIndex, err error) {
-	return s.storage.StockAssistant.StockIndex.InsertStockIndex(userId, index)
-}
-
-func (s *StockAssistantService) UserIndexGet(userId string, indexId string) (index *models.StockIndex, err error) {
-	dbIndex, err := s.storage.StockAssistant.StockIndex.SelectByIndexId(context.Background(), nil, indexId)
+func (s *StockAssistantService) UserIndexGet(userId string, indexName string) (index *models.StockIndex, err error) {
+	dbIndex, err := s.db.StockIndex.GetQuery().
+		UserId_Equal(userId).IndexName_Equal(indexName).Select(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -57,16 +52,156 @@ func (s *StockAssistantService) UserIndexGet(userId string, indexId string) (ind
 	return fin_stock_assistant.FromStockIndex(dbIndex), nil
 }
 
-func (s *StockAssistantService) UserIndexUpdate(userId string, index *models.StockIndex) (indexUpdated *models.StockIndex, err error) {
-	return s.storage.StockAssistant.StockIndex.UpdateStockIndex(userId, index)
+func (s *StockAssistantService) UserIndexSave(userId string, index *models.StockIndex) (indexSaved *models.StockIndex, err error) {
+	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	dbIndex, err := s.db.StockIndex.GetQuery().
+		UserId_Equal(userId).
+		IndexName_Equal(index.IndexName).
+		SelectForUpdate(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+
+	if dbIndex == nil {
+		dbIndex = &fin_stock_assistant.StockIndex{}
+		dbIndex.UserId = userId
+		dbIndex.IndexName = index.IndexName
+		dbIndex.IndexDesc = index.IndexDesc
+		dbIndex.EvalWeight = index.EvalWeight
+		dbIndex.NiWeight = index.NIWeight
+		dbIndex.AiWeight = index.AIWeight
+		dbIndex.UpdateTime = time.Now()
+		_, err = s.db.StockIndex.Insert(context.Background(), tx, dbIndex)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		dbIndex.IndexDesc = index.IndexDesc
+		dbIndex.EvalWeight = index.EvalWeight
+		dbIndex.NiWeight = index.NIWeight
+		dbIndex.AiWeight = index.AIWeight
+		dbIndex.UpdateTime = time.Now()
+		err = s.db.StockIndex.Update(context.Background(), tx, dbIndex)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return fin_stock_assistant.FromStockIndex(dbIndex), nil
 }
 
-func (s *StockAssistantService) UserIndexDelete(userId string, indexId string) (err error) {
-	return s.storage.StockAssistant.StockIndex.DeleteStockIndex(userId, indexId)
+func (s *StockAssistantService) UserIndexDelete(userId string, indexName string) (err error) {
+	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	dbIndex, err := s.db.StockIndex.GetQuery().
+		UserId_Equal(userId).
+		IndexName_Equal(indexName).
+		SelectForUpdate(context.Background(), tx)
+	if err != nil {
+		return nil
+	}
+
+	if dbIndex == nil {
+		return fmt.Errorf("not exist")
+	}
+
+	err = s.db.StockIndex.Delete(context.Background(), tx, dbIndex.Id)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *StockAssistantService) UserIndexRename(userId string, indexNameOld string, indexNameNew string) (indexNew *models.StockIndex, err error) {
+	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	if indexNameNew == indexNameOld {
+		return nil, fmt.Errorf("name same")
+	}
+
+	dbIndexOld, err := s.db.StockIndex.GetQuery().
+		UserId_Equal(userId).
+		IndexName_Equal(indexNameOld).
+		SelectForUpdate(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+
+	if dbIndexOld == nil {
+		return nil, fmt.Errorf("index old not exist")
+	}
+
+	dbIndexNew, err := s.db.StockIndex.GetQuery().
+		UserId_Equal(userId).
+		IndexName_Equal(indexNameNew).
+		SelectForUpdate(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+
+	if dbIndexNew != nil {
+		return nil, fmt.Errorf("index new exist")
+	}
+
+	dbIndexOld.IndexName = indexNameNew
+	dbIndexOld.UpdateTime = time.Now()
+	err = s.db.StockIndex.Update(context.Background(), tx, dbIndexOld)
+	if err != nil {
+		return nil, err
+	}
+
+	//update index evaluates
+	dbIndexEvaluateList, err := s.db.IndexEvaluate.GetQuery().
+		UserId_Equal(userId).
+		SelectListForUpdate(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+	if dbIndexEvaluateList != nil {
+		for _, v := range dbIndexEvaluateList {
+			v.IndexName = indexNameNew
+			err := s.db.IndexEvaluate.Update(context.Background(), tx, v)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, err
 }
 
 func (s *StockAssistantService) UserStockEvaluateList(userId string) (result []*models.StockEvaluate, err error) {
-	dbStockEvaluateList, err := s.storage.StockAssistant.StockEvaluate.GetQuery().UserId_Column(runtime.RELATION_EQUAL, userId).
+	dbStockEvaluateList, err := s.db.StockEvaluate.GetQuery().
+		UserId_Equal(userId).
 		Limit(0, 10).
 		Sort(fin_stock_assistant.STOCK_EVALUATE_FIELD_TOTAL_SCORE, false).
 		SelectList(context.Background())
@@ -74,130 +209,31 @@ func (s *StockAssistantService) UserStockEvaluateList(userId string) (result []*
 		return nil, err
 	}
 
-	if dbStockEvaluateList == nil {
-		return nil, nil
-	}
-
-	result = fin_stock_assistant.FromStockEvaluateList(dbStockEvaluateList)
-	for _, u := range result {
-		dbIndexEvaluateList, err := s.storage.StockAssistant.IndexEvaluate.
-			SelectListByUserIdAndStockId(context.Background(), nil, userId, u.StockId)
-		if err != nil {
-			return nil, err
-		}
-
-		u.IndexEvaluates = fin_stock_assistant.FromIndexEvaluateList(dbIndexEvaluateList)
-	}
-
-	return result, nil
+	return fin_stock_assistant.FromStockEvaluateList(dbStockEvaluateList), nil
 }
 
 func (s *StockAssistantService) UserStockEvaluateGet(userId string, stockId string) (eval *models.StockEvaluate, err error) {
-	dbStockEvaluate, err := s.storage.StockAssistant.StockEvaluate.SelectByUserIdAndStockId(context.Background(), nil, userId, stockId)
+	dbStockEvaluate, err := s.db.StockEvaluate.GetQuery().
+		UserId_Equal(userId).
+		StockId_Equal(stockId).Select(context.Background())
 	if err != nil {
 		return nil, err
 	}
 
-	if dbStockEvaluate == nil {
-		return nil, nil
-	}
-
-	dbIndexEvaluateList, err := s.storage.StockAssistant.IndexEvaluate.
-		SelectListByUserIdAndStockId(context.Background(), nil, userId, stockId)
-	if err != nil {
-		return nil, err
-	}
-
-	eval = fin_stock_assistant.FromStockEvaluate(dbStockEvaluate)
-	eval.IndexEvaluates = fin_stock_assistant.FromIndexEvaluateList(dbIndexEvaluateList)
-
-	return eval, nil
+	return fin_stock_assistant.FromStockEvaluate(dbStockEvaluate), nil
 }
 
-func (s *StockAssistantService) UserStockEvaluateAddOrUpdate(userId string, eval *models.StockEvaluate) (evalUpdated *models.StockEvaluate, err error) {
-	tx, err := s.storage.StockAssistant.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+func (s *StockAssistantService) UserStockEvaluateSave(userId string, eval *models.StockEvaluate) (evalSaved *models.StockEvaluate, err error) {
+	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback()
 
-	//valid indices
-	dbIndexList, err := s.storage.StockAssistant.StockIndex.GetQuery().
-		UserId_Column(runtime.RELATION_EQUAL, userId).
-		SelectListForShare(context.Background(), tx)
-	if err != nil {
-		return nil, err
-	}
-	if dbIndexList == nil || len(dbIndexList) == 0 {
-		return nil, fmt.Errorf("user have no index")
-	}
-	for _, u := range eval.IndexEvaluates {
-		has := false
-		for _, v := range dbIndexList {
-			if v.IndexId == u.IndexId {
-				has = true
-				break
-			}
-		}
-		if !has {
-			return nil, fmt.Errorf("user have no index:%s", u.IndexId)
-		}
-	}
-
-	//result
-	evalUpdated = &models.StockEvaluate{}
-	evalUpdated.IndexEvaluates = make([]*models.IndexEvaluate, 0)
-
-	//update index evaluates
-	dbIndexEvaluateListOld, err := s.storage.StockAssistant.IndexEvaluate.GetQuery().
-		UserId_Column(runtime.RELATION_EQUAL, userId).
-		StockId_Column(runtime.RELATION_EQUAL, eval.StockId).SelectListForUpdate(context.Background(), tx)
-	if err != nil {
-		return nil, err
-	}
-	if eval.IndexEvaluates != nil {
-		for _, u := range eval.IndexEvaluates {
-			var ie *fin_stock_assistant.IndexEvaluate
-			if dbIndexEvaluateListOld != nil {
-				for _, v := range dbIndexEvaluateListOld {
-					if v.IndexId == u.IndexId {
-						ie = v
-						break
-					}
-				}
-			}
-			if ie == nil {
-				ie = &fin_stock_assistant.IndexEvaluate{}
-				ie.UserId = userId
-				ie.StockId = eval.StockId
-				ie.IndexId = u.IndexId
-				ie.EvalStars = u.EvalStars
-				ie.EvalRemark = u.EvalRemark
-				_, err := s.storage.StockAssistant.IndexEvaluate.Insert(context.Background(), tx, ie)
-				if err != nil {
-					return nil, err
-				}
-			} else {
-				ie.EvalStars = u.EvalStars
-				ie.EvalRemark = u.EvalRemark
-				err = s.storage.StockAssistant.IndexEvaluate.Update(context.Background(), tx, ie)
-				if err != nil {
-					return nil, err
-				}
-			}
-			evalUpdated.IndexEvaluates = append(evalUpdated.IndexEvaluates, &models.IndexEvaluate{
-				IndexId:    ie.IndexId,
-				EvalStars:  ie.EvalStars,
-				EvalRemark: ie.EvalRemark,
-				UpdateTime: ie.UpdateTime,
-			})
-		}
-	}
-
 	//update stock evaluates
-	se, err := s.storage.StockAssistant.StockEvaluate.GetQuery().
-		UserId_Column(runtime.RELATION_EQUAL, userId).
-		StockId_Column(runtime.RELATION_EQUAL, eval.StockId).
+	se, err := s.db.StockEvaluate.GetQuery().
+		UserId_Equal(userId).
+		StockId_Equal(eval.StockId).
 		SelectForUpdate(context.Background(), tx)
 	if err != nil {
 		return nil, err
@@ -207,49 +243,200 @@ func (s *StockAssistantService) UserStockEvaluateAddOrUpdate(userId string, eval
 		se = &fin_stock_assistant.StockEvaluate{}
 		se.UserId = userId
 		se.StockId = eval.StockId
-		se.TotalScore = 10000
+		se.TotalScore = 0
 
-		_, err := s.storage.StockAssistant.StockEvaluate.Insert(context.Background(), tx, se)
+		_, err := s.db.StockEvaluate.Insert(context.Background(), tx, se)
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		se.EvalRemark = eval.EvalRemark
-		se.TotalScore = 10000
-		err = s.storage.StockAssistant.StockEvaluate.Update(context.Background(), tx, se)
+		err = s.db.StockEvaluate.Update(context.Background(), tx, se)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	evalUpdated.StockId = se.StockId
-	evalUpdated.EvalRemark = se.EvalRemark
-	evalUpdated.TotalScore = se.TotalScore
+	evalSaved.StockId = se.StockId
+	evalSaved.EvalRemark = se.EvalRemark
+	evalSaved.TotalScore = se.TotalScore
 
 	err = tx.Commit()
 	if err != nil {
 		return nil, err
 	}
 
-	return evalUpdated, nil
+	return evalSaved, nil
+}
+
+func (s *StockAssistantService) UserIndexEvaluateList(userId string, stockId string) (result []*models.IndexEvaluate, err error) {
+	dbList, err := s.db.IndexEvaluate.GetQuery().
+		UserId_Equal(userId).
+		StockId_Equal(stockId).SelectList(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return fin_stock_assistant.FromIndexEvaluateList(dbList), nil
+}
+
+func (s *StockAssistantService) UserIndexEvaluateGet(userId string, stockId string, indexName string) (indexEvaluate *models.IndexEvaluate, err error) {
+	dbIndexEvaluate, err := s.db.IndexEvaluate.GetQuery().
+		UserId_Equal(userId).
+		StockId_Equal(stockId).
+		IndexName_Equal(indexName).Select(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return fin_stock_assistant.FromIndexEvaluate(dbIndexEvaluate), nil
+}
+
+func (s *StockAssistantService) UserIndexEvaluateSave(userId string, stockId string, indexEvaluate *models.IndexEvaluate) (indexEvaluateSaved *models.IndexEvaluate, err error) {
+	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	dbIndex, err := s.db.StockIndex.GetQuery().
+		UserId_Equal(userId).
+		IndexName_Equal(indexEvaluate.IndexName).SelectForShare(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+
+	if dbIndex == nil {
+		return nil, fmt.Errorf("user have no this index")
+	}
+
+	dbIndexEvaluate, err := s.db.IndexEvaluate.GetQuery().
+		UserId_Equal(userId).
+		StockId_Equal(stockId).
+		IndexName_Equal(indexEvaluate.IndexName).SelectForUpdate(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+
+	if dbIndexEvaluate == nil {
+		dbIndexEvaluate = &fin_stock_assistant.IndexEvaluate{}
+		dbIndexEvaluate.UserId = userId
+		dbIndexEvaluate.StockId = stockId
+		dbIndexEvaluate.IndexName = indexEvaluate.IndexName
+		dbIndexEvaluate.EvalStars = indexEvaluate.EvalStars
+		dbIndexEvaluate.EvalRemark = indexEvaluate.EvalRemark
+		dbIndexEvaluate.UpdateTime = time.Now()
+		_, err = s.db.IndexEvaluate.Insert(context.Background(), tx, dbIndexEvaluate)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		dbIndexEvaluate.EvalStars = indexEvaluate.EvalStars
+		dbIndexEvaluate.EvalRemark = indexEvaluate.EvalRemark
+		dbIndexEvaluate.UpdateTime = time.Now()
+		err = s.db.IndexEvaluate.Update(context.Background(), tx, dbIndexEvaluate)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return fin_stock_assistant.FromIndexEvaluate(dbIndexEvaluate), nil
 }
 
 func (s *StockAssistantService) UserSettingsList(userId string) (settingsList []*models.Setting, err error) {
-	return nil, nil
+	dbList, err := s.db.UserSetting.GetQuery().
+		UserId_Equal(userId).SelectList(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return fin_stock_assistant.FromSettingList(dbList), nil
 }
 
-func (s *StockAssistantService) UserSettingsAdd(userId string, setting *models.Setting) (settingAdded *models.Setting, err error) {
-	return nil, nil
+func (s *StockAssistantService) UserSettingsGet(userId string, configKey string) (setting *models.Setting, err error) {
+	dbSetting, err := s.db.UserSetting.GetQuery().
+		UserId_Equal(userId).
+		ConfigKey_Equal(configKey).Select(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return fin_stock_assistant.FromSetting(dbSetting), nil
 }
 
-func (s *StockAssistantService) UserSettingsGet(userId string, key string) (setting *models.Setting, err error) {
-	return nil, nil
+func (s *StockAssistantService) UserSettingsSave(userId string, setting *models.Setting) (settingSaved *models.Setting, err error) {
+	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	dbSetting, err := s.db.UserSetting.GetQuery().
+		UserId_Equal(userId).
+		ConfigKey_Equal(setting.ConfigKey).SelectForUpdate(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+
+	if dbSetting == nil {
+		dbSetting = &fin_stock_assistant.UserSetting{}
+		dbSetting.UserId = userId
+		dbSetting.ConfigKey = setting.ConfigKey
+		dbSetting.ConfigValue = setting.ConfigValue
+		dbSetting.UpdateTime = time.Now()
+		_, err := s.db.UserSetting.Insert(context.Background(), tx, dbSetting)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		dbSetting.ConfigValue = setting.ConfigValue
+		dbSetting.UpdateTime = time.Now()
+		err := s.db.UserSetting.Update(context.Background(), tx, dbSetting)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return fin_stock_assistant.FromSetting(dbSetting), nil
 }
 
-func (s *StockAssistantService) UserSettingsUpdate(userId string, setting *models.Setting) (settingUpdated *models.Setting, err error) {
-	return nil, nil
-}
+func (s *StockAssistantService) UserSettingsDelete(userId string, configKey string) (err error) {
+	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-func (s *StockAssistantService) UserSettingsDelete(userId string, key string) (err error) {
+	dbSetting, err := s.db.UserSetting.GetQuery().
+		UserId_Equal(userId).
+		ConfigKey_Equal(configKey).SelectForUpdate(context.Background(), tx)
+	if err != nil {
+		return err
+	}
+
+	if dbSetting == nil {
+		return fmt.Errorf("not exist")
+	}
+
+	err = s.db.UserSetting.Delete(context.Background(), tx, dbSetting.Id)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -23,8 +23,8 @@ type IndexEvaluate struct {
 	// eval stars
 	EvalStars int32 `json:"evalStars,omitempty"`
 
-	// index id
-	IndexID string `json:"indexId,omitempty"`
+	// index name
+	IndexName string `json:"indexName,omitempty"`
 
 	// update time
 	UpdateTime strfmt.DateTime `json:"updateTime,omitempty"`
@@ -34,7 +34,7 @@ type IndexEvaluate struct {
 
 /* polymorph IndexEvaluate evalStars false */
 
-/* polymorph IndexEvaluate indexId false */
+/* polymorph IndexEvaluate indexName false */
 
 /* polymorph IndexEvaluate updateTime false */
 
