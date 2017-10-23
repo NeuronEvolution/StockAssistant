@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"github.com/NeuronEvolution/StockAssistant/api/gen/restapi/operations"
+	"github.com/NeuronEvolution/StockAssistant/api/private/gen/restapi/operations"
 	"github.com/NeuronEvolution/StockAssistant/services"
 	"github.com/NeuronEvolution/log"
-	"github.com/NeuronEvolution/restful"
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
+	"github.com/NeuronEvolution/restful"
 )
 
 type StockAssistantHandlerOptions struct {
