@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type IndexEvaluate struct {
+type UserIndexEvaluate struct {
 	IndexName  string
 	EvalStars  int32
 	EvalRemark string

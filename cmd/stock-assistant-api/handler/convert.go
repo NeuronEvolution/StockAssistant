@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-func fromIndex(p *models.StockIndex) (r *api.StockIndex) {
+func fromIndex(p *models.UserStockIndex) (r *api.UserStockIndex) {
 	if p == nil {
 		return nil
 	}
 
-	r = &api.StockIndex{}
+	r = &api.UserStockIndex{}
 	r.Name = p.IndexName
 	r.Desc = p.IndexDesc
 	r.EvalWeight = p.EvalWeight
@@ -22,12 +22,12 @@ func fromIndex(p *models.StockIndex) (r *api.StockIndex) {
 	return r
 }
 
-func toIndex(p *api.StockIndex) (r *models.StockIndex) {
+func toIndex(p *api.UserStockIndex) (r *models.UserStockIndex) {
 	if p == nil {
 		return nil
 	}
 
-	r = &models.StockIndex{}
+	r = &models.UserStockIndex{}
 	r.IndexName = p.Name
 	r.IndexDesc = p.Desc
 	r.EvalWeight = p.EvalWeight
@@ -37,12 +37,12 @@ func toIndex(p *api.StockIndex) (r *models.StockIndex) {
 	return r
 }
 
-func fromIndexList(p []*models.StockIndex) (r []*api.StockIndex) {
+func fromIndexList(p []*models.UserStockIndex) (r []*api.UserStockIndex) {
 	if p == nil {
 		return nil
 	}
 
-	r = make([]*api.StockIndex, 0)
+	r = make([]*api.UserStockIndex, 0)
 	for _, v := range p {
 		r = append(r, fromIndex(v))
 	}
@@ -50,12 +50,12 @@ func fromIndexList(p []*models.StockIndex) (r []*api.StockIndex) {
 	return r
 }
 
-func fromIndexEvaluate(p *models.IndexEvaluate) (r *api.IndexEvaluate) {
+func fromIndexEvaluate(p *models.UserIndexEvaluate) (r *api.UserIndexEvaluate) {
 	if p == nil {
 		return nil
 	}
 
-	r = &api.IndexEvaluate{}
+	r = &api.UserIndexEvaluate{}
 	r.IndexName = p.IndexName
 	r.EvalStars = p.EvalStars
 	r.EvalRemark = p.EvalRemark
@@ -64,12 +64,12 @@ func fromIndexEvaluate(p *models.IndexEvaluate) (r *api.IndexEvaluate) {
 	return r
 }
 
-func toIndexEvaluate(p *api.IndexEvaluate) (r *models.IndexEvaluate) {
+func toIndexEvaluate(p *api.UserIndexEvaluate) (r *models.UserIndexEvaluate) {
 	if p == nil {
 		return nil
 	}
 
-	r = &models.IndexEvaluate{}
+	r = &models.UserIndexEvaluate{}
 	r.IndexName = p.IndexName
 	r.EvalStars = p.EvalStars
 	r.EvalRemark = p.EvalRemark
@@ -78,12 +78,12 @@ func toIndexEvaluate(p *api.IndexEvaluate) (r *models.IndexEvaluate) {
 	return r
 }
 
-func fromIndexEvaluateList(p []*models.IndexEvaluate) (r []*api.IndexEvaluate) {
+func fromIndexEvaluateList(p []*models.UserIndexEvaluate) (r []*api.UserIndexEvaluate) {
 	if p == nil {
 		return nil
 	}
 
-	r = make([]*api.IndexEvaluate, 0)
+	r = make([]*api.UserIndexEvaluate, 0)
 	for _, v := range p {
 		r = append(r, fromIndexEvaluate(v))
 	}
@@ -91,36 +91,34 @@ func fromIndexEvaluateList(p []*models.IndexEvaluate) (r []*api.IndexEvaluate) {
 	return r
 }
 
-func fromStockEvaluate(p *models.StockEvaluate) (r *api.StockEvaluate) {
+func fromStockEvaluate(p *models.UserStockEvaluate) (r *api.UserStockEvaluate) {
 	if p == nil {
 		return nil
 	}
 
-	r = &api.StockEvaluate{}
+	r = &api.UserStockEvaluate{}
 	r.StockID = p.StockId
 	r.TotalScore = p.TotalScore
+	r.EvalRemark = p.EvalRemark
+
+	r.ExchangeID = p.ExchangeId
+	r.StockCode = p.StockCode
+	r.StockNameCN = p.StockNameCN
+	r.LaunchDate = strfmt.DateTime(p.LaunchDate)
+	r.WebsiteURL = p.WebsiteUrl
+	r.IndustryName = p.IndustryName
+	r.CityNameCN = p.CityNameCN
+	r.ProvinceNameCN = p.ProvinceNameCN
 
 	return r
 }
 
-func toStockEvaluate(p *api.StockEvaluate) (r *models.StockEvaluate) {
+func fromStockEvaluateList(p []*models.UserStockEvaluate) (r []*api.UserStockEvaluate) {
 	if p == nil {
 		return nil
 	}
 
-	r = &models.StockEvaluate{}
-	r.StockId = p.StockID
-	r.TotalScore = p.TotalScore
-
-	return r
-}
-
-func fromStockEvaluateList(p []*models.StockEvaluate) (r []*api.StockEvaluate) {
-	if p == nil {
-		return nil
-	}
-
-	r = make([]*api.StockEvaluate, 0)
+	r = make([]*api.UserStockEvaluate, 0)
 	for _, v := range p {
 		r = append(r, fromStockEvaluate(v))
 	}
@@ -128,36 +126,36 @@ func fromStockEvaluateList(p []*models.StockEvaluate) (r []*api.StockEvaluate) {
 	return r
 }
 
-func fromUserSetting(p *models.Setting) (r *api.Setting) {
+func fromUserSetting(p *models.UserSetting) (r *api.UserSetting) {
 	if p == nil {
 		return nil
 	}
 
-	r = &api.Setting{}
+	r = &api.UserSetting{}
 	r.Key = p.ConfigKey
 	r.Value = p.ConfigValue
 
 	return r
 }
 
-func toUserSetting(p *api.Setting) (r *models.Setting) {
+func toUserSetting(p *api.UserSetting) (r *models.UserSetting) {
 	if p == nil {
 		return nil
 	}
 
-	r = &models.Setting{}
+	r = &models.UserSetting{}
 	r.ConfigKey = p.Key
 	r.ConfigValue = p.Value
 
 	return r
 }
 
-func fromUserSettingList(p []*models.Setting) (r []*api.Setting) {
+func fromUserSettingList(p []*models.UserSetting) (r []*api.UserSetting) {
 	if p == nil {
 		return nil
 	}
 
-	r = make([]*api.Setting, 0)
+	r = make([]*api.UserSetting, 0)
 	for _, v := range p {
 		r = append(r, fromUserSetting(v))
 	}

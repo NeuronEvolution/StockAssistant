@@ -78,9 +78,6 @@ func configureAPI(api *operations.StockAssistantAPI) http.Handler {
 	api.UserStockEvaluateListHandler = operations.UserStockEvaluateListHandlerFunc(func(params operations.UserStockEvaluateListParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserStockEvaluateList has not yet been implemented")
 	})
-	api.UserStockEvaluateSaveHandler = operations.UserStockEvaluateSaveHandlerFunc(func(params operations.UserStockEvaluateSaveParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserStockEvaluateSave has not yet been implemented")
-	})
 
 	api.ServerShutdown = func() {}
 

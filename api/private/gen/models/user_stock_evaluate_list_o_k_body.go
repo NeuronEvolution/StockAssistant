@@ -17,7 +17,7 @@ import (
 // UserStockEvaluateListOKBody user stock evaluate list o k body
 // swagger:model userStockEvaluateListOKBody
 
-type UserStockEvaluateListOKBody []*StockEvaluate
+type UserStockEvaluateListOKBody []*UserStockEvaluate
 
 // Validate validates this user stock evaluate list o k body
 func (m UserStockEvaluateListOKBody) Validate(formats strfmt.Registry) error {

@@ -38,7 +38,7 @@ type UserSettingSaveParams struct {
 	  Required: true
 	  In: body
 	*/
-	Setting *models.Setting
+	Setting *models.UserSetting
 	/*User id
 	  Required: true
 	  In: path
@@ -54,7 +54,7 @@ func (o *UserSettingSaveParams) BindRequest(r *http.Request, route *middleware.M
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body models.Setting
+		var body models.UserSetting
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("setting", "body"))

@@ -62,7 +62,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/StockIndex"
+              "$ref": "#/definitions/UserStockIndex"
             }
           }
         ],
@@ -70,7 +70,7 @@ func init() {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/StockIndex"
+              "$ref": "#/definitions/UserStockIndex"
             }
           },
           "default": {
@@ -114,7 +114,7 @@ func init() {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/StockIndex"
+              "$ref": "#/definitions/UserStockIndex"
             }
           },
           "default": {
@@ -143,7 +143,7 @@ func init() {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/StockIndex"
+              "$ref": "#/definitions/UserStockIndex"
             }
           },
           "default": {
@@ -214,7 +214,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Setting"
+              "$ref": "#/definitions/UserSetting"
             }
           }
         ],
@@ -222,7 +222,7 @@ func init() {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/Setting"
+              "$ref": "#/definitions/UserSetting"
             }
           },
           "default": {
@@ -250,7 +250,7 @@ func init() {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/Setting"
+              "$ref": "#/definitions/UserSetting"
             }
           },
           "default": {
@@ -295,6 +295,33 @@ func init() {
     "/{userId}/stockEvaluates": {
       "get": {
         "operationId": "UserStockEvaluateList",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "page token",
+            "name": "pageToken",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "int32",
+            "description": "page size",
+            "name": "pageSize",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "sort",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "not evaluated",
+            "name": "notEvaluated",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "ok",
@@ -306,34 +333,6 @@ func init() {
             "description": "Error response",
             "schema": {
               "$ref": "#/definitions/userStockEvaluateListDefaultBody"
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "save",
-        "operationId": "UserStockEvaluateSave",
-        "parameters": [
-          {
-            "name": "stockEvaluate",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/StockEvaluate"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "$ref": "#/definitions/StockEvaluate"
-            }
-          },
-          "default": {
-            "description": "Error response",
-            "schema": {
-              "$ref": "#/definitions/userStockEvaluateSaveDefaultBody"
             }
           }
         }
@@ -355,7 +354,7 @@ func init() {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/StockEvaluate"
+              "$ref": "#/definitions/UserStockEvaluate"
             }
           },
           "default": {
@@ -409,7 +408,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/IndexEvaluate"
+              "$ref": "#/definitions/UserIndexEvaluate"
             }
           }
         ],
@@ -417,7 +416,7 @@ func init() {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/IndexEvaluate"
+              "$ref": "#/definitions/UserIndexEvaluate"
             }
           },
           "default": {
@@ -452,7 +451,7 @@ func init() {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/IndexEvaluate"
+              "$ref": "#/definitions/UserIndexEvaluate"
             }
           },
           "default": {
@@ -489,7 +488,7 @@ func init() {
     }
   },
   "definitions": {
-    "IndexEvaluate": {
+    "UserIndexEvaluate": {
       "id": "IndexEvaluate",
       "description": "index evaluate",
       "type": "object",
@@ -514,7 +513,7 @@ func init() {
         }
       }
     },
-    "Setting": {
+    "UserSetting": {
       "id": "Setting",
       "description": "User stock setting",
       "type": "object",
@@ -529,27 +528,64 @@ func init() {
         }
       }
     },
-    "StockEvaluate": {
+    "UserStockEvaluate": {
       "id": "StockEvaluate",
       "description": "stock evaluate",
       "type": "object",
       "properties": {
+        "cityNameCN": {
+          "description": "City name cn",
+          "type": "string"
+        },
         "evalRemark": {
           "description": "remark",
+          "type": "string"
+        },
+        "exchangeId": {
+          "description": "Exchange id",
+          "type": "string"
+        },
+        "exchangeName": {
+          "description": "Exchange name",
+          "type": "string"
+        },
+        "industryName": {
+          "description": "Industry name",
+          "type": "string"
+        },
+        "launchDate": {
+          "description": "Launch date",
+          "type": "string",
+          "format": "date-time"
+        },
+        "provinceNameCN": {
+          "description": "Province name cn",
+          "type": "string"
+        },
+        "stockCode": {
+          "description": "Stock code",
           "type": "string"
         },
         "stockId": {
           "description": "stock id",
           "type": "string"
         },
+        "stockNameCN": {
+          "description": "Stock name cn",
+          "type": "string"
+        },
         "totalScore": {
           "description": "score",
           "type": "string",
           "format": "double"
+        },
+        "websiteUrl": {
+          "description": "Website url",
+          "type": "string"
         }
       }
     },
-    "StockIndex": {
+    "UserStockIndex": {
       "id": "Index",
       "description": "User stock index",
       "type": "object",
@@ -726,7 +762,7 @@ func init() {
     "userIndexEvaluateListOKBody": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/IndexEvaluate"
+        "$ref": "#/definitions/UserIndexEvaluate"
       },
       "x-go-gen-location": "operations"
     },
@@ -877,7 +913,7 @@ func init() {
     "userIndexListOKBody": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/StockIndex"
+        "$ref": "#/definitions/UserStockIndex"
       },
       "x-go-gen-location": "operations"
     },
@@ -1124,7 +1160,7 @@ func init() {
     "userSettingListOKBody": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/Setting"
+        "$ref": "#/definitions/UserSetting"
       },
       "x-go-gen-location": "operations"
     },
@@ -1275,55 +1311,7 @@ func init() {
     "userStockEvaluateListOKBody": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/StockEvaluate"
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userStockEvaluateSaveDefaultBody": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "Error code",
-          "type": "string"
-        },
-        "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
-        },
-        "message": {
-          "description": "Error message",
-          "type": "string"
-        },
-        "status": {
-          "type": "string",
-          "format": "int32",
-          "default": "Http status"
-        }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userStockEvaluateSaveDefaultBodyErrors": {
-      "description": "Errors",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userStockEvaluateSaveDefaultBodyErrorsItems": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "error code",
-          "type": "string"
-        },
-        "field": {
-          "description": "field name",
-          "type": "string"
-        },
-        "message": {
-          "description": "error message",
-          "type": "string"
-        }
+        "$ref": "#/definitions/UserStockEvaluate"
       },
       "x-go-gen-location": "operations"
     }

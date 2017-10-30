@@ -2,11 +2,12 @@ package handler
 
 import (
 	"github.com/NeuronEvolution/StockAssistant/api/private/gen/restapi/operations"
+	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/NeuronEvolution/StockAssistant/services"
-	"github.com/NeuronEvolution/log"
+	"github.com/NeuronFramework/log"
+	"github.com/NeuronFramework/restful"
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
-	"github.com/NeuronEvolution/restful"
 )
 
 type StockAssistantHandlerOptions struct {
@@ -79,7 +80,24 @@ func (h *StockAssistantHandler) UserIndexRename(p operations.UserIndexRenamePara
 }
 
 func (h *StockAssistantHandler) UserStockEvaluateList(p operations.UserStockEvaluateListParams) middleware.Responder {
-	list, err := h.service.UserStockEvaluateList(p.UserID)
+	query := &models.UserStockEvaluateListQuery{}
+	query.UserId = p.UserID
+	if p.NotEvaluated == nil {
+		query.Evaluated = true
+	} else {
+		query.Evaluated = false
+	}
+	if p.Sort != nil {
+		query.Sort = *p.Sort
+	}
+	if p.PageToken != nil {
+		query.PageToken = *p.PageToken
+	}
+	if p.PageSize != nil {
+		query.PageSize = *p.PageSize
+	}
+
+	list, err := h.service.UserStockEvaluateList(query)
 	if err != nil {
 		return restful.Responder(err)
 	}
@@ -94,15 +112,6 @@ func (h *StockAssistantHandler) UserStockEvaluateGet(p operations.UserStockEvalu
 	}
 
 	return operations.NewUserStockEvaluateGetOK().WithPayload(fromStockEvaluate(se))
-}
-
-func (h *StockAssistantHandler) UserStockEvaluateSave(p operations.UserStockEvaluateSaveParams) middleware.Responder {
-	se, err := h.service.UserStockEvaluateSave(p.UserID, toStockEvaluate(p.StockEvaluate))
-	if err != nil {
-		return restful.Responder(err)
-	}
-
-	return operations.NewUserStockEvaluateSaveOK().WithPayload(fromStockEvaluate(se))
 }
 
 func (h *StockAssistantHandler) UserIndexEvaluateList(p operations.UserIndexEvaluateListParams) middleware.Responder {

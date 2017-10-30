@@ -68,7 +68,7 @@ type UserIndexSaveParams struct {
 	  Index
 
 	*/
-	Index *models.StockIndex
+	Index *models.UserStockIndex
 	/*UserID
 	  User id
 
@@ -114,13 +114,13 @@ func (o *UserIndexSaveParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithIndex adds the index to the user index save params
-func (o *UserIndexSaveParams) WithIndex(index *models.StockIndex) *UserIndexSaveParams {
+func (o *UserIndexSaveParams) WithIndex(index *models.UserStockIndex) *UserIndexSaveParams {
 	o.SetIndex(index)
 	return o
 }
 
 // SetIndex adds the index to the user index save params
-func (o *UserIndexSaveParams) SetIndex(index *models.StockIndex) {
+func (o *UserIndexSaveParams) SetIndex(index *models.UserStockIndex) {
 	o.Index = index
 }
 
@@ -144,7 +144,7 @@ func (o *UserIndexSaveParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 	var res []error
 
 	if o.Index == nil {
-		o.Index = new(models.StockIndex)
+		o.Index = new(models.UserStockIndex)
 	}
 
 	if err := r.SetBodyParam(o.Index); err != nil {

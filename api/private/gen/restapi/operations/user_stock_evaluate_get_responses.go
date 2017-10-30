@@ -25,7 +25,7 @@ type UserStockEvaluateGetOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.StockEvaluate `json:"body,omitempty"`
+	Payload *models.UserStockEvaluate `json:"body,omitempty"`
 }
 
 // NewUserStockEvaluateGetOK creates UserStockEvaluateGetOK with default headers values
@@ -34,13 +34,13 @@ func NewUserStockEvaluateGetOK() *UserStockEvaluateGetOK {
 }
 
 // WithPayload adds the payload to the user stock evaluate get o k response
-func (o *UserStockEvaluateGetOK) WithPayload(payload *models.StockEvaluate) *UserStockEvaluateGetOK {
+func (o *UserStockEvaluateGetOK) WithPayload(payload *models.UserStockEvaluate) *UserStockEvaluateGetOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the user stock evaluate get o k response
-func (o *UserStockEvaluateGetOK) SetPayload(payload *models.StockEvaluate) {
+func (o *UserStockEvaluateGetOK) SetPayload(payload *models.UserStockEvaluate) {
 	o.Payload = payload
 }
 

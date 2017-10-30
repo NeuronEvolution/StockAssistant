@@ -4,12 +4,12 @@ import (
 	"github.com/NeuronEvolution/StockAssistant/models"
 )
 
-func FromStockIndex(p *StockIndex) (r *models.StockIndex) {
+func FromStockIndex(p *UserStockIndex) (r *models.UserStockIndex) {
 	if p == nil {
 		return nil
 	}
 
-	r = &models.StockIndex{}
+	r = &models.UserStockIndex{}
 	r.IndexName = p.IndexName
 	r.IndexDesc = p.IndexDesc
 	r.EvalWeight = p.EvalWeight
@@ -19,12 +19,12 @@ func FromStockIndex(p *StockIndex) (r *models.StockIndex) {
 	return r
 }
 
-func FromStockIndexList(p []*StockIndex) (r []*models.StockIndex) {
+func FromStockIndexList(p []*UserStockIndex) (r []*models.UserStockIndex) {
 	if p == nil {
 		return nil
 	}
 
-	r = make([]*models.StockIndex, 0)
+	r = make([]*models.UserStockIndex, 0)
 	for _, v := range p {
 		r = append(r, FromStockIndex(v))
 	}
@@ -32,12 +32,12 @@ func FromStockIndexList(p []*StockIndex) (r []*models.StockIndex) {
 	return r
 }
 
-func FromStockEvaluate(p *StockEvaluate) (r *models.StockEvaluate) {
+func FromStockEvaluate(p *UserStockEvaluate) (r *models.UserStockEvaluate) {
 	if p == nil {
 		return r
 	}
 
-	r = &models.StockEvaluate{}
+	r = &models.UserStockEvaluate{}
 	r.StockId = p.StockId
 	r.TotalScore = p.TotalScore
 	r.EvalRemark = p.EvalRemark
@@ -45,12 +45,12 @@ func FromStockEvaluate(p *StockEvaluate) (r *models.StockEvaluate) {
 	return r
 }
 
-func FromStockEvaluateList(p []*StockEvaluate) (r []*models.StockEvaluate) {
+func FromStockEvaluateList(p []*UserStockEvaluate) (r []*models.UserStockEvaluate) {
 	if p == nil {
 		return nil
 	}
 
-	r = make([]*models.StockEvaluate, 0)
+	r = make([]*models.UserStockEvaluate, 0)
 	for _, v := range p {
 		r = append(r, FromStockEvaluate(v))
 	}
@@ -58,12 +58,12 @@ func FromStockEvaluateList(p []*StockEvaluate) (r []*models.StockEvaluate) {
 	return r
 }
 
-func FromIndexEvaluate(p *IndexEvaluate) (r *models.IndexEvaluate) {
+func FromIndexEvaluate(p *UserIndexEvaluate) (r *models.UserIndexEvaluate) {
 	if p == nil {
 		return nil
 	}
 
-	r = &models.IndexEvaluate{}
+	r = &models.UserIndexEvaluate{}
 	r.IndexName = p.IndexName
 	r.EvalStars = p.EvalStars
 	r.EvalRemark = p.EvalRemark
@@ -72,12 +72,12 @@ func FromIndexEvaluate(p *IndexEvaluate) (r *models.IndexEvaluate) {
 	return r
 }
 
-func FromIndexEvaluateList(p []*IndexEvaluate) (r []*models.IndexEvaluate) {
+func FromIndexEvaluateList(p []*UserIndexEvaluate) (r []*models.UserIndexEvaluate) {
 	if p == nil {
 		return nil
 	}
 
-	r = make([]*models.IndexEvaluate, 0)
+	r = make([]*models.UserIndexEvaluate, 0)
 	for _, v := range p {
 		r = append(r, FromIndexEvaluate(v))
 	}
@@ -85,24 +85,24 @@ func FromIndexEvaluateList(p []*IndexEvaluate) (r []*models.IndexEvaluate) {
 	return r
 }
 
-func FromSetting(p *UserSetting) (r *models.Setting) {
+func FromSetting(p *UserSetting) (r *models.UserSetting) {
 	if p == nil {
 		return nil
 	}
 
-	r = &models.Setting{}
+	r = &models.UserSetting{}
 	r.ConfigKey = p.ConfigKey
 	r.ConfigValue = p.ConfigValue
 
 	return r
 }
 
-func FromSettingList(p []*UserSetting) (r []*models.Setting) {
+func FromSettingList(p []*UserSetting) (r []*models.UserSetting) {
 	if p == nil {
 		return nil
 	}
 
-	r = make([]*models.Setting, 0)
+	r = make([]*models.UserSetting, 0)
 	for _, v := range p {
 		r = append(r, FromSetting(v))
 	}

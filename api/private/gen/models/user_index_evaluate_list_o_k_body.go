@@ -17,7 +17,7 @@ import (
 // UserIndexEvaluateListOKBody user index evaluate list o k body
 // swagger:model userIndexEvaluateListOKBody
 
-type UserIndexEvaluateListOKBody []*IndexEvaluate
+type UserIndexEvaluateListOKBody []*UserIndexEvaluate
 
 // Validate validates this user index evaluate list o k body
 func (m UserIndexEvaluateListOKBody) Validate(formats strfmt.Registry) error {

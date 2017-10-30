@@ -68,7 +68,7 @@ type UserSettingSaveParams struct {
 	  setting
 
 	*/
-	Setting *models.Setting
+	Setting *models.UserSetting
 	/*UserID
 	  User id
 
@@ -114,13 +114,13 @@ func (o *UserSettingSaveParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithSetting adds the setting to the user setting save params
-func (o *UserSettingSaveParams) WithSetting(setting *models.Setting) *UserSettingSaveParams {
+func (o *UserSettingSaveParams) WithSetting(setting *models.UserSetting) *UserSettingSaveParams {
 	o.SetSetting(setting)
 	return o
 }
 
 // SetSetting adds the setting to the user setting save params
-func (o *UserSettingSaveParams) SetSetting(setting *models.Setting) {
+func (o *UserSettingSaveParams) SetSetting(setting *models.UserSetting) {
 	o.Setting = setting
 }
 
@@ -144,7 +144,7 @@ func (o *UserSettingSaveParams) WriteToRequest(r runtime.ClientRequest, reg strf
 	var res []error
 
 	if o.Setting == nil {
-		o.Setting = new(models.Setting)
+		o.Setting = new(models.UserSetting)
 	}
 
 	if err := r.SetBodyParam(o.Setting); err != nil {

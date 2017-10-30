@@ -77,9 +77,6 @@ func NewStockAssistantAPI(spec *loads.Document) *StockAssistantAPI {
 		UserStockEvaluateListHandler: UserStockEvaluateListHandlerFunc(func(params UserStockEvaluateListParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserStockEvaluateList has not yet been implemented")
 		}),
-		UserStockEvaluateSaveHandler: UserStockEvaluateSaveHandlerFunc(func(params UserStockEvaluateSaveParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserStockEvaluateSave has not yet been implemented")
-		}),
 	}
 }
 
@@ -137,8 +134,6 @@ type StockAssistantAPI struct {
 	UserStockEvaluateGetHandler UserStockEvaluateGetHandler
 	// UserStockEvaluateListHandler sets the operation handler for the user stock evaluate list operation
 	UserStockEvaluateListHandler UserStockEvaluateListHandler
-	// UserStockEvaluateSaveHandler sets the operation handler for the user stock evaluate save operation
-	UserStockEvaluateSaveHandler UserStockEvaluateSaveHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -256,10 +251,6 @@ func (o *StockAssistantAPI) Validate() error {
 
 	if o.UserStockEvaluateListHandler == nil {
 		unregistered = append(unregistered, "UserStockEvaluateListHandler")
-	}
-
-	if o.UserStockEvaluateSaveHandler == nil {
-		unregistered = append(unregistered, "UserStockEvaluateSaveHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -421,11 +412,6 @@ func (o *StockAssistantAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/{userId}/stockEvaluates"] = NewUserStockEvaluateList(o.context, o.UserStockEvaluateListHandler)
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/{userId}/stockEvaluates"] = NewUserStockEvaluateSave(o.context, o.UserStockEvaluateSaveHandler)
 
 }
 

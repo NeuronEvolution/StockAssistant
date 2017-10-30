@@ -65,7 +65,7 @@ for the user index evaluate save operation typically these are written to a http
 type UserIndexEvaluateSaveParams struct {
 
 	/*IndexEvaluate*/
-	IndexEvaluate *models.IndexEvaluate
+	IndexEvaluate *models.UserIndexEvaluate
 	/*StockID
 	  stock id
 
@@ -116,13 +116,13 @@ func (o *UserIndexEvaluateSaveParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithIndexEvaluate adds the indexEvaluate to the user index evaluate save params
-func (o *UserIndexEvaluateSaveParams) WithIndexEvaluate(indexEvaluate *models.IndexEvaluate) *UserIndexEvaluateSaveParams {
+func (o *UserIndexEvaluateSaveParams) WithIndexEvaluate(indexEvaluate *models.UserIndexEvaluate) *UserIndexEvaluateSaveParams {
 	o.SetIndexEvaluate(indexEvaluate)
 	return o
 }
 
 // SetIndexEvaluate adds the indexEvaluate to the user index evaluate save params
-func (o *UserIndexEvaluateSaveParams) SetIndexEvaluate(indexEvaluate *models.IndexEvaluate) {
+func (o *UserIndexEvaluateSaveParams) SetIndexEvaluate(indexEvaluate *models.UserIndexEvaluate) {
 	o.IndexEvaluate = indexEvaluate
 }
 
@@ -157,7 +157,7 @@ func (o *UserIndexEvaluateSaveParams) WriteToRequest(r runtime.ClientRequest, re
 	var res []error
 
 	if o.IndexEvaluate == nil {
-		o.IndexEvaluate = new(models.IndexEvaluate)
+		o.IndexEvaluate = new(models.UserIndexEvaluate)
 	}
 
 	if err := r.SetBodyParam(o.IndexEvaluate); err != nil {

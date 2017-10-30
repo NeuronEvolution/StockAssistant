@@ -416,34 +416,6 @@ func (a *Client) UserStockEvaluateList(params *UserStockEvaluateListParams) (*Us
 
 }
 
-/*
-UserStockEvaluateSave saves
-*/
-func (a *Client) UserStockEvaluateSave(params *UserStockEvaluateSaveParams) (*UserStockEvaluateSaveOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewUserStockEvaluateSaveParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UserStockEvaluateSave",
-		Method:             "POST",
-		PathPattern:        "/{userId}/stockEvaluates",
-		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
-		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &UserStockEvaluateSaveReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*UserStockEvaluateSaveOK), nil
-
-}
-
 // SetTransport changes the transport on the client
 func (a *Client) SetTransport(transport runtime.ClientTransport) {
 	a.transport = transport

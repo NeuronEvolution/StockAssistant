@@ -1,6 +1,6 @@
 package models
 
-type StockIndex struct {
+type UserStockIndex struct {
 	IndexName  string
 	IndexDesc  string
 	EvalWeight int32

@@ -54,7 +54,7 @@ func NewUserSettingSaveOK() *UserSettingSaveOK {
 ok
 */
 type UserSettingSaveOK struct {
-	Payload *models.Setting
+	Payload *models.UserSetting
 }
 
 func (o *UserSettingSaveOK) Error() string {
@@ -63,7 +63,7 @@ func (o *UserSettingSaveOK) Error() string {
 
 func (o *UserSettingSaveOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.Setting)
+	o.Payload = new(models.UserSetting)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

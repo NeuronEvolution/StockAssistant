@@ -25,7 +25,7 @@ type UserSettingSaveOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.Setting `json:"body,omitempty"`
+	Payload *models.UserSetting `json:"body,omitempty"`
 }
 
 // NewUserSettingSaveOK creates UserSettingSaveOK with default headers values
@@ -34,13 +34,13 @@ func NewUserSettingSaveOK() *UserSettingSaveOK {
 }
 
 // WithPayload adds the payload to the user setting save o k response
-func (o *UserSettingSaveOK) WithPayload(payload *models.Setting) *UserSettingSaveOK {
+func (o *UserSettingSaveOK) WithPayload(payload *models.UserSetting) *UserSettingSaveOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the user setting save o k response
-func (o *UserSettingSaveOK) SetPayload(payload *models.Setting) {
+func (o *UserSettingSaveOK) SetPayload(payload *models.UserSetting) {
 	o.Payload = payload
 }
 

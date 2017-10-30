@@ -10,11 +10,18 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 	"strings"
+
+	"github.com/go-openapi/swag"
 )
 
 // UserStockEvaluateListURL generates an URL for the user stock evaluate list operation
 type UserStockEvaluateListURL struct {
 	UserID string
+
+	NotEvaluated *string
+	PageSize     *int32
+	PageToken    *string
+	Sort         *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -53,6 +60,42 @@ func (o *UserStockEvaluateListURL) Build() (*url.URL, error) {
 		_basePath = "/api/stock-assistant/v1"
 	}
 	result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var notEvaluated string
+	if o.NotEvaluated != nil {
+		notEvaluated = *o.NotEvaluated
+	}
+	if notEvaluated != "" {
+		qs.Set("notEvaluated", notEvaluated)
+	}
+
+	var pageSize string
+	if o.PageSize != nil {
+		pageSize = swag.FormatInt32(*o.PageSize)
+	}
+	if pageSize != "" {
+		qs.Set("pageSize", pageSize)
+	}
+
+	var pageToken string
+	if o.PageToken != nil {
+		pageToken = *o.PageToken
+	}
+	if pageToken != "" {
+		qs.Set("pageToken", pageToken)
+	}
+
+	var sort string
+	if o.Sort != nil {
+		sort = *o.Sort
+	}
+	if sort != "" {
+		qs.Set("sort", sort)
+	}
+
+	result.RawQuery = qs.Encode()
 
 	return &result, nil
 }

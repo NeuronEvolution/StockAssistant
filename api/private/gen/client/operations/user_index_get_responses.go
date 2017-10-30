@@ -54,7 +54,7 @@ func NewUserIndexGetOK() *UserIndexGetOK {
 ok
 */
 type UserIndexGetOK struct {
-	Payload *models.StockIndex
+	Payload *models.UserStockIndex
 }
 
 func (o *UserIndexGetOK) Error() string {
@@ -63,7 +63,7 @@ func (o *UserIndexGetOK) Error() string {
 
 func (o *UserIndexGetOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.StockIndex)
+	o.Payload = new(models.UserStockIndex)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

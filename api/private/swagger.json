@@ -94,7 +94,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/StockIndex"
+                "$ref": "#/definitions/UserStockIndex"
               }
             }
           },
@@ -112,7 +112,7 @@
             "name": "Index",
             "description": "Index",
             "schema": {
-              "$ref": "#/definitions/StockIndex"
+              "$ref": "#/definitions/UserStockIndex"
             },
             "required": true
           }
@@ -121,7 +121,7 @@
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/StockIndex"
+              "$ref": "#/definitions/UserStockIndex"
             }
           },
           "default": {
@@ -163,7 +163,7 @@
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/StockIndex"
+              "$ref": "#/definitions/UserStockIndex"
             }
           },
           "default": {
@@ -198,7 +198,7 @@
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/StockIndex"
+              "$ref": "#/definitions/UserStockIndex"
             }
           },
           "default": {
@@ -235,6 +235,35 @@
         "summary": "",
         "operationId": "UserStockEvaluateList",
         "parameters": [
+          {
+            "in": "query",
+            "name": "pageToken",
+            "description": "page token",
+            "type": "string",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "description": "page size",
+            "type": "string",
+            "format": "int32",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "description": "sort",
+            "type": "string",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "notEvaluated",
+            "description": "not evaluated",
+            "type": "string",
+            "required": false
+          }
         ],
         "responses": {
           "200": {
@@ -242,34 +271,8 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/StockEvaluate"
+                "$ref": "#/definitions/UserStockEvaluate"
               }
-            }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
-          }
-        }
-      },
-      "post": {
-        "summary": "save",
-        "operationId": "UserStockEvaluateSave",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "stockEvaluate",
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/StockEvaluate"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "$ref": "#/definitions/StockEvaluate"
             }
           },
           "default": {
@@ -304,7 +307,7 @@
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/StockEvaluate"
+              "$ref": "#/definitions/UserStockEvaluate"
             }
           },
           "default": {
@@ -341,7 +344,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/IndexEvaluate"
+                "$ref": "#/definitions/UserIndexEvaluate"
               }
             }
           },
@@ -358,7 +361,7 @@
             "in": "body",
             "name": "indexEvaluate",
             "schema": {
-              "$ref": "#/definitions/IndexEvaluate"
+              "$ref": "#/definitions/UserIndexEvaluate"
             },
             "required": true
           }
@@ -367,7 +370,7 @@
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/IndexEvaluate"
+              "$ref": "#/definitions/UserIndexEvaluate"
             }
           },
           "default": {
@@ -409,7 +412,7 @@
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/IndexEvaluate"
+              "$ref": "#/definitions/UserIndexEvaluate"
             }
           },
           "default": {
@@ -439,7 +442,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Setting"
+                "$ref": "#/definitions/UserSetting"
               }
             }
           },
@@ -457,7 +460,7 @@
             "name": "Setting",
             "description": "setting",
             "schema": {
-              "$ref": "#/definitions/Setting"
+              "$ref": "#/definitions/UserSetting"
             },
             "required": true
           }
@@ -466,7 +469,7 @@
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/Setting"
+              "$ref": "#/definitions/UserSetting"
             }
           },
           "default": {
@@ -501,7 +504,7 @@
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/Setting"
+              "$ref": "#/definitions/UserSetting"
             }
           },
           "default": {
@@ -526,7 +529,7 @@
     }
   },
   "definitions": {
-    "Setting": {
+    "UserSetting": {
       "id": "Setting",
       "description": "User stock setting",
       "type": "object",
@@ -541,7 +544,7 @@
         }
       }
     },
-    "StockIndex": {
+    "UserStockIndex": {
       "id": "Index",
       "description": "User stock index",
       "type": "object",
@@ -571,7 +574,7 @@
         }
       }
     },
-    "StockEvaluate": {
+    "UserStockEvaluate": {
       "id": "StockEvaluate",
       "description": "stock evaluate",
       "type": "object",
@@ -588,10 +591,47 @@
         "evalRemark": {
           "description": "remark",
           "type": "string"
+        },
+        "exchangeId": {
+          "description": "Exchange id",
+          "type": "string"
+        },
+        "exchangeName":{
+          "description": "Exchange name",
+          "type": "string"
+        },
+        "stockCode":{
+          "description": "Stock code",
+          "type":"string"
+        },
+        "stockNameCN":{
+          "description": "Stock name cn",
+          "type": "string"
+        },
+        "launchDate":{
+          "description": "Launch date",
+          "type": "string",
+          "format": "date-time"
+        },
+        "websiteUrl":{
+          "description": "Website url",
+          "type": "string"
+        },
+        "industryName":{
+          "description": "Industry name",
+          "type": "string"
+        },
+        "cityNameCN":{
+          "description": "City name cn",
+          "type": "string"
+        },
+        "provinceNameCN":{
+          "description": "Province name cn",
+          "type": "string"
         }
       }
     },
-    "IndexEvaluate": {
+    "UserIndexEvaluate": {
       "id": "IndexEvaluate",
       "description": "index evaluate",
       "type": "object",

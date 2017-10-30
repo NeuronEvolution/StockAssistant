@@ -25,7 +25,7 @@ type UserIndexEvaluateGetOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.IndexEvaluate `json:"body,omitempty"`
+	Payload *models.UserIndexEvaluate `json:"body,omitempty"`
 }
 
 // NewUserIndexEvaluateGetOK creates UserIndexEvaluateGetOK with default headers values
@@ -34,13 +34,13 @@ func NewUserIndexEvaluateGetOK() *UserIndexEvaluateGetOK {
 }
 
 // WithPayload adds the payload to the user index evaluate get o k response
-func (o *UserIndexEvaluateGetOK) WithPayload(payload *models.IndexEvaluate) *UserIndexEvaluateGetOK {
+func (o *UserIndexEvaluateGetOK) WithPayload(payload *models.UserIndexEvaluate) *UserIndexEvaluateGetOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the user index evaluate get o k response
-func (o *UserIndexEvaluateGetOK) SetPayload(payload *models.IndexEvaluate) {
+func (o *UserIndexEvaluateGetOK) SetPayload(payload *models.UserIndexEvaluate) {
 	o.Payload = payload
 }
 

@@ -1,6 +1,6 @@
 package models
 
-type Setting struct {
+type UserSetting struct {
 	ConfigKey   string
 	ConfigValue string
 }

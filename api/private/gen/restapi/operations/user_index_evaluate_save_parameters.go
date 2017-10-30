@@ -38,7 +38,7 @@ type UserIndexEvaluateSaveParams struct {
 	  Required: true
 	  In: body
 	*/
-	IndexEvaluate *models.IndexEvaluate
+	IndexEvaluate *models.UserIndexEvaluate
 	/*stock id
 	  Required: true
 	  In: path
@@ -59,7 +59,7 @@ func (o *UserIndexEvaluateSaveParams) BindRequest(r *http.Request, route *middle
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body models.IndexEvaluate
+		var body models.UserIndexEvaluate
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("indexEvaluate", "body"))

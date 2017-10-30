@@ -9,7 +9,9 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -30,6 +32,22 @@ type UserStockEvaluateListParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request
 
+	/*not evaluated
+	  In: query
+	*/
+	NotEvaluated *string
+	/*page size
+	  In: query
+	*/
+	PageSize *int32
+	/*page token
+	  In: query
+	*/
+	PageToken *string
+	/*sort
+	  In: query
+	*/
+	Sort *string
 	/*User id
 	  Required: true
 	  In: path
@@ -43,6 +61,28 @@ func (o *UserStockEvaluateListParams) BindRequest(r *http.Request, route *middle
 	var res []error
 	o.HTTPRequest = r
 
+	qs := runtime.Values(r.URL.Query())
+
+	qNotEvaluated, qhkNotEvaluated, _ := qs.GetOK("notEvaluated")
+	if err := o.bindNotEvaluated(qNotEvaluated, qhkNotEvaluated, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPageSize, qhkPageSize, _ := qs.GetOK("pageSize")
+	if err := o.bindPageSize(qPageSize, qhkPageSize, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPageToken, qhkPageToken, _ := qs.GetOK("pageToken")
+	if err := o.bindPageToken(qPageToken, qhkPageToken, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qSort, qhkSort, _ := qs.GetOK("sort")
+	if err := o.bindSort(qSort, qhkSort, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	rUserID, rhkUserID, _ := route.Params.GetOK("userId")
 	if err := o.bindUserID(rUserID, rhkUserID, route.Formats); err != nil {
 		res = append(res, err)
@@ -51,6 +91,66 @@ func (o *UserStockEvaluateListParams) BindRequest(r *http.Request, route *middle
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *UserStockEvaluateListParams) bindNotEvaluated(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.NotEvaluated = &raw
+
+	return nil
+}
+
+func (o *UserStockEvaluateListParams) bindPageSize(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt32(raw)
+	if err != nil {
+		return errors.InvalidType("pageSize", "query", "int32", raw)
+	}
+	o.PageSize = &value
+
+	return nil
+}
+
+func (o *UserStockEvaluateListParams) bindPageToken(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.PageToken = &raw
+
+	return nil
+}
+
+func (o *UserStockEvaluateListParams) bindSort(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.Sort = &raw
+
 	return nil
 }
 

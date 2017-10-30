@@ -25,7 +25,7 @@ type UserIndexEvaluateSaveOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.IndexEvaluate `json:"body,omitempty"`
+	Payload *models.UserIndexEvaluate `json:"body,omitempty"`
 }
 
 // NewUserIndexEvaluateSaveOK creates UserIndexEvaluateSaveOK with default headers values
@@ -34,13 +34,13 @@ func NewUserIndexEvaluateSaveOK() *UserIndexEvaluateSaveOK {
 }
 
 // WithPayload adds the payload to the user index evaluate save o k response
-func (o *UserIndexEvaluateSaveOK) WithPayload(payload *models.IndexEvaluate) *UserIndexEvaluateSaveOK {
+func (o *UserIndexEvaluateSaveOK) WithPayload(payload *models.UserIndexEvaluate) *UserIndexEvaluateSaveOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the user index evaluate save o k response
-func (o *UserIndexEvaluateSaveOK) SetPayload(payload *models.IndexEvaluate) {
+func (o *UserIndexEvaluateSaveOK) SetPayload(payload *models.UserIndexEvaluate) {
 	o.Payload = payload
 }
 

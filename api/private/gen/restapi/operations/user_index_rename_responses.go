@@ -25,7 +25,7 @@ type UserIndexRenameOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.StockIndex `json:"body,omitempty"`
+	Payload *models.UserStockIndex `json:"body,omitempty"`
 }
 
 // NewUserIndexRenameOK creates UserIndexRenameOK with default headers values
@@ -34,13 +34,13 @@ func NewUserIndexRenameOK() *UserIndexRenameOK {
 }
 
 // WithPayload adds the payload to the user index rename o k response
-func (o *UserIndexRenameOK) WithPayload(payload *models.StockIndex) *UserIndexRenameOK {
+func (o *UserIndexRenameOK) WithPayload(payload *models.UserStockIndex) *UserIndexRenameOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the user index rename o k response
-func (o *UserIndexRenameOK) SetPayload(payload *models.StockIndex) {
+func (o *UserIndexRenameOK) SetPayload(payload *models.UserStockIndex) {
 	o.Payload = payload
 }
 

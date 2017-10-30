@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -62,6 +63,26 @@ for the user stock evaluate list operation typically these are written to a http
 */
 type UserStockEvaluateListParams struct {
 
+	/*NotEvaluated
+	  not evaluated
+
+	*/
+	NotEvaluated *string
+	/*PageSize
+	  page size
+
+	*/
+	PageSize *int32
+	/*PageToken
+	  page token
+
+	*/
+	PageToken *string
+	/*Sort
+	  sort
+
+	*/
+	Sort *string
 	/*UserID
 	  User id
 
@@ -106,6 +127,50 @@ func (o *UserStockEvaluateListParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithNotEvaluated adds the notEvaluated to the user stock evaluate list params
+func (o *UserStockEvaluateListParams) WithNotEvaluated(notEvaluated *string) *UserStockEvaluateListParams {
+	o.SetNotEvaluated(notEvaluated)
+	return o
+}
+
+// SetNotEvaluated adds the notEvaluated to the user stock evaluate list params
+func (o *UserStockEvaluateListParams) SetNotEvaluated(notEvaluated *string) {
+	o.NotEvaluated = notEvaluated
+}
+
+// WithPageSize adds the pageSize to the user stock evaluate list params
+func (o *UserStockEvaluateListParams) WithPageSize(pageSize *int32) *UserStockEvaluateListParams {
+	o.SetPageSize(pageSize)
+	return o
+}
+
+// SetPageSize adds the pageSize to the user stock evaluate list params
+func (o *UserStockEvaluateListParams) SetPageSize(pageSize *int32) {
+	o.PageSize = pageSize
+}
+
+// WithPageToken adds the pageToken to the user stock evaluate list params
+func (o *UserStockEvaluateListParams) WithPageToken(pageToken *string) *UserStockEvaluateListParams {
+	o.SetPageToken(pageToken)
+	return o
+}
+
+// SetPageToken adds the pageToken to the user stock evaluate list params
+func (o *UserStockEvaluateListParams) SetPageToken(pageToken *string) {
+	o.PageToken = pageToken
+}
+
+// WithSort adds the sort to the user stock evaluate list params
+func (o *UserStockEvaluateListParams) WithSort(sort *string) *UserStockEvaluateListParams {
+	o.SetSort(sort)
+	return o
+}
+
+// SetSort adds the sort to the user stock evaluate list params
+func (o *UserStockEvaluateListParams) SetSort(sort *string) {
+	o.Sort = sort
+}
+
 // WithUserID adds the userID to the user stock evaluate list params
 func (o *UserStockEvaluateListParams) WithUserID(userID string) *UserStockEvaluateListParams {
 	o.SetUserID(userID)
@@ -124,6 +189,70 @@ func (o *UserStockEvaluateListParams) WriteToRequest(r runtime.ClientRequest, re
 		return err
 	}
 	var res []error
+
+	if o.NotEvaluated != nil {
+
+		// query param notEvaluated
+		var qrNotEvaluated string
+		if o.NotEvaluated != nil {
+			qrNotEvaluated = *o.NotEvaluated
+		}
+		qNotEvaluated := qrNotEvaluated
+		if qNotEvaluated != "" {
+			if err := r.SetQueryParam("notEvaluated", qNotEvaluated); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.PageSize != nil {
+
+		// query param pageSize
+		var qrPageSize int32
+		if o.PageSize != nil {
+			qrPageSize = *o.PageSize
+		}
+		qPageSize := swag.FormatInt32(qrPageSize)
+		if qPageSize != "" {
+			if err := r.SetQueryParam("pageSize", qPageSize); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.PageToken != nil {
+
+		// query param pageToken
+		var qrPageToken string
+		if o.PageToken != nil {
+			qrPageToken = *o.PageToken
+		}
+		qPageToken := qrPageToken
+		if qPageToken != "" {
+			if err := r.SetQueryParam("pageToken", qPageToken); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.Sort != nil {
+
+		// query param sort
+		var qrSort string
+		if o.Sort != nil {
+			qrSort = *o.Sort
+		}
+		qSort := qrSort
+		if qSort != "" {
+			if err := r.SetQueryParam("sort", qSort); err != nil {
+				return err
+			}
+		}
+
+	}
 
 	// path param userId
 	if err := r.SetPathParam("userId", o.UserID); err != nil {

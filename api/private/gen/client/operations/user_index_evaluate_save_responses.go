@@ -54,7 +54,7 @@ func NewUserIndexEvaluateSaveOK() *UserIndexEvaluateSaveOK {
 ok
 */
 type UserIndexEvaluateSaveOK struct {
-	Payload *models.IndexEvaluate
+	Payload *models.UserIndexEvaluate
 }
 
 func (o *UserIndexEvaluateSaveOK) Error() string {
@@ -63,7 +63,7 @@ func (o *UserIndexEvaluateSaveOK) Error() string {
 
 func (o *UserIndexEvaluateSaveOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.IndexEvaluate)
+	o.Payload = new(models.UserIndexEvaluate)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

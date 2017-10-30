@@ -17,7 +17,7 @@ import (
 // UserSettingListOKBody user setting list o k body
 // swagger:model userSettingListOKBody
 
-type UserSettingListOKBody []*Setting
+type UserSettingListOKBody []*UserSetting
 
 // Validate validates this user setting list o k body
 func (m UserSettingListOKBody) Validate(formats strfmt.Registry) error {

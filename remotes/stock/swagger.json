@@ -1,0 +1,144 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "",
+    "title": "Stock",
+    "contact": {
+      "name": "mars"
+    },
+    "version": "v1"
+  },
+  "basePath": "/api/stock/v1",
+  "consumes": [
+    "application/json;charset=utf-8"
+  ],
+  "produces": [
+    "application/json;charset=utf-8"
+  ],
+  "paths": {
+    "/stocks": {
+      "get": {
+        "summary": "Get stock list",
+        "operationId": "StocksList",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exchangeId",
+            "description": "Exchange id.eg sz,sh...",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock list",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Stock"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/stocks/{stockId}": {
+      "get": {
+        "summary": "Get stock,sh_{code},sz_{code}",
+        "operationId": "StocksGet",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "stockId",
+            "description": "Stock id",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock",
+            "schema": {
+              "$ref": "#/definitions/Stock"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Stock": {
+      "id": "Stock",
+      "description": "Stock info",
+      "type": "object",
+      "properties": {
+        "stockId": {
+          "description": "Stock id",
+          "type": "string"
+        },
+        "exchangeId": {
+          "description": "Exchange id",
+          "type": "string"
+        },
+        "stockCode":{
+          "description": "Stock code",
+          "type":"string"
+        },
+        "stockNameCN":{
+          "description": "Stock name cn",
+          "type": "string"
+        },
+        "launchDate":{
+          "description": "Launch date",
+          "type": "string",
+          "format": "date-time"
+        },
+        "websiteUrl":{
+          "description": "Website url",
+          "type": "string"
+        },
+        "industryName":{
+          "description": "Industry name",
+          "type": "string"
+        },
+        "cityNameCN":{
+          "description": "City name cn",
+          "type": "string"
+        },
+        "provinceNameCN":{
+          "description": "Province name cn",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

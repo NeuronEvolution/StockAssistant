@@ -4,8 +4,8 @@ import (
 	"github.com/NeuronEvolution/StockAssistant/api/private/gen/restapi"
 	"github.com/NeuronEvolution/StockAssistant/api/private/gen/restapi/operations"
 	"github.com/NeuronEvolution/StockAssistant/cmd/stock-assistant-api/handler"
-	"github.com/NeuronEvolution/log"
-	"github.com/NeuronEvolution/restful"
+	"github.com/NeuronFramework/log"
+	"github.com/NeuronFramework/restful"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
@@ -48,7 +48,6 @@ func main() {
 		api.UserIndexRenameHandler = operations.UserIndexRenameHandlerFunc(h.UserIndexRename)
 		api.UserStockEvaluateListHandler = operations.UserStockEvaluateListHandlerFunc(h.UserStockEvaluateList)
 		api.UserStockEvaluateGetHandler = operations.UserStockEvaluateGetHandlerFunc(h.UserStockEvaluateGet)
-		api.UserStockEvaluateSaveHandler = operations.UserStockEvaluateSaveHandlerFunc(h.UserStockEvaluateSave)
 		api.UserIndexEvaluateListHandler = operations.UserIndexEvaluateListHandlerFunc(h.UserIndexEvaluateList)
 		api.UserIndexEvaluateGetHandler = operations.UserIndexEvaluateGetHandlerFunc(h.UserIndexEvaluateGet)
 		api.UserIndexEvaluateSaveHandler = operations.UserIndexEvaluateSaveHandlerFunc(h.UserIndexEvaluateSave)
