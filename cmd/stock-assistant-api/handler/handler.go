@@ -44,7 +44,7 @@ func (h *StockAssistantHandler) UserStockIndexList(p operations.UserStockIndexLi
 }
 
 func (h *StockAssistantHandler) UserStockIndexGet(p operations.UserStockIndexGetParams) middleware.Responder {
-	index, err := h.service.UserStockIndexGet(p.UserID, p.IndexID)
+	index, err := h.service.UserStockIndexGet(p.UserID, p.IndexName)
 	if err != nil {
 		return restful.Responder(err)
 	}
@@ -71,7 +71,7 @@ func (h *StockAssistantHandler) UserStockIndexUpdate(p operations.UserStockIndex
 }
 
 func (h *StockAssistantHandler) UserStockIndexDelete(p operations.UserStockIndexDeleteParams) middleware.Responder {
-	err := h.service.UserStockIndexDelete(p.UserID, p.IndexID)
+	err := h.service.UserStockIndexDelete(p.UserID, p.IndexName)
 	if err != nil {
 		return restful.Responder(err)
 	}

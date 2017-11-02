@@ -144,7 +144,7 @@ func (q *StockQuery) QueryCount(ctx context.Context, tx *wrap.Tx) (count int64, 
 }
 
 func (q *StockQuery) QueryGroupBy(ctx context.Context, tx *wrap.Tx) (rows *wrap.Rows, err error) {
-	return nil, nil
+	return q.dao.QueryGroupBy(ctx, tx, q.groupByFields, q.buildQueryString())
 }
 
 func (q *StockQuery) ForUpdate() *StockQuery {
@@ -170,11 +170,31 @@ func (q *StockQuery) Limit(startIncluded int64, count int64) *StockQuery {
 	return q
 }
 
-func (q *StockQuery) OrderBy(fieldName STOCK_FIELD, asc bool) *StockQuery {
+func (q *StockQuery) OrderBy(fields []STOCK_FIELD, asc bool) *StockQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", fieldName)
+		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", fieldName)
+		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+	}
+
+	return q
+}
+
+func (q *StockQuery) OrderByGroupCount(fields []STOCK_FIELD, asc bool) *StockQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
+	if asc {
+		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+	} else {
+		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
 	}
 
 	return q
@@ -666,6 +686,15 @@ func (dao *StockDao) QueryCount(ctx context.Context, tx *wrap.Tx, query string) 
 	return count, nil
 }
 
+func (dao *StockDao) QueryGroupBy(ctx context.Context, tx *wrap.Tx, groupByFields []string, query string) (rows *wrap.Rows, err error) {
+	querySql := "SELECT " + strings.Join(groupByFields, ",") + ",count(1) FROM stock " + query
+	if tx == nil {
+		return dao.db.Query(ctx, querySql)
+	} else {
+		return tx.Query(ctx, querySql)
+	}
+}
+
 func (dao *StockDao) GetQuery() *StockQuery {
 	return NewStockQuery(dao)
 }
@@ -725,7 +754,7 @@ func (q *StockIndexAdviceQuery) QueryCount(ctx context.Context, tx *wrap.Tx) (co
 }
 
 func (q *StockIndexAdviceQuery) QueryGroupBy(ctx context.Context, tx *wrap.Tx) (rows *wrap.Rows, err error) {
-	return nil, nil
+	return q.dao.QueryGroupBy(ctx, tx, q.groupByFields, q.buildQueryString())
 }
 
 func (q *StockIndexAdviceQuery) ForUpdate() *StockIndexAdviceQuery {
@@ -751,11 +780,31 @@ func (q *StockIndexAdviceQuery) Limit(startIncluded int64, count int64) *StockIn
 	return q
 }
 
-func (q *StockIndexAdviceQuery) OrderBy(fieldName STOCK_INDEX_ADVICE_FIELD, asc bool) *StockIndexAdviceQuery {
+func (q *StockIndexAdviceQuery) OrderBy(fields []STOCK_INDEX_ADVICE_FIELD, asc bool) *StockIndexAdviceQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", fieldName)
+		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", fieldName)
+		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+	}
+
+	return q
+}
+
+func (q *StockIndexAdviceQuery) OrderByGroupCount(fields []STOCK_INDEX_ADVICE_FIELD, asc bool) *StockIndexAdviceQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
+	if asc {
+		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+	} else {
+		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
 	}
 
 	return q
@@ -1043,6 +1092,15 @@ func (dao *StockIndexAdviceDao) QueryCount(ctx context.Context, tx *wrap.Tx, que
 	return count, nil
 }
 
+func (dao *StockIndexAdviceDao) QueryGroupBy(ctx context.Context, tx *wrap.Tx, groupByFields []string, query string) (rows *wrap.Rows, err error) {
+	querySql := "SELECT " + strings.Join(groupByFields, ",") + ",count(1) FROM stock_index_advice " + query
+	if tx == nil {
+		return dao.db.Query(ctx, querySql)
+	} else {
+		return tx.Query(ctx, querySql)
+	}
+}
+
 func (dao *StockIndexAdviceDao) GetQuery() *StockIndexAdviceQuery {
 	return NewStockIndexAdviceQuery(dao)
 }
@@ -1111,7 +1169,7 @@ func (q *UserIndexEvaluateQuery) QueryCount(ctx context.Context, tx *wrap.Tx) (c
 }
 
 func (q *UserIndexEvaluateQuery) QueryGroupBy(ctx context.Context, tx *wrap.Tx) (rows *wrap.Rows, err error) {
-	return nil, nil
+	return q.dao.QueryGroupBy(ctx, tx, q.groupByFields, q.buildQueryString())
 }
 
 func (q *UserIndexEvaluateQuery) ForUpdate() *UserIndexEvaluateQuery {
@@ -1137,11 +1195,31 @@ func (q *UserIndexEvaluateQuery) Limit(startIncluded int64, count int64) *UserIn
 	return q
 }
 
-func (q *UserIndexEvaluateQuery) OrderBy(fieldName USER_INDEX_EVALUATE_FIELD, asc bool) *UserIndexEvaluateQuery {
+func (q *UserIndexEvaluateQuery) OrderBy(fields []USER_INDEX_EVALUATE_FIELD, asc bool) *UserIndexEvaluateQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", fieldName)
+		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", fieldName)
+		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+	}
+
+	return q
+}
+
+func (q *UserIndexEvaluateQuery) OrderByGroupCount(fields []USER_INDEX_EVALUATE_FIELD, asc bool) *UserIndexEvaluateQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
+	if asc {
+		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+	} else {
+		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
 	}
 
 	return q
@@ -1483,6 +1561,15 @@ func (dao *UserIndexEvaluateDao) QueryCount(ctx context.Context, tx *wrap.Tx, qu
 	return count, nil
 }
 
+func (dao *UserIndexEvaluateDao) QueryGroupBy(ctx context.Context, tx *wrap.Tx, groupByFields []string, query string) (rows *wrap.Rows, err error) {
+	querySql := "SELECT " + strings.Join(groupByFields, ",") + ",count(1) FROM user_index_evaluate " + query
+	if tx == nil {
+		return dao.db.Query(ctx, querySql)
+	} else {
+		return tx.Query(ctx, querySql)
+	}
+}
+
 func (dao *UserIndexEvaluateDao) GetQuery() *UserIndexEvaluateQuery {
 	return NewUserIndexEvaluateQuery(dao)
 }
@@ -1545,7 +1632,7 @@ func (q *UserSettingQuery) QueryCount(ctx context.Context, tx *wrap.Tx) (count i
 }
 
 func (q *UserSettingQuery) QueryGroupBy(ctx context.Context, tx *wrap.Tx) (rows *wrap.Rows, err error) {
-	return nil, nil
+	return q.dao.QueryGroupBy(ctx, tx, q.groupByFields, q.buildQueryString())
 }
 
 func (q *UserSettingQuery) ForUpdate() *UserSettingQuery {
@@ -1571,11 +1658,31 @@ func (q *UserSettingQuery) Limit(startIncluded int64, count int64) *UserSettingQ
 	return q
 }
 
-func (q *UserSettingQuery) OrderBy(fieldName USER_SETTING_FIELD, asc bool) *UserSettingQuery {
+func (q *UserSettingQuery) OrderBy(fields []USER_SETTING_FIELD, asc bool) *UserSettingQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", fieldName)
+		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", fieldName)
+		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+	}
+
+	return q
+}
+
+func (q *UserSettingQuery) OrderByGroupCount(fields []USER_SETTING_FIELD, asc bool) *UserSettingQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
+	if asc {
+		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+	} else {
+		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
 	}
 
 	return q
@@ -1881,6 +1988,15 @@ func (dao *UserSettingDao) QueryCount(ctx context.Context, tx *wrap.Tx, query st
 	return count, nil
 }
 
+func (dao *UserSettingDao) QueryGroupBy(ctx context.Context, tx *wrap.Tx, groupByFields []string, query string) (rows *wrap.Rows, err error) {
+	querySql := "SELECT " + strings.Join(groupByFields, ",") + ",count(1) FROM user_setting " + query
+	if tx == nil {
+		return dao.db.Query(ctx, querySql)
+	} else {
+		return tx.Query(ctx, querySql)
+	}
+}
+
 func (dao *UserSettingDao) GetQuery() *UserSettingQuery {
 	return NewUserSettingQuery(dao)
 }
@@ -1958,7 +2074,7 @@ func (q *UserStockEvaluateQuery) QueryCount(ctx context.Context, tx *wrap.Tx) (c
 }
 
 func (q *UserStockEvaluateQuery) QueryGroupBy(ctx context.Context, tx *wrap.Tx) (rows *wrap.Rows, err error) {
-	return nil, nil
+	return q.dao.QueryGroupBy(ctx, tx, q.groupByFields, q.buildQueryString())
 }
 
 func (q *UserStockEvaluateQuery) ForUpdate() *UserStockEvaluateQuery {
@@ -1984,11 +2100,31 @@ func (q *UserStockEvaluateQuery) Limit(startIncluded int64, count int64) *UserSt
 	return q
 }
 
-func (q *UserStockEvaluateQuery) OrderBy(fieldName USER_STOCK_EVALUATE_FIELD, asc bool) *UserStockEvaluateQuery {
+func (q *UserStockEvaluateQuery) OrderBy(fields []USER_STOCK_EVALUATE_FIELD, asc bool) *UserStockEvaluateQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", fieldName)
+		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", fieldName)
+		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+	}
+
+	return q
+}
+
+func (q *UserStockEvaluateQuery) OrderByGroupCount(fields []USER_STOCK_EVALUATE_FIELD, asc bool) *UserStockEvaluateQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
+	if asc {
+		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+	} else {
+		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
 	}
 
 	return q
@@ -2384,6 +2520,15 @@ func (dao *UserStockEvaluateDao) QueryCount(ctx context.Context, tx *wrap.Tx, qu
 	return count, nil
 }
 
+func (dao *UserStockEvaluateDao) QueryGroupBy(ctx context.Context, tx *wrap.Tx, groupByFields []string, query string) (rows *wrap.Rows, err error) {
+	querySql := "SELECT " + strings.Join(groupByFields, ",") + ",count(1) FROM user_stock_evaluate " + query
+	if tx == nil {
+		return dao.db.Query(ctx, querySql)
+	} else {
+		return tx.Query(ctx, querySql)
+	}
+}
+
 func (dao *UserStockEvaluateDao) GetQuery() *UserStockEvaluateQuery {
 	return NewUserStockEvaluateQuery(dao)
 }
@@ -2458,7 +2603,7 @@ func (q *UserStockIndexQuery) QueryCount(ctx context.Context, tx *wrap.Tx) (coun
 }
 
 func (q *UserStockIndexQuery) QueryGroupBy(ctx context.Context, tx *wrap.Tx) (rows *wrap.Rows, err error) {
-	return nil, nil
+	return q.dao.QueryGroupBy(ctx, tx, q.groupByFields, q.buildQueryString())
 }
 
 func (q *UserStockIndexQuery) ForUpdate() *UserStockIndexQuery {
@@ -2484,11 +2629,31 @@ func (q *UserStockIndexQuery) Limit(startIncluded int64, count int64) *UserStock
 	return q
 }
 
-func (q *UserStockIndexQuery) OrderBy(fieldName USER_STOCK_INDEX_FIELD, asc bool) *UserStockIndexQuery {
+func (q *UserStockIndexQuery) OrderBy(fields []USER_STOCK_INDEX_FIELD, asc bool) *UserStockIndexQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", fieldName)
+		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", fieldName)
+		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+	}
+
+	return q
+}
+
+func (q *UserStockIndexQuery) OrderByGroupCount(fields []USER_STOCK_INDEX_FIELD, asc bool) *UserStockIndexQuery {
+	s := make([]string, len(fields))
+	for i, v := range s {
+		s[i] = string(v)
+	}
+
+	if asc {
+		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+	} else {
+		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
 	}
 
 	return q
@@ -2864,6 +3029,15 @@ func (dao *UserStockIndexDao) QueryCount(ctx context.Context, tx *wrap.Tx, query
 	}
 
 	return count, nil
+}
+
+func (dao *UserStockIndexDao) QueryGroupBy(ctx context.Context, tx *wrap.Tx, groupByFields []string, query string) (rows *wrap.Rows, err error) {
+	querySql := "SELECT " + strings.Join(groupByFields, ",") + ",count(1) FROM user_stock_index " + query
+	if tx == nil {
+		return dao.db.Query(ctx, querySql)
+	} else {
+		return tx.Query(ctx, querySql)
+	}
 }
 
 func (dao *UserStockIndexDao) GetQuery() *UserStockIndexQuery {

@@ -172,7 +172,7 @@
         }
       }
     },
-    "/{userId}/stockIndices/{indexId}": {
+    "/{userId}/stockIndices/{indexName}": {
       "parameters": [
         {
           "in": "path",
@@ -183,7 +183,7 @@
         },
         {
           "in": "path",
-          "name": "indexId",
+          "name": "indexName",
           "description": "index id",
           "type": "string",
           "required": true

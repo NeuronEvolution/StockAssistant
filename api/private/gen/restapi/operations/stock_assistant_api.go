@@ -419,12 +419,12 @@ func (o *StockAssistantAPI) initHandlerCache() {
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/{userId}/stockIndices/{indexId}"] = NewUserStockIndexDelete(o.context, o.UserStockIndexDeleteHandler)
+	o.handlers["DELETE"]["/{userId}/stockIndices/{indexName}"] = NewUserStockIndexDelete(o.context, o.UserStockIndexDeleteHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/{userId}/stockIndices/{indexId}"] = NewUserStockIndexGet(o.context, o.UserStockIndexGetHandler)
+	o.handlers["GET"]["/{userId}/stockIndices/{indexName}"] = NewUserStockIndexGet(o.context, o.UserStockIndexGetHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -439,7 +439,7 @@ func (o *StockAssistantAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/{userId}/stockIndices/{indexId}"] = NewUserStockIndexUpdate(o.context, o.UserStockIndexUpdateHandler)
+	o.handlers["POST"]["/{userId}/stockIndices/{indexName}"] = NewUserStockIndexUpdate(o.context, o.UserStockIndexUpdateHandler)
 
 }
 

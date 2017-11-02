@@ -344,7 +344,7 @@ func (a *Client) UserStockIndexDelete(params *UserStockIndexDeleteParams) (*User
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "UserStockIndexDelete",
 		Method:             "DELETE",
-		PathPattern:        "/{userId}/stockIndices/{indexId}",
+		PathPattern:        "/{userId}/stockIndices/{indexName}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
@@ -372,7 +372,7 @@ func (a *Client) UserStockIndexGet(params *UserStockIndexGetParams) (*UserStockI
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "UserStockIndexGet",
 		Method:             "GET",
-		PathPattern:        "/{userId}/stockIndices/{indexId}",
+		PathPattern:        "/{userId}/stockIndices/{indexName}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
@@ -456,7 +456,7 @@ func (a *Client) UserStockIndexUpdate(params *UserStockIndexUpdateParams) (*User
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "UserStockIndexUpdate",
 		Method:             "POST",
-		PathPattern:        "/{userId}/stockIndices/{indexId}",
+		PathPattern:        "/{userId}/stockIndices/{indexName}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},

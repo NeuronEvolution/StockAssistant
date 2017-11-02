@@ -479,7 +479,7 @@ func init() {
         }
       ]
     },
-    "/{userId}/stockIndices/{indexId}": {
+    "/{userId}/stockIndices/{indexName}": {
       "get": {
         "summary": "Get user index",
         "operationId": "UserStockIndexGet",
@@ -552,7 +552,7 @@ func init() {
         {
           "type": "string",
           "description": "index id",
-          "name": "indexId",
+          "name": "indexName",
           "in": "path",
           "required": true
         }
