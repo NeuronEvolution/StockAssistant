@@ -36,8 +36,8 @@ func configureAPI(api *operations.StockAssistantAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.UserIndexDeleteHandler = operations.UserIndexDeleteHandlerFunc(func(params operations.UserIndexDeleteParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserIndexDelete has not yet been implemented")
+	api.StockIndexAdviceListHandler = operations.StockIndexAdviceListHandlerFunc(func(params operations.StockIndexAdviceListParams) middleware.Responder {
+		return middleware.NotImplemented("operation .StockIndexAdviceList has not yet been implemented")
 	})
 	api.UserIndexEvaluateGetHandler = operations.UserIndexEvaluateGetHandlerFunc(func(params operations.UserIndexEvaluateGetParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserIndexEvaluateGet has not yet been implemented")
@@ -47,18 +47,6 @@ func configureAPI(api *operations.StockAssistantAPI) http.Handler {
 	})
 	api.UserIndexEvaluateSaveHandler = operations.UserIndexEvaluateSaveHandlerFunc(func(params operations.UserIndexEvaluateSaveParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserIndexEvaluateSave has not yet been implemented")
-	})
-	api.UserIndexGetHandler = operations.UserIndexGetHandlerFunc(func(params operations.UserIndexGetParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserIndexGet has not yet been implemented")
-	})
-	api.UserIndexListHandler = operations.UserIndexListHandlerFunc(func(params operations.UserIndexListParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserIndexList has not yet been implemented")
-	})
-	api.UserIndexRenameHandler = operations.UserIndexRenameHandlerFunc(func(params operations.UserIndexRenameParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserIndexRename has not yet been implemented")
-	})
-	api.UserIndexSaveHandler = operations.UserIndexSaveHandlerFunc(func(params operations.UserIndexSaveParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserIndexSave has not yet been implemented")
 	})
 	api.UserSettingDeleteHandler = operations.UserSettingDeleteHandlerFunc(func(params operations.UserSettingDeleteParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserSettingDelete has not yet been implemented")
@@ -77,6 +65,24 @@ func configureAPI(api *operations.StockAssistantAPI) http.Handler {
 	})
 	api.UserStockEvaluateListHandler = operations.UserStockEvaluateListHandlerFunc(func(params operations.UserStockEvaluateListParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserStockEvaluateList has not yet been implemented")
+	})
+	api.UserStockIndexAddHandler = operations.UserStockIndexAddHandlerFunc(func(params operations.UserStockIndexAddParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UserStockIndexAdd has not yet been implemented")
+	})
+	api.UserStockIndexDeleteHandler = operations.UserStockIndexDeleteHandlerFunc(func(params operations.UserStockIndexDeleteParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UserStockIndexDelete has not yet been implemented")
+	})
+	api.UserStockIndexGetHandler = operations.UserStockIndexGetHandlerFunc(func(params operations.UserStockIndexGetParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UserStockIndexGet has not yet been implemented")
+	})
+	api.UserStockIndexListHandler = operations.UserStockIndexListHandlerFunc(func(params operations.UserStockIndexListParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UserStockIndexList has not yet been implemented")
+	})
+	api.UserStockIndexRenameHandler = operations.UserStockIndexRenameHandlerFunc(func(params operations.UserStockIndexRenameParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UserStockIndexRename has not yet been implemented")
+	})
+	api.UserStockIndexUpdateHandler = operations.UserStockIndexUpdateHandlerFunc(func(params operations.UserStockIndexUpdateParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UserStockIndexUpdate has not yet been implemented")
 	})
 
 	api.ServerShutdown = func() {}

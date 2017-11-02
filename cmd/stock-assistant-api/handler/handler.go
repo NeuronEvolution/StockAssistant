@@ -34,49 +34,58 @@ func NewStockAssistantHandler(options *StockAssistantHandlerOptions) (h *StockAs
 	return h, nil
 }
 
-func (h *StockAssistantHandler) UserIndexList(p operations.UserIndexListParams) middleware.Responder {
-	indexList, err := h.service.UserIndexList(p.UserID)
+func (h *StockAssistantHandler) UserStockIndexList(p operations.UserStockIndexListParams) middleware.Responder {
+	indexList, err := h.service.UserStockIndexList(p.UserID)
 	if err != nil {
 		return restful.Responder(err)
 	}
 
-	return operations.NewUserIndexListOK().WithPayload(fromIndexList(indexList))
+	return operations.NewUserStockIndexListOK().WithPayload(fromIndexList(indexList))
 }
 
-func (h *StockAssistantHandler) UserIndexGet(p operations.UserIndexGetParams) middleware.Responder {
-	index, err := h.service.UserIndexGet(p.UserID, p.IndexID)
+func (h *StockAssistantHandler) UserStockIndexGet(p operations.UserStockIndexGetParams) middleware.Responder {
+	index, err := h.service.UserStockIndexGet(p.UserID, p.IndexID)
 	if err != nil {
 		return restful.Responder(err)
 	}
 
-	return operations.NewUserIndexGetOK().WithPayload(fromIndex(index))
+	return operations.NewUserStockIndexGetOK().WithPayload(fromIndex(index))
 }
 
-func (h *StockAssistantHandler) UserIndexSave(p operations.UserIndexSaveParams) middleware.Responder {
-	index, err := h.service.UserIndexSave(p.UserID, toIndex(p.Index))
+func (h *StockAssistantHandler) UserStockIndexAdd(p operations.UserStockIndexAddParams) middleware.Responder {
+	index, err := h.service.UserStockIndexAdd(p.UserID, toIndex(p.Index))
 	if err != nil {
 		return restful.Responder(err)
 	}
 
-	return operations.NewUserIndexSaveOK().WithPayload(fromIndex(index))
+	return operations.NewUserStockIndexAddOK().WithPayload(fromIndex(index))
 }
 
-func (h *StockAssistantHandler) UserIndexDelete(p operations.UserIndexDeleteParams) middleware.Responder {
-	err := h.service.UserIndexDelete(p.UserID, p.IndexID)
+func (h *StockAssistantHandler) UserStockIndexUpdate(p operations.UserStockIndexUpdateParams) middleware.Responder {
+	index, err := h.service.UserStockIndexUpdate(p.UserID, toIndex(p.Index))
 	if err != nil {
 		return restful.Responder(err)
 	}
 
-	return operations.NewUserIndexDeleteOK()
+	return operations.NewUserStockIndexUpdateOK().WithPayload(fromIndex(index))
 }
 
-func (h *StockAssistantHandler) UserIndexRename(p operations.UserIndexRenameParams) middleware.Responder {
-	indexRenamed, err := h.service.UserIndexRename(p.UserID, p.OldName, p.NewName)
+func (h *StockAssistantHandler) UserStockIndexDelete(p operations.UserStockIndexDeleteParams) middleware.Responder {
+	err := h.service.UserStockIndexDelete(p.UserID, p.IndexID)
 	if err != nil {
 		return restful.Responder(err)
 	}
 
-	return operations.NewUserIndexRenameOK().WithPayload(fromIndex(indexRenamed))
+	return operations.NewUserStockIndexDeleteOK()
+}
+
+func (h *StockAssistantHandler) UserStockIndexRename(p operations.UserStockIndexRenameParams) middleware.Responder {
+	indexRenamed, err := h.service.UserStockIndexRename(p.UserID, p.OldName, p.NewName)
+	if err != nil {
+		return restful.Responder(err)
+	}
+
+	return operations.NewUserStockIndexRenameOK().WithPayload(fromIndex(indexRenamed))
 }
 
 func (h *StockAssistantHandler) UserStockEvaluateList(p operations.UserStockEvaluateListParams) middleware.Responder {
@@ -97,12 +106,13 @@ func (h *StockAssistantHandler) UserStockEvaluateList(p operations.UserStockEval
 		query.PageSize = *p.PageSize
 	}
 
-	list, err := h.service.UserStockEvaluateList(query)
+	result, nextPageToken, err := h.service.UserStockEvaluateList(query)
 	if err != nil {
 		return restful.Responder(err)
 	}
 
-	return operations.NewUserStockEvaluateListOK().WithPayload(fromStockEvaluateList(list))
+	return operations.NewUserStockEvaluateListOK().WithNeuronXNextPageToken(nextPageToken).
+		WithPayload(fromStockEvaluateList(result))
 }
 
 func (h *StockAssistantHandler) UserStockEvaluateGet(p operations.UserStockEvaluateGetParams) middleware.Responder {
@@ -175,4 +185,25 @@ func (h *StockAssistantHandler) UserSettingsDelete(p operations.UserSettingDelet
 	}
 
 	return operations.NewUserSettingDeleteOK()
+}
+
+func (h *StockAssistantHandler) StockIndexAdviceList(p operations.StockIndexAdviceListParams) middleware.Responder {
+	query := &models.StockIndexAdviceQuery{}
+
+	if p.PageToken != nil {
+		query.PageToken = *p.PageToken
+	}
+
+	if p.PageSize != nil {
+		query.PageSize = *p.PageSize
+	}
+
+	result, nextPageToken, err := h.service.StockIndexAdviceList(query)
+	if err != nil {
+		return restful.Responder(err)
+	}
+
+	return operations.NewStockIndexAdviceListOK().
+		WithNeuronXNextPageToken(nextPageToken).
+		WithPayload(fromStockIndexAdviceList(result))
 }

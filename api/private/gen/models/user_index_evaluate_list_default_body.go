@@ -21,7 +21,7 @@ type UserIndexEvaluateListDefaultBody struct {
 	Code string `json:"code,omitempty"`
 
 	// errors
-	Errors UserIndexEvaluateGetDefaultBodyErrors `json:"errors"`
+	Errors UserStockIndexUpdateDefaultBodyErrors `json:"errors"`
 
 	// Error message
 	Message string `json:"message,omitempty"`

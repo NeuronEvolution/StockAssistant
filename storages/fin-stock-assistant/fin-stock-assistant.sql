@@ -49,6 +49,26 @@ CREATE TABLE `stock` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `stock_index_advice`
+--
+
+DROP TABLE IF EXISTS `stock_index_advice`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `stock_index_advice` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(32) NOT NULL,
+  `used_count` bigint(20) NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_update_time` (`update_time`),
+  KEY `idx_index_name` (`index_name`),
+  KEY `idx_used_count` (`used_count`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `user_index_evaluate`
 --
 
@@ -142,7 +162,7 @@ CREATE TABLE `user_stock_index` (
   UNIQUE KEY `idx_uid_name` (`user_id`,`index_name`),
   KEY `idx_update_time` (`update_time`),
   KEY `idx_name` (`index_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -154,4 +174,4 @@ CREATE TABLE `user_stock_index` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-27 12:22:43
+-- Dump completed on 2017-11-01 19:53:19

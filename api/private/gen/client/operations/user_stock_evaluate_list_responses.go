@@ -54,6 +54,8 @@ func NewUserStockEvaluateListOK() *UserStockEvaluateListOK {
 ok
 */
 type UserStockEvaluateListOK struct {
+	NeuronXNextPageToken string
+
 	Payload models.UserStockEvaluateListOKBody
 }
 
@@ -62,6 +64,9 @@ func (o *UserStockEvaluateListOK) Error() string {
 }
 
 func (o *UserStockEvaluateListOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response header Neuron-X-NextPageToken
+	o.NeuronXNextPageToken = response.GetHeader("Neuron-X-NextPageToken")
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {

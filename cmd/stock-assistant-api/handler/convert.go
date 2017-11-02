@@ -42,9 +42,9 @@ func fromIndexList(p []*models.UserStockIndex) (r []*api.UserStockIndex) {
 		return nil
 	}
 
-	r = make([]*api.UserStockIndex, 0)
-	for _, v := range p {
-		r = append(r, fromIndex(v))
+	r = make([]*api.UserStockIndex, len(p))
+	for i, v := range p {
+		r[i] = fromIndex(v)
 	}
 
 	return r
@@ -83,9 +83,9 @@ func fromIndexEvaluateList(p []*models.UserIndexEvaluate) (r []*api.UserIndexEva
 		return nil
 	}
 
-	r = make([]*api.UserIndexEvaluate, 0)
-	for _, v := range p {
-		r = append(r, fromIndexEvaluate(v))
+	r = make([]*api.UserIndexEvaluate, len(p))
+	for i, v := range p {
+		r[i] = fromIndexEvaluate(v)
 	}
 
 	return r
@@ -118,9 +118,9 @@ func fromStockEvaluateList(p []*models.UserStockEvaluate) (r []*api.UserStockEva
 		return nil
 	}
 
-	r = make([]*api.UserStockEvaluate, 0)
-	for _, v := range p {
-		r = append(r, fromStockEvaluate(v))
+	r = make([]*api.UserStockEvaluate, len(p))
+	for i, v := range p {
+		r[i] = fromStockEvaluate(v)
 	}
 
 	return r
@@ -155,9 +155,34 @@ func fromUserSettingList(p []*models.UserSetting) (r []*api.UserSetting) {
 		return nil
 	}
 
-	r = make([]*api.UserSetting, 0)
-	for _, v := range p {
-		r = append(r, fromUserSetting(v))
+	r = make([]*api.UserSetting, len(p))
+	for i, v := range p {
+		r[i] = fromUserSetting(v)
+	}
+
+	return r
+}
+
+func fromStockIndexAdvice(p *models.StockIndexAdvice) (r *api.StockIndexAdvice) {
+	if p == nil {
+		return nil
+	}
+
+	r = &api.StockIndexAdvice{}
+	r.IndexName = p.IndexName
+	r.UsedCount = p.UsedCount
+
+	return r
+}
+
+func fromStockIndexAdviceList(p []*models.StockIndexAdvice) (r []*api.StockIndexAdvice) {
+	if p == nil {
+		return nil
+	}
+
+	r = make([]*api.StockIndexAdvice, len(p))
+	for i, v := range p {
+		r[i] = fromStockIndexAdvice(v)
 	}
 
 	return r

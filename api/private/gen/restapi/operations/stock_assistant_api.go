@@ -35,8 +35,8 @@ func NewStockAssistantAPI(spec *loads.Document) *StockAssistantAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
-		UserIndexDeleteHandler: UserIndexDeleteHandlerFunc(func(params UserIndexDeleteParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserIndexDelete has not yet been implemented")
+		StockIndexAdviceListHandler: StockIndexAdviceListHandlerFunc(func(params StockIndexAdviceListParams) middleware.Responder {
+			return middleware.NotImplemented("operation StockIndexAdviceList has not yet been implemented")
 		}),
 		UserIndexEvaluateGetHandler: UserIndexEvaluateGetHandlerFunc(func(params UserIndexEvaluateGetParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserIndexEvaluateGet has not yet been implemented")
@@ -46,18 +46,6 @@ func NewStockAssistantAPI(spec *loads.Document) *StockAssistantAPI {
 		}),
 		UserIndexEvaluateSaveHandler: UserIndexEvaluateSaveHandlerFunc(func(params UserIndexEvaluateSaveParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserIndexEvaluateSave has not yet been implemented")
-		}),
-		UserIndexGetHandler: UserIndexGetHandlerFunc(func(params UserIndexGetParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserIndexGet has not yet been implemented")
-		}),
-		UserIndexListHandler: UserIndexListHandlerFunc(func(params UserIndexListParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserIndexList has not yet been implemented")
-		}),
-		UserIndexRenameHandler: UserIndexRenameHandlerFunc(func(params UserIndexRenameParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserIndexRename has not yet been implemented")
-		}),
-		UserIndexSaveHandler: UserIndexSaveHandlerFunc(func(params UserIndexSaveParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserIndexSave has not yet been implemented")
 		}),
 		UserSettingDeleteHandler: UserSettingDeleteHandlerFunc(func(params UserSettingDeleteParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserSettingDelete has not yet been implemented")
@@ -76,6 +64,24 @@ func NewStockAssistantAPI(spec *loads.Document) *StockAssistantAPI {
 		}),
 		UserStockEvaluateListHandler: UserStockEvaluateListHandlerFunc(func(params UserStockEvaluateListParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserStockEvaluateList has not yet been implemented")
+		}),
+		UserStockIndexAddHandler: UserStockIndexAddHandlerFunc(func(params UserStockIndexAddParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserStockIndexAdd has not yet been implemented")
+		}),
+		UserStockIndexDeleteHandler: UserStockIndexDeleteHandlerFunc(func(params UserStockIndexDeleteParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserStockIndexDelete has not yet been implemented")
+		}),
+		UserStockIndexGetHandler: UserStockIndexGetHandlerFunc(func(params UserStockIndexGetParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserStockIndexGet has not yet been implemented")
+		}),
+		UserStockIndexListHandler: UserStockIndexListHandlerFunc(func(params UserStockIndexListParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserStockIndexList has not yet been implemented")
+		}),
+		UserStockIndexRenameHandler: UserStockIndexRenameHandlerFunc(func(params UserStockIndexRenameParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserStockIndexRename has not yet been implemented")
+		}),
+		UserStockIndexUpdateHandler: UserStockIndexUpdateHandlerFunc(func(params UserStockIndexUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserStockIndexUpdate has not yet been implemented")
 		}),
 	}
 }
@@ -100,28 +106,20 @@ type StockAssistantAPI struct {
 	// It has a default implemention in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
 
-	// JSONConsumer registers a consumer for a "application/json;charset=utf-8" mime type
+	// JSONConsumer registers a consumer for a "application/json" mime type
 	JSONConsumer runtime.Consumer
 
-	// JSONProducer registers a producer for a "application/json;charset=utf-8" mime type
+	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
-	// UserIndexDeleteHandler sets the operation handler for the user index delete operation
-	UserIndexDeleteHandler UserIndexDeleteHandler
+	// StockIndexAdviceListHandler sets the operation handler for the stock index advice list operation
+	StockIndexAdviceListHandler StockIndexAdviceListHandler
 	// UserIndexEvaluateGetHandler sets the operation handler for the user index evaluate get operation
 	UserIndexEvaluateGetHandler UserIndexEvaluateGetHandler
 	// UserIndexEvaluateListHandler sets the operation handler for the user index evaluate list operation
 	UserIndexEvaluateListHandler UserIndexEvaluateListHandler
 	// UserIndexEvaluateSaveHandler sets the operation handler for the user index evaluate save operation
 	UserIndexEvaluateSaveHandler UserIndexEvaluateSaveHandler
-	// UserIndexGetHandler sets the operation handler for the user index get operation
-	UserIndexGetHandler UserIndexGetHandler
-	// UserIndexListHandler sets the operation handler for the user index list operation
-	UserIndexListHandler UserIndexListHandler
-	// UserIndexRenameHandler sets the operation handler for the user index rename operation
-	UserIndexRenameHandler UserIndexRenameHandler
-	// UserIndexSaveHandler sets the operation handler for the user index save operation
-	UserIndexSaveHandler UserIndexSaveHandler
 	// UserSettingDeleteHandler sets the operation handler for the user setting delete operation
 	UserSettingDeleteHandler UserSettingDeleteHandler
 	// UserSettingGetHandler sets the operation handler for the user setting get operation
@@ -134,6 +132,18 @@ type StockAssistantAPI struct {
 	UserStockEvaluateGetHandler UserStockEvaluateGetHandler
 	// UserStockEvaluateListHandler sets the operation handler for the user stock evaluate list operation
 	UserStockEvaluateListHandler UserStockEvaluateListHandler
+	// UserStockIndexAddHandler sets the operation handler for the user stock index add operation
+	UserStockIndexAddHandler UserStockIndexAddHandler
+	// UserStockIndexDeleteHandler sets the operation handler for the user stock index delete operation
+	UserStockIndexDeleteHandler UserStockIndexDeleteHandler
+	// UserStockIndexGetHandler sets the operation handler for the user stock index get operation
+	UserStockIndexGetHandler UserStockIndexGetHandler
+	// UserStockIndexListHandler sets the operation handler for the user stock index list operation
+	UserStockIndexListHandler UserStockIndexListHandler
+	// UserStockIndexRenameHandler sets the operation handler for the user stock index rename operation
+	UserStockIndexRenameHandler UserStockIndexRenameHandler
+	// UserStockIndexUpdateHandler sets the operation handler for the user stock index update operation
+	UserStockIndexUpdateHandler UserStockIndexUpdateHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -197,8 +207,8 @@ func (o *StockAssistantAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.UserIndexDeleteHandler == nil {
-		unregistered = append(unregistered, "UserIndexDeleteHandler")
+	if o.StockIndexAdviceListHandler == nil {
+		unregistered = append(unregistered, "StockIndexAdviceListHandler")
 	}
 
 	if o.UserIndexEvaluateGetHandler == nil {
@@ -211,22 +221,6 @@ func (o *StockAssistantAPI) Validate() error {
 
 	if o.UserIndexEvaluateSaveHandler == nil {
 		unregistered = append(unregistered, "UserIndexEvaluateSaveHandler")
-	}
-
-	if o.UserIndexGetHandler == nil {
-		unregistered = append(unregistered, "UserIndexGetHandler")
-	}
-
-	if o.UserIndexListHandler == nil {
-		unregistered = append(unregistered, "UserIndexListHandler")
-	}
-
-	if o.UserIndexRenameHandler == nil {
-		unregistered = append(unregistered, "UserIndexRenameHandler")
-	}
-
-	if o.UserIndexSaveHandler == nil {
-		unregistered = append(unregistered, "UserIndexSaveHandler")
 	}
 
 	if o.UserSettingDeleteHandler == nil {
@@ -251,6 +245,30 @@ func (o *StockAssistantAPI) Validate() error {
 
 	if o.UserStockEvaluateListHandler == nil {
 		unregistered = append(unregistered, "UserStockEvaluateListHandler")
+	}
+
+	if o.UserStockIndexAddHandler == nil {
+		unregistered = append(unregistered, "UserStockIndexAddHandler")
+	}
+
+	if o.UserStockIndexDeleteHandler == nil {
+		unregistered = append(unregistered, "UserStockIndexDeleteHandler")
+	}
+
+	if o.UserStockIndexGetHandler == nil {
+		unregistered = append(unregistered, "UserStockIndexGetHandler")
+	}
+
+	if o.UserStockIndexListHandler == nil {
+		unregistered = append(unregistered, "UserStockIndexListHandler")
+	}
+
+	if o.UserStockIndexRenameHandler == nil {
+		unregistered = append(unregistered, "UserStockIndexRenameHandler")
+	}
+
+	if o.UserStockIndexUpdateHandler == nil {
+		unregistered = append(unregistered, "UserStockIndexUpdateHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -343,10 +361,10 @@ func (o *StockAssistantAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/{userId}/indices/{indexId}"] = NewUserIndexDelete(o.context, o.UserIndexDeleteHandler)
+	o.handlers["GET"]["/stockIndexAdvices"] = NewStockIndexAdviceList(o.context, o.StockIndexAdviceListHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -362,26 +380,6 @@ func (o *StockAssistantAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/{userId}/stockEvaluates/{stockId}/indexEvaluates"] = NewUserIndexEvaluateSave(o.context, o.UserIndexEvaluateSaveHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/{userId}/indices/{indexId}"] = NewUserIndexGet(o.context, o.UserIndexGetHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/{userId}/indices"] = NewUserIndexList(o.context, o.UserIndexListHandler)
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/{userId}/indices/rename"] = NewUserIndexRename(o.context, o.UserIndexRenameHandler)
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/{userId}/indices"] = NewUserIndexSave(o.context, o.UserIndexSaveHandler)
 
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
@@ -412,6 +410,36 @@ func (o *StockAssistantAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/{userId}/stockEvaluates"] = NewUserStockEvaluateList(o.context, o.UserStockEvaluateListHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/{userId}/stockIndices"] = NewUserStockIndexAdd(o.context, o.UserStockIndexAddHandler)
+
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/{userId}/stockIndices/{indexId}"] = NewUserStockIndexDelete(o.context, o.UserStockIndexDeleteHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/{userId}/stockIndices/{indexId}"] = NewUserStockIndexGet(o.context, o.UserStockIndexGetHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/{userId}/stockIndices"] = NewUserStockIndexList(o.context, o.UserStockIndexListHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/{userId}/stockIndices/rename"] = NewUserStockIndexRename(o.context, o.UserStockIndexRenameHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/{userId}/stockIndices/{indexId}"] = NewUserStockIndexUpdate(o.context, o.UserStockIndexUpdateHandler)
 
 }
 

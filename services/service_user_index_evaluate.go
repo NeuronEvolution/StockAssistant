@@ -11,8 +11,7 @@ import (
 
 func (s *StockAssistantService) UserIndexEvaluateList(userId string, stockId string) (result []*models.UserIndexEvaluate, err error) {
 	dbList, err := s.db.UserIndexEvaluate.GetQuery().
-		UserId_Equal(userId).
-		StockId_Equal(stockId).SelectList(context.Background())
+		UserId_Equal(userId).And().StockId_Equal(stockId).QueryList(context.Background(),nil)
 	if err != nil {
 		return nil, err
 	}
@@ -22,9 +21,8 @@ func (s *StockAssistantService) UserIndexEvaluateList(userId string, stockId str
 
 func (s *StockAssistantService) UserIndexEvaluateGet(userId string, stockId string, indexName string) (indexEvaluate *models.UserIndexEvaluate, err error) {
 	dbIndexEvaluate, err := s.db.UserIndexEvaluate.GetQuery().
-		UserId_Equal(userId).
-		StockId_Equal(stockId).
-		IndexName_Equal(indexName).Select(context.Background())
+		UserId_Equal(userId).And().StockId_Equal(stockId).And().IndexName_Equal(indexName).
+		QueryOne(context.Background(),nil)
 	if err != nil {
 		return nil, err
 	}
@@ -39,9 +37,9 @@ func (s *StockAssistantService) UserIndexEvaluateSave(userId string, stockId str
 	}
 	defer tx.Rollback()
 
-	dbIndex, err := s.db.UserStockIndex.GetQuery().
-		UserId_Equal(userId).
-		IndexName_Equal(indexEvaluate.IndexName).SelectForShare(context.Background(), tx)
+	dbIndex, err := s.db.UserStockIndex.GetQuery().ForShare().
+		UserId_Equal(userId).And().IndexName_Equal(indexEvaluate.IndexName).
+		QueryOne(context.Background(), tx)
 	if err != nil {
 		return nil, err
 	}
@@ -50,10 +48,9 @@ func (s *StockAssistantService) UserIndexEvaluateSave(userId string, stockId str
 		return nil, fmt.Errorf("user have no this index")
 	}
 
-	dbIndexEvaluate, err := s.db.UserIndexEvaluate.GetQuery().
-		UserId_Equal(userId).
-		StockId_Equal(stockId).
-		IndexName_Equal(indexEvaluate.IndexName).SelectForUpdate(context.Background(), tx)
+	dbIndexEvaluate, err := s.db.UserIndexEvaluate.GetQuery().ForUpdate().
+		UserId_Equal(userId).And().StockId_Equal(stockId).And().IndexName_Equal(indexEvaluate.IndexName).
+		QueryOne(context.Background(), tx)
 	if err != nil {
 		return nil, err
 	}

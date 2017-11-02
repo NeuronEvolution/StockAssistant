@@ -17,7 +17,7 @@ import (
 // UserIndexEvaluateSaveDefaultBodyErrors Errors
 // swagger:model userIndexEvaluateSaveDefaultBodyErrors
 
-type UserIndexEvaluateSaveDefaultBodyErrors []*UserIndexEvaluateGetDefaultBodyErrorsItems
+type UserIndexEvaluateSaveDefaultBodyErrors []*UserStockIndexUpdateDefaultBodyErrorsItems
 
 // Validate validates this user index evaluate save default body errors
 func (m UserIndexEvaluateSaveDefaultBodyErrors) Validate(formats strfmt.Registry) error {

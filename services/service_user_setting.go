@@ -11,7 +11,7 @@ import (
 
 func (s *StockAssistantService) UserSettingList(userId string) (settingsList []*models.UserSetting, err error) {
 	dbList, err := s.db.UserSetting.GetQuery().
-		UserId_Equal(userId).SelectList(context.Background())
+		UserId_Equal(userId).QueryList(context.Background(),nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,8 +21,7 @@ func (s *StockAssistantService) UserSettingList(userId string) (settingsList []*
 
 func (s *StockAssistantService) UserSettingGet(userId string, configKey string) (setting *models.UserSetting, err error) {
 	dbSetting, err := s.db.UserSetting.GetQuery().
-		UserId_Equal(userId).
-		ConfigKey_Equal(configKey).Select(context.Background())
+		UserId_Equal(userId).And().ConfigKey_Equal(configKey).QueryOne(context.Background(),nil)
 	if err != nil {
 		return nil, err
 	}
@@ -37,9 +36,8 @@ func (s *StockAssistantService) UserSettingSave(userId string, setting *models.U
 	}
 	defer tx.Rollback()
 
-	dbSetting, err := s.db.UserSetting.GetQuery().
-		UserId_Equal(userId).
-		ConfigKey_Equal(setting.ConfigKey).SelectForUpdate(context.Background(), tx)
+	dbSetting, err := s.db.UserSetting.GetQuery().ForUpdate().
+		UserId_Equal(userId).And().ConfigKey_Equal(setting.ConfigKey).QueryOne(context.Background(), tx)
 	if err != nil {
 		return nil, err
 	}
@@ -78,9 +76,8 @@ func (s *StockAssistantService) UserSettingDelete(userId string, configKey strin
 	}
 	defer tx.Rollback()
 
-	dbSetting, err := s.db.UserSetting.GetQuery().
-		UserId_Equal(userId).
-		ConfigKey_Equal(configKey).SelectForUpdate(context.Background(), tx)
+	dbSetting, err := s.db.UserSetting.GetQuery().ForUpdate().
+		UserId_Equal(userId).And().ConfigKey_Equal(configKey).QueryOne(context.Background(), tx)
 	if err != nil {
 		return err
 	}

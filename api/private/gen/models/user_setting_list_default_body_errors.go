@@ -17,7 +17,7 @@ import (
 // UserSettingListDefaultBodyErrors Errors
 // swagger:model userSettingListDefaultBodyErrors
 
-type UserSettingListDefaultBodyErrors []*UserIndexEvaluateGetDefaultBodyErrorsItems
+type UserSettingListDefaultBodyErrors []*UserStockIndexUpdateDefaultBodyErrorsItems
 
 // Validate validates this user setting list default body errors
 func (m UserSettingListDefaultBodyErrors) Validate(formats strfmt.Registry) error {

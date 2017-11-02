@@ -15,10 +15,10 @@ var SwaggerJSON json.RawMessage
 func init() {
 	SwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
-    "application/json;charset=utf-8"
+    "application/json"
   ],
   "produces": [
-    "application/json;charset=utf-8"
+    "application/json"
   ],
   "swagger": "2.0",
   "info": {
@@ -30,160 +30,43 @@ func init() {
   },
   "basePath": "/api/stock-assistant/v1",
   "paths": {
-    "/{userId}/indices": {
+    "/stockIndexAdvices": {
       "get": {
-        "summary": "Get user indices",
-        "operationId": "UserIndexList",
-        "security": [
-          {}
-        ],
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "$ref": "#/definitions/userIndexListOKBody"
-            }
-          },
-          "default": {
-            "description": "Error response",
-            "schema": {
-              "$ref": "#/definitions/userIndexListDefaultBody"
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "save",
-        "operationId": "UserIndexSave",
-        "parameters": [
-          {
-            "description": "Index",
-            "name": "Index",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UserStockIndex"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "$ref": "#/definitions/UserStockIndex"
-            }
-          },
-          "default": {
-            "description": "Error response",
-            "schema": {
-              "$ref": "#/definitions/userIndexSaveDefaultBody"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "User id",
-          "name": "userId",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/{userId}/indices/rename": {
-      "post": {
-        "operationId": "UserIndexRename",
+        "summary": "list",
+        "operationId": "StockIndexAdviceList",
         "parameters": [
           {
             "type": "string",
-            "description": "old name",
-            "name": "oldName",
-            "in": "query",
-            "required": true
+            "name": "pageToken",
+            "in": "query"
           },
           {
             "type": "string",
-            "description": "new name",
-            "name": "newName",
-            "in": "query",
-            "required": true
+            "format": "int32",
+            "name": "pageSize",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/UserStockIndex"
+              "$ref": "#/definitions/stockIndexAdviceListOKBody"
+            },
+            "headers": {
+              "Neuron-X-NextPageToken": {
+                "type": "string"
+              }
             }
           },
           "default": {
             "description": "Error response",
             "schema": {
-              "$ref": "#/definitions/userIndexRenameDefaultBody"
+              "$ref": "#/definitions/stockIndexAdviceListDefaultBody"
             }
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "User id",
-          "name": "userId",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/{userId}/indices/{indexId}": {
-      "get": {
-        "summary": "Get user index",
-        "operationId": "UserIndexGet",
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "$ref": "#/definitions/UserStockIndex"
-            }
-          },
-          "default": {
-            "description": "Error response",
-            "schema": {
-              "$ref": "#/definitions/userIndexGetDefaultBody"
-            }
-          }
-        }
-      },
-      "delete": {
-        "operationId": "UserIndexDelete",
-        "responses": {
-          "200": {
-            "description": "ok"
-          },
-          "default": {
-            "description": "Error response",
-            "schema": {
-              "$ref": "#/definitions/userIndexDeleteDefaultBody"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "User id",
-          "name": "userId",
-          "in": "path",
-          "required": true
-        },
-        {
-          "type": "string",
-          "description": "index id",
-          "name": "indexId",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/{userId}/settings": {
       "get": {
@@ -327,6 +210,11 @@ func init() {
             "description": "ok",
             "schema": {
               "$ref": "#/definitions/userStockEvaluateListOKBody"
+            },
+            "headers": {
+              "Neuron-X-NextPageToken": {
+                "type": "string"
+              }
             }
           },
           "default": {
@@ -485,9 +373,209 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/{userId}/stockIndices": {
+      "get": {
+        "summary": "Get user indices",
+        "operationId": "UserStockIndexList",
+        "security": [
+          {}
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/userStockIndexListOKBody"
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/userStockIndexListDefaultBody"
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "add",
+        "operationId": "UserStockIndexAdd",
+        "parameters": [
+          {
+            "description": "Index",
+            "name": "Index",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserStockIndex"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/UserStockIndex"
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/userStockIndexAddDefaultBody"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "User id",
+          "name": "userId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/{userId}/stockIndices/rename": {
+      "post": {
+        "operationId": "UserStockIndexRename",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "old name",
+            "name": "oldName",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "new name",
+            "name": "newName",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/UserStockIndex"
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/userStockIndexRenameDefaultBody"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "User id",
+          "name": "userId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/{userId}/stockIndices/{indexId}": {
+      "get": {
+        "summary": "Get user index",
+        "operationId": "UserStockIndexGet",
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/UserStockIndex"
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/userStockIndexGetDefaultBody"
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "update",
+        "operationId": "UserStockIndexUpdate",
+        "parameters": [
+          {
+            "description": "Index",
+            "name": "Index",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserStockIndex"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/UserStockIndex"
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/userStockIndexUpdateDefaultBody"
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "UserStockIndexDelete",
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/userStockIndexDeleteDefaultBody"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "User id",
+          "name": "userId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "description": "index id",
+          "name": "indexId",
+          "in": "path",
+          "required": true
+        }
+      ]
     }
   },
   "definitions": {
+    "StockIndexAdvice": {
+      "id": "StockIndex",
+      "description": "stock index",
+      "type": "object",
+      "properties": {
+        "indexName": {
+          "description": "name",
+          "type": "string"
+        },
+        "usedCount": {
+          "description": "used count",
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
     "UserIndexEvaluate": {
       "id": "IndexEvaluate",
       "description": "index evaluate",
@@ -615,7 +703,7 @@ func init() {
         }
       }
     },
-    "userIndexDeleteDefaultBody": {
+    "stockIndexAdviceListDefaultBody": {
       "type": "object",
       "properties": {
         "code": {
@@ -623,7 +711,7 @@ func init() {
           "type": "string"
         },
         "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
         },
         "message": {
           "description": "Error message",
@@ -637,15 +725,15 @@ func init() {
       },
       "x-go-gen-location": "operations"
     },
-    "userIndexDeleteDefaultBodyErrors": {
+    "stockIndexAdviceListDefaultBodyErrors": {
       "description": "Errors",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
       },
       "x-go-gen-location": "operations"
     },
-    "userIndexDeleteDefaultBodyErrorsItems": {
+    "stockIndexAdviceListDefaultBodyErrorsItems": {
       "type": "object",
       "properties": {
         "code": {
@@ -663,6 +751,13 @@ func init() {
       },
       "x-go-gen-location": "operations"
     },
+    "stockIndexAdviceListOKBody": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/StockIndexAdvice"
+      },
+      "x-go-gen-location": "operations"
+    },
     "userIndexEvaluateGetDefaultBody": {
       "type": "object",
       "properties": {
@@ -671,7 +766,7 @@ func init() {
           "type": "string"
         },
         "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
         },
         "message": {
           "description": "Error message",
@@ -689,7 +784,7 @@ func init() {
       "description": "Errors",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
       },
       "x-go-gen-location": "operations"
     },
@@ -719,7 +814,7 @@ func init() {
           "type": "string"
         },
         "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
         },
         "message": {
           "description": "Error message",
@@ -737,7 +832,7 @@ func init() {
       "description": "Errors",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
       },
       "x-go-gen-location": "operations"
     },
@@ -774,7 +869,7 @@ func init() {
           "type": "string"
         },
         "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
         },
         "message": {
           "description": "Error message",
@@ -792,210 +887,11 @@ func init() {
       "description": "Errors",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
       },
       "x-go-gen-location": "operations"
     },
     "userIndexEvaluateSaveDefaultBodyErrorsItems": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "error code",
-          "type": "string"
-        },
-        "field": {
-          "description": "field name",
-          "type": "string"
-        },
-        "message": {
-          "description": "error message",
-          "type": "string"
-        }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexGetDefaultBody": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "Error code",
-          "type": "string"
-        },
-        "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
-        },
-        "message": {
-          "description": "Error message",
-          "type": "string"
-        },
-        "status": {
-          "type": "string",
-          "format": "int32",
-          "default": "Http status"
-        }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexGetDefaultBodyErrors": {
-      "description": "Errors",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexGetDefaultBodyErrorsItems": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "error code",
-          "type": "string"
-        },
-        "field": {
-          "description": "field name",
-          "type": "string"
-        },
-        "message": {
-          "description": "error message",
-          "type": "string"
-        }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexListDefaultBody": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "Error code",
-          "type": "string"
-        },
-        "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
-        },
-        "message": {
-          "description": "Error message",
-          "type": "string"
-        },
-        "status": {
-          "type": "string",
-          "format": "int32",
-          "default": "Http status"
-        }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexListDefaultBodyErrors": {
-      "description": "Errors",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexListDefaultBodyErrorsItems": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "error code",
-          "type": "string"
-        },
-        "field": {
-          "description": "field name",
-          "type": "string"
-        },
-        "message": {
-          "description": "error message",
-          "type": "string"
-        }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexListOKBody": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/UserStockIndex"
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexRenameDefaultBody": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "Error code",
-          "type": "string"
-        },
-        "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
-        },
-        "message": {
-          "description": "Error message",
-          "type": "string"
-        },
-        "status": {
-          "type": "string",
-          "format": "int32",
-          "default": "Http status"
-        }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexRenameDefaultBodyErrors": {
-      "description": "Errors",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexRenameDefaultBodyErrorsItems": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "error code",
-          "type": "string"
-        },
-        "field": {
-          "description": "field name",
-          "type": "string"
-        },
-        "message": {
-          "description": "error message",
-          "type": "string"
-        }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexSaveDefaultBody": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "Error code",
-          "type": "string"
-        },
-        "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
-        },
-        "message": {
-          "description": "Error message",
-          "type": "string"
-        },
-        "status": {
-          "type": "string",
-          "format": "int32",
-          "default": "Http status"
-        }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexSaveDefaultBodyErrors": {
-      "description": "Errors",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
-      },
-      "x-go-gen-location": "operations"
-    },
-    "userIndexSaveDefaultBodyErrorsItems": {
       "type": "object",
       "properties": {
         "code": {
@@ -1021,7 +917,7 @@ func init() {
           "type": "string"
         },
         "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
         },
         "message": {
           "description": "Error message",
@@ -1039,7 +935,7 @@ func init() {
       "description": "Errors",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
       },
       "x-go-gen-location": "operations"
     },
@@ -1069,7 +965,7 @@ func init() {
           "type": "string"
         },
         "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
         },
         "message": {
           "description": "Error message",
@@ -1087,7 +983,7 @@ func init() {
       "description": "Errors",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
       },
       "x-go-gen-location": "operations"
     },
@@ -1117,7 +1013,7 @@ func init() {
           "type": "string"
         },
         "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
         },
         "message": {
           "description": "Error message",
@@ -1135,7 +1031,7 @@ func init() {
       "description": "Errors",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
       },
       "x-go-gen-location": "operations"
     },
@@ -1172,7 +1068,7 @@ func init() {
           "type": "string"
         },
         "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
         },
         "message": {
           "description": "Error message",
@@ -1190,7 +1086,7 @@ func init() {
       "description": "Errors",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
       },
       "x-go-gen-location": "operations"
     },
@@ -1220,7 +1116,7 @@ func init() {
           "type": "string"
         },
         "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
         },
         "message": {
           "description": "Error message",
@@ -1238,7 +1134,7 @@ func init() {
       "description": "Errors",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
       },
       "x-go-gen-location": "operations"
     },
@@ -1268,7 +1164,7 @@ func init() {
           "type": "string"
         },
         "errors": {
-          "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
         },
         "message": {
           "description": "Error message",
@@ -1286,7 +1182,7 @@ func init() {
       "description": "Errors",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrorsItems"
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
       },
       "x-go-gen-location": "operations"
     },
@@ -1314,6 +1210,301 @@ func init() {
         "$ref": "#/definitions/UserStockEvaluate"
       },
       "x-go-gen-location": "operations"
+    },
+    "userStockIndexAddDefaultBody": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Error code",
+          "type": "string"
+        },
+        "errors": {
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
+        },
+        "message": {
+          "description": "Error message",
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "format": "int32",
+          "default": "Http status"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexAddDefaultBodyErrors": {
+      "description": "Errors",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexAddDefaultBodyErrorsItems": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "error code",
+          "type": "string"
+        },
+        "field": {
+          "description": "field name",
+          "type": "string"
+        },
+        "message": {
+          "description": "error message",
+          "type": "string"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexDeleteDefaultBody": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Error code",
+          "type": "string"
+        },
+        "errors": {
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
+        },
+        "message": {
+          "description": "Error message",
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "format": "int32",
+          "default": "Http status"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexDeleteDefaultBodyErrors": {
+      "description": "Errors",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexDeleteDefaultBodyErrorsItems": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "error code",
+          "type": "string"
+        },
+        "field": {
+          "description": "field name",
+          "type": "string"
+        },
+        "message": {
+          "description": "error message",
+          "type": "string"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexGetDefaultBody": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Error code",
+          "type": "string"
+        },
+        "errors": {
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
+        },
+        "message": {
+          "description": "Error message",
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "format": "int32",
+          "default": "Http status"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexGetDefaultBodyErrors": {
+      "description": "Errors",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexGetDefaultBodyErrorsItems": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "error code",
+          "type": "string"
+        },
+        "field": {
+          "description": "field name",
+          "type": "string"
+        },
+        "message": {
+          "description": "error message",
+          "type": "string"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexListDefaultBody": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Error code",
+          "type": "string"
+        },
+        "errors": {
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
+        },
+        "message": {
+          "description": "Error message",
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "format": "int32",
+          "default": "Http status"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexListDefaultBodyErrors": {
+      "description": "Errors",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexListDefaultBodyErrorsItems": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "error code",
+          "type": "string"
+        },
+        "field": {
+          "description": "field name",
+          "type": "string"
+        },
+        "message": {
+          "description": "error message",
+          "type": "string"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexListOKBody": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/UserStockIndex"
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexRenameDefaultBody": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Error code",
+          "type": "string"
+        },
+        "errors": {
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
+        },
+        "message": {
+          "description": "Error message",
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "format": "int32",
+          "default": "Http status"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexRenameDefaultBodyErrors": {
+      "description": "Errors",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexRenameDefaultBodyErrorsItems": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "error code",
+          "type": "string"
+        },
+        "field": {
+          "description": "field name",
+          "type": "string"
+        },
+        "message": {
+          "description": "error message",
+          "type": "string"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexUpdateDefaultBody": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Error code",
+          "type": "string"
+        },
+        "errors": {
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
+        },
+        "message": {
+          "description": "Error message",
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "format": "int32",
+          "default": "Http status"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexUpdateDefaultBodyErrors": {
+      "description": "Errors",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
+      },
+      "x-go-gen-location": "operations"
+    },
+    "userStockIndexUpdateDefaultBodyErrorsItems": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "error code",
+          "type": "string"
+        },
+        "field": {
+          "description": "field name",
+          "type": "string"
+        },
+        "message": {
+          "description": "error message",
+          "type": "string"
+        }
+      },
+      "x-go-gen-location": "operations"
     }
   },
   "responses": {
@@ -1327,7 +1518,7 @@ func init() {
             "type": "string"
           },
           "errors": {
-            "$ref": "#/definitions/userIndexEvaluateGetDefaultBodyErrors"
+            "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
           },
           "message": {
             "description": "Error message",

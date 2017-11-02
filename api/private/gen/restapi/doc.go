@@ -11,10 +11,10 @@ Package restapi Stock Assistant
     Contact: mars
 
     Consumes:
-    - application/json;charset=utf-8
+    - application/json
 
     Produces:
-    - application/json;charset=utf-8
+    - application/json
 
 swagger:meta
 */

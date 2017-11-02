@@ -41,11 +41,12 @@ func main() {
 			return err
 		}
 
-		api.UserIndexListHandler = operations.UserIndexListHandlerFunc(h.UserIndexList)
-		api.UserIndexGetHandler = operations.UserIndexGetHandlerFunc(h.UserIndexGet)
-		api.UserIndexSaveHandler = operations.UserIndexSaveHandlerFunc(h.UserIndexSave)
-		api.UserIndexDeleteHandler = operations.UserIndexDeleteHandlerFunc(h.UserIndexDelete)
-		api.UserIndexRenameHandler = operations.UserIndexRenameHandlerFunc(h.UserIndexRename)
+		api.UserStockIndexListHandler = operations.UserStockIndexListHandlerFunc(h.UserStockIndexList)
+		api.UserStockIndexGetHandler = operations.UserStockIndexGetHandlerFunc(h.UserStockIndexGet)
+		api.UserStockIndexAddHandler = operations.UserStockIndexAddHandlerFunc(h.UserStockIndexAdd)
+		api.UserStockIndexUpdateHandler = operations.UserStockIndexUpdateHandlerFunc(h.UserStockIndexUpdate)
+		api.UserStockIndexDeleteHandler = operations.UserStockIndexDeleteHandlerFunc(h.UserStockIndexDelete)
+		api.UserStockIndexRenameHandler = operations.UserStockIndexRenameHandlerFunc(h.UserStockIndexRename)
 		api.UserStockEvaluateListHandler = operations.UserStockEvaluateListHandlerFunc(h.UserStockEvaluateList)
 		api.UserStockEvaluateGetHandler = operations.UserStockEvaluateGetHandlerFunc(h.UserStockEvaluateGet)
 		api.UserIndexEvaluateListHandler = operations.UserIndexEvaluateListHandlerFunc(h.UserIndexEvaluateList)
@@ -55,6 +56,7 @@ func main() {
 		api.UserSettingGetHandler = operations.UserSettingGetHandlerFunc(h.UserSettingsGet)
 		api.UserSettingSaveHandler = operations.UserSettingSaveHandlerFunc(h.UserSettingsSave)
 		api.UserSettingDeleteHandler = operations.UserSettingDeleteHandlerFunc(h.UserSettingsDelete)
+		api.StockIndexAdviceListHandler = operations.StockIndexAdviceListHandlerFunc(h.StockIndexAdviceList)
 
 		logger.Info("Start server", zap.String("addr", bind_addr))
 		err = http.ListenAndServe(bind_addr,

@@ -6,7 +6,7 @@ import (
 	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
 )
 
-func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEvaluateListQuery) (result []*models.UserStockEvaluate, err error) {
+func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEvaluateListQuery) (result []*models.UserStockEvaluate, nextPageToken string, err error) {
 	if query.PageSize == 0 {
 		query.PageSize = 40
 	}
@@ -14,28 +14,30 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 	if query.Evaluated {
 		q := s.db.UserStockEvaluate.GetQuery()
 		q.UserId_Equal(query.UserId)
-		dbStockEvaluateList, err := q.SelectList(context.Background())
+		dbStockEvaluateList, err := q.QueryList(context.Background(),nil)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 
-		return fin_stock_assistant.FromStockEvaluateList(dbStockEvaluateList), nil
+		return fin_stock_assistant.FromStockEvaluateList(dbStockEvaluateList), "", nil
 	} else {
-		dbStockList, err := s.db.Stock.GetQuery().SelectList(context.Background())
+		dbStockList, err := s.db.Stock.GetQuery().QueryList(context.Background(),nil)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 		if dbStockList == nil {
-			return nil, nil
+			return nil, "", nil
 		}
 
 		//filter todo
 		//sort todo
 
 		//filter evaluated
-		dbStockEvaluateList, err := s.db.UserStockEvaluate.GetQuery().UserId_Equal(query.UserId).SelectList(context.Background())
+		dbStockEvaluateList, err := s.db.UserStockEvaluate.GetQuery().
+			UserId_Equal(query.UserId).
+			QueryList(context.Background(),nil)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 		evaluatedMap := make(map[string]bool)
 		if dbStockEvaluateList != nil {
@@ -73,14 +75,14 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 			}
 		}
 
-		return result, nil
+		return result, "", nil
 	}
 }
 
 func (s *StockAssistantService) UserStockEvaluateGet(userId string, stockId string) (eval *models.UserStockEvaluate, err error) {
 	dbStockEvaluate, err := s.db.UserStockEvaluate.GetQuery().
-		UserId_Equal(userId).
-		StockId_Equal(stockId).Select(context.Background())
+		UserId_Equal(userId).And().StockId_Equal(stockId).
+		QueryOne(context.Background(),nil)
 	if err != nil {
 		return nil, err
 	}
