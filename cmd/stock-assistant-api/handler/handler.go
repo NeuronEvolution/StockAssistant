@@ -80,7 +80,7 @@ func (h *StockAssistantHandler) UserStockIndexDelete(p operations.UserStockIndex
 }
 
 func (h *StockAssistantHandler) UserStockIndexRename(p operations.UserStockIndexRenameParams) middleware.Responder {
-	indexRenamed, err := h.service.UserStockIndexRename(p.UserID, p.OldName, p.NewName)
+	indexRenamed, err := h.service.UserStockIndexRename(p.UserID, p.NameOld, p.NameNew)
 	if err != nil {
 		return restful.Responder(err)
 	}
@@ -195,7 +195,7 @@ func (h *StockAssistantHandler) StockIndexAdviceList(p operations.StockIndexAdvi
 	}
 
 	if p.PageSize != nil {
-		query.PageSize = *p.PageSize
+		query.PageSize = int64(*p.PageSize)
 	}
 
 	result, nextPageToken, err := h.service.StockIndexAdviceList(query)

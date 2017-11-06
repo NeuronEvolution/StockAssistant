@@ -143,12 +143,10 @@ func (o *UserSettingSaveParams) WriteToRequest(r runtime.ClientRequest, reg strf
 	}
 	var res []error
 
-	if o.Setting == nil {
-		o.Setting = new(models.UserSetting)
-	}
-
-	if err := r.SetBodyParam(o.Setting); err != nil {
-		return err
+	if o.Setting != nil {
+		if err := r.SetBodyParam(o.Setting); err != nil {
+			return err
+		}
 	}
 
 	// path param userId

@@ -156,12 +156,10 @@ func (o *UserIndexEvaluateSaveParams) WriteToRequest(r runtime.ClientRequest, re
 	}
 	var res []error
 
-	if o.IndexEvaluate == nil {
-		o.IndexEvaluate = new(models.UserIndexEvaluate)
-	}
-
-	if err := r.SetBodyParam(o.IndexEvaluate); err != nil {
-		return err
+	if o.IndexEvaluate != nil {
+		if err := r.SetBodyParam(o.IndexEvaluate); err != nil {
+			return err
+		}
 	}
 
 	// path param stockId

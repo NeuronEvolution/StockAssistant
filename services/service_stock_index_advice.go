@@ -25,12 +25,35 @@ func (s *StockAssistantService) StockIndexAdviceList(query *models.StockIndexAdv
 
 	if query.PageSize == 0 {
 		count = 40
+	} else {
+		count = query.PageSize
 	}
 
-	dbList, err := s.db.StockIndexAdvice.GetQuery().Limit(start, count).QueryList(context.Background(),nil)
+	rows, err := s.db.UserStockIndex.GetQuery().
+		GroupBy(fin_stock_assistant.USER_STOCK_INDEX_FIELD_INDEX_NAME).
+		OrderByGroupCount(
+			nil,
+			[]fin_stock_assistant.USER_STOCK_INDEX_FIELD{fin_stock_assistant.USER_STOCK_INDEX_FIELD_INDEX_NAME},
+			false).
+		Limit(start, count).
+		QueryGroupBy(context.Background(), nil)
 	if err != nil {
 		return nil, "", err
 	}
 
-	return fin_stock_assistant.FromStockIndexAdviceList(dbList), fmt.Sprint(start + count), nil
+	result = make([]*models.StockIndexAdvice, 0)
+	for rows.Next() {
+		e := &models.StockIndexAdvice{}
+		err = rows.Scan(&e.IndexName, &e.UsedCount)
+		if err != nil {
+			return nil, "", err
+		}
+
+		result = append(result, e)
+	}
+	if rows.Err() != nil {
+		return nil, "", rows.Err()
+	}
+
+	return result, fmt.Sprint(start + count), nil
 }

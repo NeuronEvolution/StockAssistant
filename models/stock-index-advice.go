@@ -7,5 +7,5 @@ type StockIndexAdvice struct {
 
 type StockIndexAdviceQuery struct {
 	PageToken string
-	PageSize  int32
+	PageSize  int64
 }

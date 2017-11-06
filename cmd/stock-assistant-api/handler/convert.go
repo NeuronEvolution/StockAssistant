@@ -17,7 +17,6 @@ func fromIndex(p *models.UserStockIndex) (r *api.UserStockIndex) {
 	r.Desc = p.IndexDesc
 	r.EvalWeight = p.EvalWeight
 	r.AiWeight = p.AIWeight
-	r.NiWeight = p.NIWeight
 
 	return r
 }
@@ -32,7 +31,6 @@ func toIndex(p *api.UserStockIndex) (r *models.UserStockIndex) {
 	r.IndexDesc = p.Desc
 	r.EvalWeight = p.EvalWeight
 	r.AIWeight = p.AiWeight
-	r.NIWeight = p.NiWeight
 
 	return r
 }

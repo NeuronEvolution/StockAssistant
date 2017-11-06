@@ -14,7 +14,6 @@ func FromStockIndex(p *UserStockIndex) (r *models.UserStockIndex) {
 	r.IndexDesc = p.IndexDesc
 	r.EvalWeight = p.EvalWeight
 	r.AIWeight = p.AiWeight
-	r.NIWeight = p.NiWeight
 
 	return r
 }

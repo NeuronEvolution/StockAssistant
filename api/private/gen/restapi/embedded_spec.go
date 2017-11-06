@@ -41,7 +41,7 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "type": "integer",
             "format": "int32",
             "name": "pageSize",
             "in": "query"
@@ -186,7 +186,7 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "type": "integer",
             "format": "int32",
             "description": "page size",
             "name": "pageSize",
@@ -442,14 +442,14 @@ func init() {
           {
             "type": "string",
             "description": "old name",
-            "name": "oldName",
+            "name": "nameOld",
             "in": "query",
             "required": true
           },
           {
             "type": "string",
             "description": "new name",
-            "name": "newName",
+            "name": "nameNew",
             "in": "query",
             "required": true
           }
@@ -571,7 +571,7 @@ func init() {
         },
         "usedCount": {
           "description": "used count",
-          "type": "string",
+          "type": "integer",
           "format": "int64"
         }
       }
@@ -587,7 +587,7 @@ func init() {
         },
         "evalStars": {
           "description": "eval stars",
-          "type": "string",
+          "type": "integer",
           "format": "int32"
         },
         "indexName": {
@@ -664,7 +664,7 @@ func init() {
         },
         "totalScore": {
           "description": "score",
-          "type": "string",
+          "type": "number",
           "format": "double"
         },
         "websiteUrl": {
@@ -680,7 +680,7 @@ func init() {
       "properties": {
         "aiWeight": {
           "description": "ai weight",
-          "type": "string",
+          "type": "number",
           "format": "int32"
         },
         "desc": {
@@ -689,17 +689,12 @@ func init() {
         },
         "evalWeight": {
           "description": "Eval weight",
-          "type": "string",
+          "type": "number",
           "format": "int32"
         },
         "name": {
           "description": "name",
           "type": "string"
-        },
-        "niWeight": {
-          "description": "ni weight",
-          "type": "string",
-          "format": "int32"
         }
       }
     },

@@ -155,14 +155,13 @@ CREATE TABLE `user_stock_index` (
   `index_desc` varchar(256) NOT NULL,
   `eval_weight` int(11) NOT NULL,
   `ai_weight` int(11) NOT NULL,
-  `ni_weight` int(11) NOT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_uid_name` (`user_id`,`index_name`),
   KEY `idx_update_time` (`update_time`),
   KEY `idx_name` (`index_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -174,4 +173,4 @@ CREATE TABLE `user_stock_index` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-01 19:53:19
+-- Dump completed on 2017-11-06  8:02:04

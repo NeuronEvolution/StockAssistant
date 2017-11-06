@@ -5,5 +5,4 @@ type UserStockIndex struct {
 	IndexDesc  string
 	EvalWeight int32
 	AIWeight   int32
-	NIWeight   int32
 }

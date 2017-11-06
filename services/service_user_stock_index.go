@@ -11,7 +11,9 @@ import (
 )
 
 func (s *StockAssistantService) UserStockIndexList(userId string) (indexList []*models.UserStockIndex, err error) {
-	dbIndexList, err := s.db.UserStockIndex.GetQuery().QueryList(context.Background(),nil)
+	dbIndexList, err := s.db.UserStockIndex.GetQuery().
+		UserId_Equal(userId).
+		QueryList(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +23,7 @@ func (s *StockAssistantService) UserStockIndexList(userId string) (indexList []*
 
 func (s *StockAssistantService) UserStockIndexGet(userId string, indexName string) (index *models.UserStockIndex, err error) {
 	dbIndex, err := s.db.UserStockIndex.GetQuery().
-		UserId_Equal(userId).And().IndexName_Equal(indexName).QueryOne(context.Background(),nil)
+		UserId_Equal(userId).And().IndexName_Equal(indexName).QueryOne(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +54,6 @@ func (s *StockAssistantService) UserStockIndexAdd(userId string, index *models.U
 	dbIndex.IndexName = index.IndexName
 	dbIndex.IndexDesc = index.IndexDesc
 	dbIndex.EvalWeight = index.EvalWeight
-	dbIndex.NiWeight = index.NIWeight
 	dbIndex.AiWeight = index.AIWeight
 	dbIndex.UpdateTime = time.Now()
 	dbIndex.CreateTime = time.Now()
@@ -89,7 +90,6 @@ func (s *StockAssistantService) UserStockIndexUpdate(userId string, index *model
 
 	dbIndex.IndexDesc = index.IndexDesc
 	dbIndex.EvalWeight = index.EvalWeight
-	dbIndex.NiWeight = index.NIWeight
 	dbIndex.AiWeight = index.AIWeight
 	dbIndex.UpdateTime = time.Now()
 	err = s.db.UserStockIndex.Update(context.Background(), tx, dbIndex)
@@ -120,7 +120,7 @@ func (s *StockAssistantService) UserStockIndexDelete(userId string, indexName st
 	}
 
 	if dbIndex == nil {
-		return fmt.Errorf("not exist")
+		return errors.NotFound("指标不存在")
 	}
 
 	err = s.db.UserStockIndex.Delete(context.Background(), tx, dbIndex.Id)
@@ -159,8 +159,7 @@ func (s *StockAssistantService) UserStockIndexRename(userId string, indexNameOld
 	}
 
 	dbIndexNew, err := s.db.UserStockIndex.GetQuery().ForUpdate().
-		UserId_Equal(userId).
-		IndexName_Equal(indexNameNew).
+		UserId_Equal(userId).And().IndexName_Equal(indexNameNew).
 		QueryOne(context.Background(), tx)
 	if err != nil {
 		return nil, err
@@ -199,5 +198,5 @@ func (s *StockAssistantService) UserStockIndexRename(userId string, indexNameOld
 		return nil, err
 	}
 
-	return nil, err
+	return fin_stock_assistant.FromStockIndex(dbIndexOld), err
 }

@@ -185,16 +185,24 @@ func (q *StockQuery) OrderBy(fields []STOCK_FIELD, asc bool) *StockQuery {
 	return q
 }
 
-func (q *StockQuery) OrderByGroupCount(fields []STOCK_FIELD, asc bool) *StockQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *StockQuery) OrderByGroupCount(left []STOCK_FIELD, right []STOCK_FIELD, asc bool) *StockQuery {
+	s := " order by "
+	if left != nil {
+		for _, v := range left {
+			s += string(v) + ","
+		}
+	}
+	s += "count(1)"
+	if right != nil {
+		for _, v := range right {
+			s += "," + string(v)
+		}
 	}
 
 	if asc {
-		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+		q.order = s + " asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
+		q.order = s + " desc"
 	}
 
 	return q
@@ -217,15 +225,11 @@ func (q *StockQuery) Id_Less(v int64) *StockQuery         { return q.w("id<'" + 
 func (q *StockQuery) Id_LessEqual(v int64) *StockQuery    { return q.w("id<='" + fmt.Sprint(v) + "'") }
 func (q *StockQuery) Id_Greater(v int64) *StockQuery      { return q.w("id>'" + fmt.Sprint(v) + "'") }
 func (q *StockQuery) Id_GreaterEqual(v int64) *StockQuery { return q.w("id>='" + fmt.Sprint(v) + "'") }
-func (q *StockQuery) StockId_Equal(v string) *StockQuery {
-	return q.w("stock_id='" + fmt.Sprint(v) + "'")
-}
+func (q *StockQuery) StockId_Equal(v string) *StockQuery  { return q.w("stock_id='" + fmt.Sprint(v) + "'") }
 func (q *StockQuery) StockId_NotEqual(v string) *StockQuery {
 	return q.w("stock_id<>'" + fmt.Sprint(v) + "'")
 }
-func (q *StockQuery) StockId_Less(v string) *StockQuery {
-	return q.w("stock_id<'" + fmt.Sprint(v) + "'")
-}
+func (q *StockQuery) StockId_Less(v string) *StockQuery { return q.w("stock_id<'" + fmt.Sprint(v) + "'") }
 func (q *StockQuery) StockId_LessEqual(v string) *StockQuery {
 	return q.w("stock_id<='" + fmt.Sprint(v) + "'")
 }
@@ -795,16 +799,24 @@ func (q *StockIndexAdviceQuery) OrderBy(fields []STOCK_INDEX_ADVICE_FIELD, asc b
 	return q
 }
 
-func (q *StockIndexAdviceQuery) OrderByGroupCount(fields []STOCK_INDEX_ADVICE_FIELD, asc bool) *StockIndexAdviceQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *StockIndexAdviceQuery) OrderByGroupCount(left []STOCK_INDEX_ADVICE_FIELD, right []STOCK_INDEX_ADVICE_FIELD, asc bool) *StockIndexAdviceQuery {
+	s := " order by "
+	if left != nil {
+		for _, v := range left {
+			s += string(v) + ","
+		}
+	}
+	s += "count(1)"
+	if right != nil {
+		for _, v := range right {
+			s += "," + string(v)
+		}
 	}
 
 	if asc {
-		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+		q.order = s + " asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
+		q.order = s + " desc"
 	}
 
 	return q
@@ -1210,16 +1222,24 @@ func (q *UserIndexEvaluateQuery) OrderBy(fields []USER_INDEX_EVALUATE_FIELD, asc
 	return q
 }
 
-func (q *UserIndexEvaluateQuery) OrderByGroupCount(fields []USER_INDEX_EVALUATE_FIELD, asc bool) *UserIndexEvaluateQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *UserIndexEvaluateQuery) OrderByGroupCount(left []USER_INDEX_EVALUATE_FIELD, right []USER_INDEX_EVALUATE_FIELD, asc bool) *UserIndexEvaluateQuery {
+	s := " order by "
+	if left != nil {
+		for _, v := range left {
+			s += string(v) + ","
+		}
+	}
+	s += "count(1)"
+	if right != nil {
+		for _, v := range right {
+			s += "," + string(v)
+		}
 	}
 
 	if asc {
-		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+		q.order = s + " asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
+		q.order = s + " desc"
 	}
 
 	return q
@@ -1673,16 +1693,24 @@ func (q *UserSettingQuery) OrderBy(fields []USER_SETTING_FIELD, asc bool) *UserS
 	return q
 }
 
-func (q *UserSettingQuery) OrderByGroupCount(fields []USER_SETTING_FIELD, asc bool) *UserSettingQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *UserSettingQuery) OrderByGroupCount(left []USER_SETTING_FIELD, right []USER_SETTING_FIELD, asc bool) *UserSettingQuery {
+	s := " order by "
+	if left != nil {
+		for _, v := range left {
+			s += string(v) + ","
+		}
+	}
+	s += "count(1)"
+	if right != nil {
+		for _, v := range right {
+			s += "," + string(v)
+		}
 	}
 
 	if asc {
-		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+		q.order = s + " asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
+		q.order = s + " desc"
 	}
 
 	return q
@@ -1699,15 +1727,11 @@ func (q *UserSettingQuery) And() *UserSettingQuery   { return q.w(" AND ") }
 func (q *UserSettingQuery) Or() *UserSettingQuery    { return q.w(" OR ") }
 func (q *UserSettingQuery) Not() *UserSettingQuery   { return q.w(" NOT ") }
 
-func (q *UserSettingQuery) Id_Equal(v int64) *UserSettingQuery {
-	return q.w("id='" + fmt.Sprint(v) + "'")
-}
+func (q *UserSettingQuery) Id_Equal(v int64) *UserSettingQuery { return q.w("id='" + fmt.Sprint(v) + "'") }
 func (q *UserSettingQuery) Id_NotEqual(v int64) *UserSettingQuery {
 	return q.w("id<>'" + fmt.Sprint(v) + "'")
 }
-func (q *UserSettingQuery) Id_Less(v int64) *UserSettingQuery {
-	return q.w("id<'" + fmt.Sprint(v) + "'")
-}
+func (q *UserSettingQuery) Id_Less(v int64) *UserSettingQuery { return q.w("id<'" + fmt.Sprint(v) + "'") }
 func (q *UserSettingQuery) Id_LessEqual(v int64) *UserSettingQuery {
 	return q.w("id<='" + fmt.Sprint(v) + "'")
 }
@@ -2115,16 +2139,24 @@ func (q *UserStockEvaluateQuery) OrderBy(fields []USER_STOCK_EVALUATE_FIELD, asc
 	return q
 }
 
-func (q *UserStockEvaluateQuery) OrderByGroupCount(fields []USER_STOCK_EVALUATE_FIELD, asc bool) *UserStockEvaluateQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *UserStockEvaluateQuery) OrderByGroupCount(left []USER_STOCK_EVALUATE_FIELD, right []USER_STOCK_EVALUATE_FIELD, asc bool) *UserStockEvaluateQuery {
+	s := " order by "
+	if left != nil {
+		for _, v := range left {
+			s += string(v) + ","
+		}
+	}
+	s += "count(1)"
+	if right != nil {
+		for _, v := range right {
+			s += "," + string(v)
+		}
 	}
 
 	if asc {
-		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+		q.order = s + " asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
+		q.order = s + " desc"
 	}
 
 	return q
@@ -2544,11 +2576,10 @@ const USER_STOCK_INDEX_FIELD_UI_ORDER = USER_STOCK_INDEX_FIELD("ui_order")
 const USER_STOCK_INDEX_FIELD_INDEX_DESC = USER_STOCK_INDEX_FIELD("index_desc")
 const USER_STOCK_INDEX_FIELD_EVAL_WEIGHT = USER_STOCK_INDEX_FIELD("eval_weight")
 const USER_STOCK_INDEX_FIELD_AI_WEIGHT = USER_STOCK_INDEX_FIELD("ai_weight")
-const USER_STOCK_INDEX_FIELD_NI_WEIGHT = USER_STOCK_INDEX_FIELD("ni_weight")
 const USER_STOCK_INDEX_FIELD_CREATE_TIME = USER_STOCK_INDEX_FIELD("create_time")
 const USER_STOCK_INDEX_FIELD_UPDATE_TIME = USER_STOCK_INDEX_FIELD("update_time")
 
-const USER_STOCK_INDEX_ALL_FIELDS_STRING = "id,user_id,index_name,ui_order,index_desc,eval_weight,ai_weight,ni_weight,create_time,update_time"
+const USER_STOCK_INDEX_ALL_FIELDS_STRING = "id,user_id,index_name,ui_order,index_desc,eval_weight,ai_weight,create_time,update_time"
 
 var USER_STOCK_INDEX_ALL_FIELDS = []string{
 	"id",
@@ -2558,7 +2589,6 @@ var USER_STOCK_INDEX_ALL_FIELDS = []string{
 	"index_desc",
 	"eval_weight",
 	"ai_weight",
-	"ni_weight",
 	"create_time",
 	"update_time",
 }
@@ -2571,7 +2601,6 @@ type UserStockIndex struct {
 	IndexDesc  string //size=256
 	EvalWeight int32  //size=11
 	AiWeight   int32  //size=11
-	NiWeight   int32  //size=11
 	CreateTime time.Time
 	UpdateTime time.Time
 
@@ -2644,16 +2673,24 @@ func (q *UserStockIndexQuery) OrderBy(fields []USER_STOCK_INDEX_FIELD, asc bool)
 	return q
 }
 
-func (q *UserStockIndexQuery) OrderByGroupCount(fields []USER_STOCK_INDEX_FIELD, asc bool) *UserStockIndexQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *UserStockIndexQuery) OrderByGroupCount(left []USER_STOCK_INDEX_FIELD, right []USER_STOCK_INDEX_FIELD, asc bool) *UserStockIndexQuery {
+	s := " order by "
+	if left != nil {
+		for _, v := range left {
+			s += string(v) + ","
+		}
+	}
+	s += "count(1)"
+	if right != nil {
+		for _, v := range right {
+			s += "," + string(v)
+		}
 	}
 
 	if asc {
-		q.order = fmt.Sprintf(" order by %s,count(1) asc", strings.Join(s, ","))
+		q.order = s + " asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s,count(1) desc", strings.Join(s, ","))
+		q.order = s + " desc"
 	}
 
 	return q
@@ -2796,24 +2833,6 @@ func (q *UserStockIndexQuery) AiWeight_Greater(v int32) *UserStockIndexQuery {
 func (q *UserStockIndexQuery) AiWeight_GreaterEqual(v int32) *UserStockIndexQuery {
 	return q.w("ai_weight>='" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockIndexQuery) NiWeight_Equal(v int32) *UserStockIndexQuery {
-	return q.w("ni_weight='" + fmt.Sprint(v) + "'")
-}
-func (q *UserStockIndexQuery) NiWeight_NotEqual(v int32) *UserStockIndexQuery {
-	return q.w("ni_weight<>'" + fmt.Sprint(v) + "'")
-}
-func (q *UserStockIndexQuery) NiWeight_Less(v int32) *UserStockIndexQuery {
-	return q.w("ni_weight<'" + fmt.Sprint(v) + "'")
-}
-func (q *UserStockIndexQuery) NiWeight_LessEqual(v int32) *UserStockIndexQuery {
-	return q.w("ni_weight<='" + fmt.Sprint(v) + "'")
-}
-func (q *UserStockIndexQuery) NiWeight_Greater(v int32) *UserStockIndexQuery {
-	return q.w("ni_weight>'" + fmt.Sprint(v) + "'")
-}
-func (q *UserStockIndexQuery) NiWeight_GreaterEqual(v int32) *UserStockIndexQuery {
-	return q.w("ni_weight>='" + fmt.Sprint(v) + "'")
-}
 func (q *UserStockIndexQuery) CreateTime_Equal(v time.Time) *UserStockIndexQuery {
 	return q.w("create_time='" + fmt.Sprint(v) + "'")
 }
@@ -2890,12 +2909,12 @@ func (dao *UserStockIndexDao) init() (err error) {
 	return nil
 }
 func (dao *UserStockIndexDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_stock_index (user_id,index_name,ui_order,index_desc,eval_weight,ai_weight,ni_weight,create_time,update_time) VALUES (?,?,?,?,?,?,?,?,?)")
+	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_stock_index (user_id,index_name,ui_order,index_desc,eval_weight,ai_weight,create_time,update_time) VALUES (?,?,?,?,?,?,?,?)")
 	return err
 }
 
 func (dao *UserStockIndexDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_stock_index SET user_id=?,index_name=?,ui_order=?,index_desc=?,eval_weight=?,ai_weight=?,ni_weight=?,create_time=?,update_time=? WHERE id=?")
+	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_stock_index SET user_id=?,index_name=?,ui_order=?,index_desc=?,eval_weight=?,ai_weight=?,create_time=?,update_time=? WHERE id=?")
 	return err
 }
 
@@ -2910,7 +2929,7 @@ func (dao *UserStockIndexDao) Insert(ctx context.Context, tx *wrap.Tx, e *UserSt
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.UserId, e.IndexName, e.UiOrder, e.IndexDesc, e.EvalWeight, e.AiWeight, e.NiWeight, e.CreateTime, e.UpdateTime)
+	result, err := stmt.Exec(ctx, e.UserId, e.IndexName, e.UiOrder, e.IndexDesc, e.EvalWeight, e.AiWeight, e.CreateTime, e.UpdateTime)
 	if err != nil {
 		return 0, err
 	}
@@ -2929,7 +2948,7 @@ func (dao *UserStockIndexDao) Update(ctx context.Context, tx *wrap.Tx, e *UserSt
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	_, err = stmt.Exec(ctx, e.UserId, e.IndexName, e.UiOrder, e.IndexDesc, e.EvalWeight, e.AiWeight, e.NiWeight, e.CreateTime, e.UpdateTime, e.Id)
+	_, err = stmt.Exec(ctx, e.UserId, e.IndexName, e.UiOrder, e.IndexDesc, e.EvalWeight, e.AiWeight, e.CreateTime, e.UpdateTime, e.Id)
 	if err != nil {
 		return err
 	}
@@ -2953,7 +2972,7 @@ func (dao *UserStockIndexDao) Delete(ctx context.Context, tx *wrap.Tx, id int64)
 
 func (dao *UserStockIndexDao) scanRow(row *wrap.Row) (*UserStockIndex, error) {
 	e := &UserStockIndex{}
-	err := row.Scan(&e.Id, &e.UserId, &e.IndexName, &e.UiOrder, &e.IndexDesc, &e.EvalWeight, &e.AiWeight, &e.NiWeight, &e.CreateTime, &e.UpdateTime)
+	err := row.Scan(&e.Id, &e.UserId, &e.IndexName, &e.UiOrder, &e.IndexDesc, &e.EvalWeight, &e.AiWeight, &e.CreateTime, &e.UpdateTime)
 	if err != nil {
 		if err == wrap.ErrNoRows {
 			return nil, nil
@@ -2969,7 +2988,7 @@ func (dao *UserStockIndexDao) scanRows(rows *wrap.Rows) (list []*UserStockIndex,
 	list = make([]*UserStockIndex, 0)
 	for rows.Next() {
 		e := UserStockIndex{}
-		err = rows.Scan(&e.Id, &e.UserId, &e.IndexName, &e.UiOrder, &e.IndexDesc, &e.EvalWeight, &e.AiWeight, &e.NiWeight, &e.CreateTime, &e.UpdateTime)
+		err = rows.Scan(&e.Id, &e.UserId, &e.IndexName, &e.UiOrder, &e.IndexDesc, &e.EvalWeight, &e.AiWeight, &e.CreateTime, &e.UpdateTime)
 		if err != nil {
 			return nil, err
 		}

@@ -60,7 +60,7 @@ func main() {
 
 		logger.Info("Start server", zap.String("addr", bind_addr))
 		err = http.ListenAndServe(bind_addr,
-			restful.Recovery(cors.Default().Handler(api.Serve(nil))))
+			restful.Recovery(cors.AllowAll().Handler(api.Serve(nil))))
 		if err != nil {
 			return errors.WithStack(err)
 		}
