@@ -35,6 +35,7 @@ func (q *BaseQuery) buildQueryString() string {
 	}
 
 	if q.order != "" {
+		buf.WriteString("order by ")
 		buf.WriteString(q.order)
 	}
 
@@ -170,39 +171,29 @@ func (q *StockQuery) Limit(startIncluded int64, count int64) *StockQuery {
 	return q
 }
 
-func (q *StockQuery) OrderBy(fields []STOCK_FIELD, asc bool) *StockQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *StockQuery) OrderBy(fieldName STOCK_FIELD, asc bool) *StockQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-
+	q.order += string(fieldName) + " "
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
+		q.order += "asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+		q.order += "desc"
 	}
 
 	return q
 }
 
-func (q *StockQuery) OrderByGroupCount(left []STOCK_FIELD, right []STOCK_FIELD, asc bool) *StockQuery {
-	s := " order by "
-	if left != nil {
-		for _, v := range left {
-			s += string(v) + ","
-		}
+func (q *StockQuery) OrderByGroupCount(asc bool) *StockQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-	s += "count(1)"
-	if right != nil {
-		for _, v := range right {
-			s += "," + string(v)
-		}
-	}
-
+	q.order += "count(1) "
 	if asc {
-		q.order = s + " asc"
+		q.order += "asc"
 	} else {
-		q.order = s + " desc"
+		q.order += "desc"
 	}
 
 	return q
@@ -784,39 +775,29 @@ func (q *StockIndexAdviceQuery) Limit(startIncluded int64, count int64) *StockIn
 	return q
 }
 
-func (q *StockIndexAdviceQuery) OrderBy(fields []STOCK_INDEX_ADVICE_FIELD, asc bool) *StockIndexAdviceQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *StockIndexAdviceQuery) OrderBy(fieldName STOCK_INDEX_ADVICE_FIELD, asc bool) *StockIndexAdviceQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-
+	q.order += string(fieldName) + " "
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
+		q.order += "asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+		q.order += "desc"
 	}
 
 	return q
 }
 
-func (q *StockIndexAdviceQuery) OrderByGroupCount(left []STOCK_INDEX_ADVICE_FIELD, right []STOCK_INDEX_ADVICE_FIELD, asc bool) *StockIndexAdviceQuery {
-	s := " order by "
-	if left != nil {
-		for _, v := range left {
-			s += string(v) + ","
-		}
+func (q *StockIndexAdviceQuery) OrderByGroupCount(asc bool) *StockIndexAdviceQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-	s += "count(1)"
-	if right != nil {
-		for _, v := range right {
-			s += "," + string(v)
-		}
-	}
-
+	q.order += "count(1) "
 	if asc {
-		q.order = s + " asc"
+		q.order += "asc"
 	} else {
-		q.order = s + " desc"
+		q.order += "desc"
 	}
 
 	return q
@@ -1207,39 +1188,29 @@ func (q *UserIndexEvaluateQuery) Limit(startIncluded int64, count int64) *UserIn
 	return q
 }
 
-func (q *UserIndexEvaluateQuery) OrderBy(fields []USER_INDEX_EVALUATE_FIELD, asc bool) *UserIndexEvaluateQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *UserIndexEvaluateQuery) OrderBy(fieldName USER_INDEX_EVALUATE_FIELD, asc bool) *UserIndexEvaluateQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-
+	q.order += string(fieldName) + " "
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
+		q.order += "asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+		q.order += "desc"
 	}
 
 	return q
 }
 
-func (q *UserIndexEvaluateQuery) OrderByGroupCount(left []USER_INDEX_EVALUATE_FIELD, right []USER_INDEX_EVALUATE_FIELD, asc bool) *UserIndexEvaluateQuery {
-	s := " order by "
-	if left != nil {
-		for _, v := range left {
-			s += string(v) + ","
-		}
+func (q *UserIndexEvaluateQuery) OrderByGroupCount(asc bool) *UserIndexEvaluateQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-	s += "count(1)"
-	if right != nil {
-		for _, v := range right {
-			s += "," + string(v)
-		}
-	}
-
+	q.order += "count(1) "
 	if asc {
-		q.order = s + " asc"
+		q.order += "asc"
 	} else {
-		q.order = s + " desc"
+		q.order += "desc"
 	}
 
 	return q
@@ -1678,39 +1649,29 @@ func (q *UserSettingQuery) Limit(startIncluded int64, count int64) *UserSettingQ
 	return q
 }
 
-func (q *UserSettingQuery) OrderBy(fields []USER_SETTING_FIELD, asc bool) *UserSettingQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *UserSettingQuery) OrderBy(fieldName USER_SETTING_FIELD, asc bool) *UserSettingQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-
+	q.order += string(fieldName) + " "
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
+		q.order += "asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+		q.order += "desc"
 	}
 
 	return q
 }
 
-func (q *UserSettingQuery) OrderByGroupCount(left []USER_SETTING_FIELD, right []USER_SETTING_FIELD, asc bool) *UserSettingQuery {
-	s := " order by "
-	if left != nil {
-		for _, v := range left {
-			s += string(v) + ","
-		}
+func (q *UserSettingQuery) OrderByGroupCount(asc bool) *UserSettingQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-	s += "count(1)"
-	if right != nil {
-		for _, v := range right {
-			s += "," + string(v)
-		}
-	}
-
+	q.order += "count(1) "
 	if asc {
-		q.order = s + " asc"
+		q.order += "asc"
 	} else {
-		q.order = s + " desc"
+		q.order += "desc"
 	}
 
 	return q
@@ -2038,10 +1999,11 @@ const USER_STOCK_EVALUATE_FIELD_CREATE_TIME = USER_STOCK_EVALUATE_FIELD("create_
 const USER_STOCK_EVALUATE_FIELD_UPDATE_TIME = USER_STOCK_EVALUATE_FIELD("update_time")
 const USER_STOCK_EVALUATE_FIELD_EXCHANGE_ID = USER_STOCK_EVALUATE_FIELD("exchange_id")
 const USER_STOCK_EVALUATE_FIELD_STOCK_CODE = USER_STOCK_EVALUATE_FIELD("stock_code")
+const USER_STOCK_EVALUATE_FIELD_STOCK_NAME_CN = USER_STOCK_EVALUATE_FIELD("stock_name_cn")
 const USER_STOCK_EVALUATE_FIELD_LAUNCH_DATE = USER_STOCK_EVALUATE_FIELD("launch_date")
 const USER_STOCK_EVALUATE_FIELD_INDUSTRY_NAME = USER_STOCK_EVALUATE_FIELD("industry_name")
 
-const USER_STOCK_EVALUATE_ALL_FIELDS_STRING = "id,user_id,stock_id,total_score,eval_remark,create_time,update_time,exchange_id,stock_code,launch_date,industry_name"
+const USER_STOCK_EVALUATE_ALL_FIELDS_STRING = "id,user_id,stock_id,total_score,eval_remark,create_time,update_time,exchange_id,stock_code,stock_name_cn,launch_date,industry_name"
 
 var USER_STOCK_EVALUATE_ALL_FIELDS = []string{
 	"id",
@@ -2053,6 +2015,7 @@ var USER_STOCK_EVALUATE_ALL_FIELDS = []string{
 	"update_time",
 	"exchange_id",
 	"stock_code",
+	"stock_name_cn",
 	"launch_date",
 	"industry_name",
 }
@@ -2067,6 +2030,7 @@ type UserStockEvaluate struct {
 	UpdateTime   time.Time
 	ExchangeId   string //size=32
 	StockCode    string //size=32
+	StockNameCn  string //size=32
 	LaunchDate   time.Time
 	IndustryName string //size=32
 
@@ -2124,39 +2088,29 @@ func (q *UserStockEvaluateQuery) Limit(startIncluded int64, count int64) *UserSt
 	return q
 }
 
-func (q *UserStockEvaluateQuery) OrderBy(fields []USER_STOCK_EVALUATE_FIELD, asc bool) *UserStockEvaluateQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *UserStockEvaluateQuery) OrderBy(fieldName USER_STOCK_EVALUATE_FIELD, asc bool) *UserStockEvaluateQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-
+	q.order += string(fieldName) + " "
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
+		q.order += "asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+		q.order += "desc"
 	}
 
 	return q
 }
 
-func (q *UserStockEvaluateQuery) OrderByGroupCount(left []USER_STOCK_EVALUATE_FIELD, right []USER_STOCK_EVALUATE_FIELD, asc bool) *UserStockEvaluateQuery {
-	s := " order by "
-	if left != nil {
-		for _, v := range left {
-			s += string(v) + ","
-		}
+func (q *UserStockEvaluateQuery) OrderByGroupCount(asc bool) *UserStockEvaluateQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-	s += "count(1)"
-	if right != nil {
-		for _, v := range right {
-			s += "," + string(v)
-		}
-	}
-
+	q.order += "count(1) "
 	if asc {
-		q.order = s + " asc"
+		q.order += "asc"
 	} else {
-		q.order = s + " desc"
+		q.order += "desc"
 	}
 
 	return q
@@ -2335,6 +2289,24 @@ func (q *UserStockEvaluateQuery) StockCode_Greater(v string) *UserStockEvaluateQ
 func (q *UserStockEvaluateQuery) StockCode_GreaterEqual(v string) *UserStockEvaluateQuery {
 	return q.w("stock_code>='" + fmt.Sprint(v) + "'")
 }
+func (q *UserStockEvaluateQuery) StockNameCn_Equal(v string) *UserStockEvaluateQuery {
+	return q.w("stock_name_cn='" + fmt.Sprint(v) + "'")
+}
+func (q *UserStockEvaluateQuery) StockNameCn_NotEqual(v string) *UserStockEvaluateQuery {
+	return q.w("stock_name_cn<>'" + fmt.Sprint(v) + "'")
+}
+func (q *UserStockEvaluateQuery) StockNameCn_Less(v string) *UserStockEvaluateQuery {
+	return q.w("stock_name_cn<'" + fmt.Sprint(v) + "'")
+}
+func (q *UserStockEvaluateQuery) StockNameCn_LessEqual(v string) *UserStockEvaluateQuery {
+	return q.w("stock_name_cn<='" + fmt.Sprint(v) + "'")
+}
+func (q *UserStockEvaluateQuery) StockNameCn_Greater(v string) *UserStockEvaluateQuery {
+	return q.w("stock_name_cn>'" + fmt.Sprint(v) + "'")
+}
+func (q *UserStockEvaluateQuery) StockNameCn_GreaterEqual(v string) *UserStockEvaluateQuery {
+	return q.w("stock_name_cn>='" + fmt.Sprint(v) + "'")
+}
 func (q *UserStockEvaluateQuery) LaunchDate_Equal(v time.Time) *UserStockEvaluateQuery {
 	return q.w("launch_date='" + fmt.Sprint(v) + "'")
 }
@@ -2411,12 +2383,12 @@ func (dao *UserStockEvaluateDao) init() (err error) {
 	return nil
 }
 func (dao *UserStockEvaluateDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_stock_evaluate (user_id,stock_id,total_score,eval_remark,create_time,update_time,exchange_id,stock_code,launch_date,industry_name) VALUES (?,?,?,?,?,?,?,?,?,?)")
+	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_stock_evaluate (user_id,stock_id,total_score,eval_remark,create_time,update_time,exchange_id,stock_code,stock_name_cn,launch_date,industry_name) VALUES (?,?,?,?,?,?,?,?,?,?,?)")
 	return err
 }
 
 func (dao *UserStockEvaluateDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_stock_evaluate SET user_id=?,stock_id=?,total_score=?,eval_remark=?,create_time=?,update_time=?,exchange_id=?,stock_code=?,launch_date=?,industry_name=? WHERE id=?")
+	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_stock_evaluate SET user_id=?,stock_id=?,total_score=?,eval_remark=?,create_time=?,update_time=?,exchange_id=?,stock_code=?,stock_name_cn=?,launch_date=?,industry_name=? WHERE id=?")
 	return err
 }
 
@@ -2431,7 +2403,7 @@ func (dao *UserStockEvaluateDao) Insert(ctx context.Context, tx *wrap.Tx, e *Use
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.TotalScore, e.EvalRemark, e.CreateTime, e.UpdateTime, e.ExchangeId, e.StockCode, e.LaunchDate, e.IndustryName)
+	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.TotalScore, e.EvalRemark, e.CreateTime, e.UpdateTime, e.ExchangeId, e.StockCode, e.StockNameCn, e.LaunchDate, e.IndustryName)
 	if err != nil {
 		return 0, err
 	}
@@ -2450,7 +2422,7 @@ func (dao *UserStockEvaluateDao) Update(ctx context.Context, tx *wrap.Tx, e *Use
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	_, err = stmt.Exec(ctx, e.UserId, e.StockId, e.TotalScore, e.EvalRemark, e.CreateTime, e.UpdateTime, e.ExchangeId, e.StockCode, e.LaunchDate, e.IndustryName, e.Id)
+	_, err = stmt.Exec(ctx, e.UserId, e.StockId, e.TotalScore, e.EvalRemark, e.CreateTime, e.UpdateTime, e.ExchangeId, e.StockCode, e.StockNameCn, e.LaunchDate, e.IndustryName, e.Id)
 	if err != nil {
 		return err
 	}
@@ -2474,7 +2446,7 @@ func (dao *UserStockEvaluateDao) Delete(ctx context.Context, tx *wrap.Tx, id int
 
 func (dao *UserStockEvaluateDao) scanRow(row *wrap.Row) (*UserStockEvaluate, error) {
 	e := &UserStockEvaluate{}
-	err := row.Scan(&e.Id, &e.UserId, &e.StockId, &e.TotalScore, &e.EvalRemark, &e.CreateTime, &e.UpdateTime, &e.ExchangeId, &e.StockCode, &e.LaunchDate, &e.IndustryName)
+	err := row.Scan(&e.Id, &e.UserId, &e.StockId, &e.TotalScore, &e.EvalRemark, &e.CreateTime, &e.UpdateTime, &e.ExchangeId, &e.StockCode, &e.StockNameCn, &e.LaunchDate, &e.IndustryName)
 	if err != nil {
 		if err == wrap.ErrNoRows {
 			return nil, nil
@@ -2490,7 +2462,7 @@ func (dao *UserStockEvaluateDao) scanRows(rows *wrap.Rows) (list []*UserStockEva
 	list = make([]*UserStockEvaluate, 0)
 	for rows.Next() {
 		e := UserStockEvaluate{}
-		err = rows.Scan(&e.Id, &e.UserId, &e.StockId, &e.TotalScore, &e.EvalRemark, &e.CreateTime, &e.UpdateTime, &e.ExchangeId, &e.StockCode, &e.LaunchDate, &e.IndustryName)
+		err = rows.Scan(&e.Id, &e.UserId, &e.StockId, &e.TotalScore, &e.EvalRemark, &e.CreateTime, &e.UpdateTime, &e.ExchangeId, &e.StockCode, &e.StockNameCn, &e.LaunchDate, &e.IndustryName)
 		if err != nil {
 			return nil, err
 		}
@@ -2658,39 +2630,29 @@ func (q *UserStockIndexQuery) Limit(startIncluded int64, count int64) *UserStock
 	return q
 }
 
-func (q *UserStockIndexQuery) OrderBy(fields []USER_STOCK_INDEX_FIELD, asc bool) *UserStockIndexQuery {
-	s := make([]string, len(fields))
-	for i, v := range s {
-		s[i] = string(v)
+func (q *UserStockIndexQuery) OrderBy(fieldName USER_STOCK_INDEX_FIELD, asc bool) *UserStockIndexQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-
+	q.order += string(fieldName) + " "
 	if asc {
-		q.order = fmt.Sprintf(" order by %s asc", strings.Join(s, ","))
+		q.order += "asc"
 	} else {
-		q.order = fmt.Sprintf(" order by %s desc", strings.Join(s, ","))
+		q.order += "desc"
 	}
 
 	return q
 }
 
-func (q *UserStockIndexQuery) OrderByGroupCount(left []USER_STOCK_INDEX_FIELD, right []USER_STOCK_INDEX_FIELD, asc bool) *UserStockIndexQuery {
-	s := " order by "
-	if left != nil {
-		for _, v := range left {
-			s += string(v) + ","
-		}
+func (q *UserStockIndexQuery) OrderByGroupCount(asc bool) *UserStockIndexQuery {
+	if q.order != "" {
+		q.order += ","
 	}
-	s += "count(1)"
-	if right != nil {
-		for _, v := range right {
-			s += "," + string(v)
-		}
-	}
-
+	q.order += "count(1) "
 	if asc {
-		q.order = s + " asc"
+		q.order += "asc"
 	} else {
-		q.order = s + " desc"
+		q.order += "desc"
 	}
 
 	return q

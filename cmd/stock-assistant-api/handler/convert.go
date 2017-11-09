@@ -103,10 +103,7 @@ func fromStockEvaluate(p *models.UserStockEvaluate) (r *api.UserStockEvaluate) {
 	r.StockCode = p.StockCode
 	r.StockNameCN = p.StockNameCN
 	r.LaunchDate = strfmt.DateTime(p.LaunchDate)
-	r.WebsiteURL = p.WebsiteUrl
 	r.IndustryName = p.IndustryName
-	r.CityNameCN = p.CityNameCN
-	r.ProvinceNameCN = p.ProvinceNameCN
 
 	return r
 }

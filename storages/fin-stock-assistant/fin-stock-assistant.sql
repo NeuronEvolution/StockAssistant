@@ -88,7 +88,7 @@ CREATE TABLE `user_index_evaluate` (
   UNIQUE KEY `idx_user_stock_index` (`user_id`,`stock_id`,`index_name`),
   KEY `idx_update_time` (`update_time`),
   KEY `idx_index_name` (`index_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -128,6 +128,7 @@ CREATE TABLE `user_stock_evaluate` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `exchange_id` varchar(32) NOT NULL,
   `stock_code` varchar(32) NOT NULL,
+  `stock_name_cn` varchar(32) NOT NULL,
   `launch_date` datetime NOT NULL,
   `industry_name` varchar(32) NOT NULL,
   PRIMARY KEY (`id`),
@@ -137,7 +138,7 @@ CREATE TABLE `user_stock_evaluate` (
   KEY `idx_stock_code` (`stock_code`),
   KEY `idx_launch_date` (`launch_date`),
   KEY `idx_industry_name` (`industry_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -161,7 +162,7 @@ CREATE TABLE `user_stock_index` (
   UNIQUE KEY `idx_uid_name` (`user_id`,`index_name`),
   KEY `idx_update_time` (`update_time`),
   KEY `idx_name` (`index_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -173,4 +174,4 @@ CREATE TABLE `user_stock_index` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-06  8:02:04
+-- Dump completed on 2017-11-09  8:41:54

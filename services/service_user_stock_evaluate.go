@@ -12,16 +12,17 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 	}
 
 	if query.Evaluated {
-		q := s.db.UserStockEvaluate.GetQuery()
-		q.UserId_Equal(query.UserId)
-		dbStockEvaluateList, err := q.QueryList(context.Background(),nil)
+		dbStockEvaluateList, err := s.db.UserStockEvaluate.GetQuery().
+			UserId_Equal(query.UserId).
+			OrderBy(fin_stock_assistant.USER_STOCK_EVALUATE_FIELD_TOTAL_SCORE, false).
+			QueryList(context.Background(), nil)
 		if err != nil {
 			return nil, "", err
 		}
 
 		return fin_stock_assistant.FromStockEvaluateList(dbStockEvaluateList), "", nil
 	} else {
-		dbStockList, err := s.db.Stock.GetQuery().QueryList(context.Background(),nil)
+		dbStockList, err := s.db.Stock.GetQuery().QueryList(context.Background(), nil)
 		if err != nil {
 			return nil, "", err
 		}
@@ -35,7 +36,7 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 		//filter evaluated
 		dbStockEvaluateList, err := s.db.UserStockEvaluate.GetQuery().
 			UserId_Equal(query.UserId).
-			QueryList(context.Background(),nil)
+			QueryList(context.Background(), nil)
 		if err != nil {
 			return nil, "", err
 		}
@@ -63,10 +64,7 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 			e.StockCode = v.StockCode
 			e.StockNameCN = v.StockNameCn
 			e.LaunchDate = v.LaunchDate
-			e.WebsiteUrl = v.WebsiteUrl
 			e.IndustryName = v.IndustryName
-			e.CityNameCN = v.CityNameCn
-			e.ProvinceNameCN = v.ProvinceNameCn
 
 			result = append(result, e)
 
@@ -82,7 +80,7 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 func (s *StockAssistantService) UserStockEvaluateGet(userId string, stockId string) (eval *models.UserStockEvaluate, err error) {
 	dbStockEvaluate, err := s.db.UserStockEvaluate.GetQuery().
 		UserId_Equal(userId).And().StockId_Equal(stockId).
-		QueryOne(context.Background(),nil)
+		QueryOne(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}

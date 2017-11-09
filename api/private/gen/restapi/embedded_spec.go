@@ -621,10 +621,6 @@ func init() {
       "description": "stock evaluate",
       "type": "object",
       "properties": {
-        "cityNameCN": {
-          "description": "City name cn",
-          "type": "string"
-        },
         "evalRemark": {
           "description": "remark",
           "type": "string"
@@ -646,10 +642,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "provinceNameCN": {
-          "description": "Province name cn",
-          "type": "string"
-        },
         "stockCode": {
           "description": "Stock code",
           "type": "string"
@@ -666,10 +658,6 @@ func init() {
           "description": "score",
           "type": "number",
           "format": "double"
-        },
-        "websiteUrl": {
-          "description": "Website url",
-          "type": "string"
         }
       }
     },

@@ -40,6 +40,11 @@ func FromStockEvaluate(p *UserStockEvaluate) (r *models.UserStockEvaluate) {
 	r.StockId = p.StockId
 	r.TotalScore = p.TotalScore
 	r.EvalRemark = p.EvalRemark
+	r.ExchangeId = p.ExchangeId
+	r.StockCode = p.StockCode
+	r.StockNameCN = p.StockNameCn
+	r.LaunchDate = p.LaunchDate
+	r.IndustryName = p.IndustryName
 
 	return r
 }

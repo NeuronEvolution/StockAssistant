@@ -31,10 +31,8 @@ func (s *StockAssistantService) StockIndexAdviceList(query *models.StockIndexAdv
 
 	rows, err := s.db.UserStockIndex.GetQuery().
 		GroupBy(fin_stock_assistant.USER_STOCK_INDEX_FIELD_INDEX_NAME).
-		OrderByGroupCount(
-			nil,
-			[]fin_stock_assistant.USER_STOCK_INDEX_FIELD{fin_stock_assistant.USER_STOCK_INDEX_FIELD_INDEX_NAME},
-			false).
+		OrderByGroupCount(false).
+		OrderBy(fin_stock_assistant.USER_STOCK_INDEX_FIELD_INDEX_NAME, true).
 		Limit(start, count).
 		QueryGroupBy(context.Background(), nil)
 	if err != nil {

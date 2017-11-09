@@ -677,20 +677,8 @@
           "type": "string",
           "format": "date-time"
         },
-        "websiteUrl": {
-          "description": "Website url",
-          "type": "string"
-        },
         "industryName": {
           "description": "Industry name",
-          "type": "string"
-        },
-        "cityNameCN": {
-          "description": "City name cn",
-          "type": "string"
-        },
-        "provinceNameCN": {
-          "description": "Province name cn",
           "type": "string"
         }
       }

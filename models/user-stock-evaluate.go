@@ -11,10 +11,7 @@ type UserStockEvaluate struct {
 	StockCode      string
 	StockNameCN    string
 	LaunchDate     time.Time
-	WebsiteUrl     string
 	IndustryName   string
-	CityNameCN     string
-	ProvinceNameCN string
 }
 
 type UserStockEvaluateListQuery struct {
