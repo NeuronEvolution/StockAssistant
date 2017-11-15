@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/NeuronEvolution/StockAssistant/api/private/gen/restapi"
 	"github.com/NeuronEvolution/StockAssistant/api/private/gen/restapi/operations"
-	"github.com/NeuronEvolution/StockAssistant/cmd/stock-assistant-api/handler"
+	"github.com/NeuronEvolution/StockAssistant/cmd/stock-assistant-private-api/handler"
 	"github.com/NeuronFramework/log"
 	"github.com/NeuronFramework/restful"
 	"github.com/go-openapi/loads"
