@@ -57,6 +57,7 @@ func main() {
 		api.UserSettingSaveHandler = operations.UserSettingSaveHandlerFunc(h.UserSettingsSave)
 		api.UserSettingDeleteHandler = operations.UserSettingDeleteHandlerFunc(h.UserSettingsDelete)
 		api.StockIndexAdviceListHandler = operations.StockIndexAdviceListHandlerFunc(h.StockIndexAdviceList)
+		api.StockGetHandler = operations.StockGetHandlerFunc(h.StockGet)
 
 		logger.Info("Start server", zap.String("addr", bind_addr))
 		err = http.ListenAndServe(bind_addr,

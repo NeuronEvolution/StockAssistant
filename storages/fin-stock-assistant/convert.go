@@ -39,6 +39,7 @@ func FromStockEvaluate(p *UserStockEvaluate) (r *models.UserStockEvaluate) {
 	r = &models.UserStockEvaluate{}
 	r.StockId = p.StockId
 	r.TotalScore = p.TotalScore
+	r.IndexCount = p.IndexCount
 	r.EvalRemark = p.EvalRemark
 	r.ExchangeId = p.ExchangeId
 	r.StockCode = p.StockCode
@@ -135,6 +136,25 @@ func FromStockIndexAdviceList(p []*StockIndexAdvice) (r []*models.StockIndexAdvi
 	for i, v := range p {
 		r[i] = FromStockIndexAdvice(v)
 	}
+
+	return r
+}
+
+func FromStock(p *Stock) (r *models.Stock) {
+	if p == nil {
+		return nil
+	}
+
+	r = &models.Stock{}
+	r.StockID = p.StockId
+	r.ExchangeID = p.ExchangeId
+	r.StockCode = p.StockCode
+	r.StockNameCN = p.StockNameCn
+	r.LaunchDate = p.LaunchDate
+	r.IndustryName = p.IndustryName
+	r.CityNameCN = p.CityNameCn
+	r.ProvinceNameCN = p.ProvinceNameCn
+	r.WebsiteURL = p.WebsiteUrl
 
 	return r
 }

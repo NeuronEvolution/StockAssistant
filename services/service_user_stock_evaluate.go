@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
+	"github.com/NeuronFramework/errors"
 )
 
 func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEvaluateListQuery) (result []*models.UserStockEvaluate, nextPageToken string, err error) {
@@ -59,6 +60,7 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 			e := &models.UserStockEvaluate{}
 			e.StockId = v.StockId
 			e.TotalScore = 0
+			e.IndexCount = 0
 			e.EvalRemark = ""
 			e.ExchangeId = v.ExchangeId
 			e.StockCode = v.StockCode
@@ -85,5 +87,16 @@ func (s *StockAssistantService) UserStockEvaluateGet(userId string, stockId stri
 		return nil, err
 	}
 
-	return fin_stock_assistant.FromStockEvaluate(dbStockEvaluate), nil
+	stockEvaluate := fin_stock_assistant.FromStockEvaluate(dbStockEvaluate)
+
+	dbStock, err := s.db.Stock.GetQuery().StockId_Equal(stockId).QueryOne(context.Background(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if dbStock == nil {
+		return nil, errors.NotFound("Stock not exists")
+	}
+
+	return stockEvaluate, nil
 }

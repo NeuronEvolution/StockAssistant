@@ -80,7 +80,7 @@ CREATE TABLE `user_index_evaluate` (
   `user_id` varchar(32) NOT NULL,
   `stock_id` varchar(32) NOT NULL,
   `index_name` varchar(32) NOT NULL,
-  `eval_stars` int(10) unsigned NOT NULL,
+  `eval_stars` int(10) NOT NULL,
   `eval_remark` varchar(256) NOT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -88,7 +88,7 @@ CREATE TABLE `user_index_evaluate` (
   UNIQUE KEY `idx_user_stock_index` (`user_id`,`stock_id`,`index_name`),
   KEY `idx_update_time` (`update_time`),
   KEY `idx_index_name` (`index_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=369 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -122,7 +122,8 @@ CREATE TABLE `user_stock_evaluate` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` varchar(32) NOT NULL,
   `stock_id` varchar(32) NOT NULL,
-  `total_score` double unsigned NOT NULL,
+  `total_score` double NOT NULL,
+  `index_count` int(11) NOT NULL,
   `eval_remark` varchar(256) NOT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -137,8 +138,9 @@ CREATE TABLE `user_stock_evaluate` (
   KEY `idx_total_score` (`total_score`),
   KEY `idx_stock_code` (`stock_code`),
   KEY `idx_launch_date` (`launch_date`),
-  KEY `idx_industry_name` (`industry_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8;
+  KEY `idx_industry_name` (`industry_name`),
+  KEY `idx_index_count` (`index_count`)
+) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -162,7 +164,7 @@ CREATE TABLE `user_stock_index` (
   UNIQUE KEY `idx_uid_name` (`user_id`,`index_name`),
   KEY `idx_update_time` (`update_time`),
   KEY `idx_name` (`index_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -174,4 +176,4 @@ CREATE TABLE `user_stock_index` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-09  8:41:54
+-- Dump completed on 2017-11-14  9:35:02

@@ -29,6 +29,20 @@ func (s *StockAssistantService) StockIndexAdviceList(query *models.StockIndexAdv
 		count = query.PageSize
 	}
 
+	indexMap := make(map[string]*fin_stock_assistant.UserStockIndex)
+	if query.UserId != "" {
+		dbIndexList, err := s.db.UserStockIndex.GetQuery().UserId_Equal(query.UserId).QueryList(context.Background(), nil)
+		if err != nil {
+			return nil, "", err
+		}
+
+		if dbIndexList != nil {
+			for _, dbIndex := range dbIndexList {
+				indexMap[dbIndex.IndexName] = dbIndex
+			}
+		}
+	}
+
 	rows, err := s.db.UserStockIndex.GetQuery().
 		GroupBy(fin_stock_assistant.USER_STOCK_INDEX_FIELD_INDEX_NAME).
 		OrderByGroupCount(false).
@@ -45,6 +59,11 @@ func (s *StockAssistantService) StockIndexAdviceList(query *models.StockIndexAdv
 		err = rows.Scan(&e.IndexName, &e.UsedCount)
 		if err != nil {
 			return nil, "", err
+		}
+
+		_, has := indexMap[e.IndexName]
+		if has {
+			e.HaveUsed = true
 		}
 
 		result = append(result, e)

@@ -25,6 +25,34 @@ type Client struct {
 }
 
 /*
+StockGet gets stock
+*/
+func (a *Client) StockGet(params *StockGetParams) (*StockGetOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStockGetParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StockGet",
+		Method:             "GET",
+		PathPattern:        "/stocks/{stockId}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &StockGetReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*StockGetOK), nil
+
+}
+
+/*
 StockIndexAdviceList lists
 */
 func (a *Client) StockIndexAdviceList(params *StockIndexAdviceListParams) (*StockIndexAdviceListOK, error) {

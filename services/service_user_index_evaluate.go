@@ -16,17 +16,19 @@ func (s *StockAssistantService) UserIndexEvaluateList(userId string, stockId str
 		return nil, err
 	}
 
-	dbIndexList, err := s.db.UserStockIndex.GetQuery().UserId_Equal(userId).QueryList(context.Background(), nil)
+	dbIndexList, err := s.db.UserStockIndex.GetQuery().
+		UserId_Equal(userId).OrderBy(fin_stock_assistant.USER_STOCK_INDEX_FIELD_UI_ORDER, true).
+		QueryList(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	result = fin_stock_assistant.FromIndexEvaluateList(dbEvaluateList)
-
+	result = make([]*models.UserIndexEvaluate, 0)
 	for _, dbIndex := range dbIndexList {
 		has := false
 		for _, dbEvaluate := range dbEvaluateList {
 			if dbEvaluate.IndexName == dbIndex.IndexName {
+				result = append(result, fin_stock_assistant.FromIndexEvaluate(dbEvaluate))
 				has = true
 				break
 			}
@@ -82,7 +84,11 @@ func (s *StockAssistantService) UserIndexEvaluateSave(userId string, stockId str
 		return nil, err
 	}
 
+	adding := false
+
 	if dbIndexEvaluate == nil {
+		adding = true
+
 		dbIndexEvaluate = &fin_stock_assistant.UserIndexEvaluate{}
 		dbIndexEvaluate.UserId = userId
 		dbIndexEvaluate.StockId = stockId
@@ -136,6 +142,7 @@ func (s *StockAssistantService) UserIndexEvaluateSave(userId string, stockId str
 			se.UserId = userId
 			se.StockId = stockId
 			se.TotalScore = float64(totalScore)
+			se.IndexCount = 1
 			se.EvalRemark = ""
 			se.CreateTime = time.Now()
 			se.UpdateTime = time.Now()
@@ -150,6 +157,9 @@ func (s *StockAssistantService) UserIndexEvaluateSave(userId string, stockId str
 			}
 		} else {
 			se.TotalScore = float64(totalScore)
+			if adding {
+				se.IndexCount++
+			}
 			se.UpdateTime = time.Now()
 			err = s.db.UserStockEvaluate.Update(context.Background(), tx, se)
 			if err != nil {

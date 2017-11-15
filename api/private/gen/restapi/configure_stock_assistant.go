@@ -36,6 +36,9 @@ func configureAPI(api *operations.StockAssistantAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	api.StockGetHandler = operations.StockGetHandlerFunc(func(params operations.StockGetParams) middleware.Responder {
+		return middleware.NotImplemented("operation .StockGet has not yet been implemented")
+	})
 	api.StockIndexAdviceListHandler = operations.StockIndexAdviceListHandlerFunc(func(params operations.StockIndexAdviceListParams) middleware.Responder {
 		return middleware.NotImplemented("operation .StockIndexAdviceList has not yet been implemented")
 	})

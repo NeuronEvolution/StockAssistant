@@ -7,8 +7,49 @@ import (
 	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
 	"github.com/NeuronFramework/errors"
+	"github.com/NeuronFramework/sql/wrap"
 	"time"
 )
+
+func (s *StockAssistantService) reCalcStockEvaluates(ctx context.Context, tx *wrap.Tx,
+	userId string, indexName string,
+	evalWeightOld int32, evalWeightNew int32,
+	aiWeightOld int32, aiWeightNew int32, deleting bool) (err error) {
+	dbIndexEvaluateList, err := s.db.UserIndexEvaluate.GetQuery().ForShare().
+		UserId_Equal(userId).And().IndexName_Equal(indexName).
+		QueryList(context.Background(), tx)
+	if err != nil {
+		return err
+	}
+
+	if dbIndexEvaluateList != nil {
+		for _, dbIndexEvaluate := range dbIndexEvaluateList {
+			dbStockEvaluate, err := s.db.UserStockEvaluate.GetQuery().ForUpdate().
+				UserId_Equal(userId).And().StockId_Equal(dbIndexEvaluate.StockId).
+				QueryOne(context.Background(), tx)
+			if err != nil {
+				return err
+			}
+			if dbStockEvaluate == nil {
+				return errors.InternalServerError("指标评估存在，但股票评估不存在 userId=" +
+					userId + ",stockId=" + dbIndexEvaluate.StockId + ",indexName=" + dbIndexEvaluate.IndexName)
+			}
+
+			dbStockEvaluate.UpdateTime = time.Now()
+			dbStockEvaluate.TotalScore += float64(evalWeightNew - evalWeightOld + aiWeightNew - aiWeightOld)
+			if deleting {
+				dbStockEvaluate.IndexCount--
+			}
+
+			err = s.db.UserStockEvaluate.Update(context.Background(), tx, dbStockEvaluate)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
 
 func (s *StockAssistantService) UserStockIndexList(userId string) (indexList []*models.UserStockIndex, err error) {
 	dbIndexList, err := s.db.UserStockIndex.GetQuery().
@@ -49,12 +90,21 @@ func (s *StockAssistantService) UserStockIndexAdd(userId string, index *models.U
 		return nil, errors.AlreadyExists("指标已经存在")
 	}
 
+	//new index last ui
+	indexCount, err := s.db.UserStockIndex.GetQuery().ForShare().
+		UserId_Equal(userId).
+		QueryCount(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+
 	dbIndex = &fin_stock_assistant.UserStockIndex{}
 	dbIndex.UserId = userId
 	dbIndex.IndexName = index.IndexName
 	dbIndex.IndexDesc = index.IndexDesc
 	dbIndex.EvalWeight = index.EvalWeight
 	dbIndex.AiWeight = index.AIWeight
+	dbIndex.UiOrder = int32(indexCount + 1)
 	dbIndex.UpdateTime = time.Now()
 	dbIndex.CreateTime = time.Now()
 	_, err = s.db.UserStockIndex.Insert(context.Background(), tx, dbIndex)
@@ -88,6 +138,14 @@ func (s *StockAssistantService) UserStockIndexUpdate(userId string, index *model
 		return nil, errors.NotFound("指标不存在")
 	}
 
+	if index.EvalWeight != dbIndex.EvalWeight || index.AIWeight != dbIndex.AiWeight {
+		err = s.reCalcStockEvaluates(context.Background(), tx,
+			userId, index.IndexName, dbIndex.EvalWeight, index.EvalWeight, dbIndex.AiWeight, index.AIWeight, false)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	dbIndex.IndexDesc = index.IndexDesc
 	dbIndex.EvalWeight = index.EvalWeight
 	dbIndex.AiWeight = index.AIWeight
@@ -116,11 +174,17 @@ func (s *StockAssistantService) UserStockIndexDelete(userId string, indexName st
 		UserId_Equal(userId).And().IndexName_Equal(indexName).
 		QueryOne(context.Background(), tx)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if dbIndex == nil {
 		return errors.NotFound("指标不存在")
+	}
+
+	err = s.reCalcStockEvaluates(context.Background(), tx,
+		userId, indexName, dbIndex.EvalWeight, 0, dbIndex.AiWeight, 0, true)
+	if err != nil {
+		return err
 	}
 
 	err = s.db.UserStockIndex.Delete(context.Background(), tx, dbIndex.Id)
@@ -178,7 +242,7 @@ func (s *StockAssistantService) UserStockIndexRename(userId string, indexNameOld
 
 	//update index evaluates
 	dbIndexEvaluateList, err := s.db.UserIndexEvaluate.GetQuery().ForUpdate().
-		UserId_Equal(userId).
+		UserId_Equal(userId).And().IndexName_Equal(indexNameOld).
 		QueryList(context.Background(), tx)
 	if err != nil {
 		return nil, err

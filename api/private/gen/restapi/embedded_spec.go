@@ -37,6 +37,11 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "name": "userId",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "name": "pageToken",
             "in": "query"
           },
@@ -63,6 +68,34 @@ func init() {
             "description": "Error response",
             "schema": {
               "$ref": "#/definitions/stockIndexAdviceListDefaultBody"
+            }
+          }
+        }
+      }
+    },
+    "/stocks/{stockId}": {
+      "get": {
+        "summary": "get stock",
+        "operationId": "StockGet",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "stockId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/Stock"
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/stockGetDefaultBody"
             }
           }
         }
@@ -560,11 +593,60 @@ func init() {
     }
   },
   "definitions": {
+    "Stock": {
+      "description": "stock",
+      "type": "object",
+      "properties": {
+        "cityNameCN": {
+          "description": "City name cn",
+          "type": "string"
+        },
+        "exchangeId": {
+          "description": "Exchange id",
+          "type": "string"
+        },
+        "industryName": {
+          "description": "Industry name",
+          "type": "string"
+        },
+        "launchDate": {
+          "description": "Launch date",
+          "type": "string",
+          "format": "date-time"
+        },
+        "provinceNameCN": {
+          "description": "Province name cn",
+          "type": "string"
+        },
+        "stockCode": {
+          "description": "Stock code",
+          "type": "string"
+        },
+        "stockId": {
+          "description": "Stock id",
+          "type": "string"
+        },
+        "stockNameCN": {
+          "description": "Stock name cn",
+          "type": "string"
+        },
+        "stockUrlList": {
+          "$ref": "#/definitions/stockStockUrlList"
+        },
+        "websiteUrl": {
+          "description": "Website url",
+          "type": "string"
+        }
+      }
+    },
     "StockIndexAdvice": {
-      "id": "StockIndex",
       "description": "stock index",
       "type": "object",
       "properties": {
+        "haveUsed": {
+          "description": "i have used",
+          "type": "boolean"
+        },
         "indexName": {
           "description": "name",
           "type": "string"
@@ -576,8 +658,25 @@ func init() {
         }
       }
     },
+    "StockUrl": {
+      "description": "stock url",
+      "type": "object",
+      "properties": {
+        "icon": {
+          "description": "icon",
+          "type": "string"
+        },
+        "name": {
+          "description": "name",
+          "type": "string"
+        },
+        "url": {
+          "description": "url",
+          "type": "string"
+        }
+      }
+    },
     "UserIndexEvaluate": {
-      "id": "IndexEvaluate",
       "description": "index evaluate",
       "type": "object",
       "properties": {
@@ -602,7 +701,6 @@ func init() {
       }
     },
     "UserSetting": {
-      "id": "Setting",
       "description": "User stock setting",
       "type": "object",
       "properties": {
@@ -617,7 +715,6 @@ func init() {
       }
     },
     "UserStockEvaluate": {
-      "id": "StockEvaluate",
       "description": "stock evaluate",
       "type": "object",
       "properties": {
@@ -632,6 +729,11 @@ func init() {
         "exchangeName": {
           "description": "Exchange name",
           "type": "string"
+        },
+        "indexCount": {
+          "description": "index count",
+          "type": "integer",
+          "format": "int32"
         },
         "industryName": {
           "description": "Industry name",
@@ -662,7 +764,6 @@ func init() {
       }
     },
     "UserStockIndex": {
-      "id": "Index",
       "description": "User stock index",
       "type": "object",
       "properties": {
@@ -685,6 +786,54 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "stockGetDefaultBody": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Error code",
+          "type": "string"
+        },
+        "errors": {
+          "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrors"
+        },
+        "message": {
+          "description": "Error message",
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "format": "int32",
+          "default": "Http status"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "stockGetDefaultBodyErrors": {
+      "description": "Errors",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/userStockIndexUpdateDefaultBodyErrorsItems"
+      },
+      "x-go-gen-location": "operations"
+    },
+    "stockGetDefaultBodyErrorsItems": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "error code",
+          "type": "string"
+        },
+        "field": {
+          "description": "field name",
+          "type": "string"
+        },
+        "message": {
+          "description": "error message",
+          "type": "string"
+        }
+      },
+      "x-go-gen-location": "operations"
     },
     "stockIndexAdviceListDefaultBody": {
       "type": "object",
@@ -740,6 +889,14 @@ func init() {
         "$ref": "#/definitions/StockIndexAdvice"
       },
       "x-go-gen-location": "operations"
+    },
+    "stockStockUrlList": {
+      "description": "url list",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/StockUrl"
+      },
+      "x-go-gen-location": "models"
     },
     "userIndexEvaluateGetDefaultBody": {
       "type": "object",

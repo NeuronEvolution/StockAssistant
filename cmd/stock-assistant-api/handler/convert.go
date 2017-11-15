@@ -97,6 +97,7 @@ func fromStockEvaluate(p *models.UserStockEvaluate) (r *api.UserStockEvaluate) {
 	r = &api.UserStockEvaluate{}
 	r.StockID = p.StockId
 	r.TotalScore = p.TotalScore
+	r.IndexCount = p.IndexCount
 	r.EvalRemark = p.EvalRemark
 
 	r.ExchangeID = p.ExchangeId
@@ -166,6 +167,7 @@ func fromStockIndexAdvice(p *models.StockIndexAdvice) (r *api.StockIndexAdvice) 
 	r = &api.StockIndexAdvice{}
 	r.IndexName = p.IndexName
 	r.UsedCount = p.UsedCount
+	r.HaveUsed = p.HaveUsed
 
 	return r
 }
@@ -179,6 +181,52 @@ func fromStockIndexAdviceList(p []*models.StockIndexAdvice) (r []*api.StockIndex
 	for i, v := range p {
 		r[i] = fromStockIndexAdvice(v)
 	}
+
+	return r
+}
+
+func fromStockUrl(p *models.StockUrl) (r *api.StockURL) {
+	if p == nil {
+		return nil
+	}
+
+	r = &api.StockURL{}
+	r.Name = p.Name
+	r.Icon = p.Icon
+	r.URL = p.Url
+
+	return r
+}
+
+func fromStockUrlList(p []*models.StockUrl) (r []*api.StockURL) {
+	if p == nil {
+		return nil
+	}
+
+	r = make([]*api.StockURL, len(p))
+	for i, v := range p {
+		r[i] = fromStockUrl(v)
+	}
+
+	return r
+}
+
+func fromStock(p *models.Stock) (r *api.Stock) {
+	if p == nil {
+		return nil
+	}
+
+	r = &api.Stock{}
+	r.StockID = p.StockID
+	r.ExchangeID = p.ExchangeID
+	r.StockCode = p.StockCode
+	r.StockNameCN = p.StockNameCN
+	r.LaunchDate = strfmt.DateTime(p.LaunchDate)
+	r.IndustryName = p.IndustryName
+	r.CityNameCN = p.CityNameCN
+	r.ProvinceNameCN = p.ProvinceNameCN
+	r.WebsiteURL = p.WebsiteURL
+	r.StockURLList = fromStockUrlList(p.StockUrlList)
 
 	return r
 }

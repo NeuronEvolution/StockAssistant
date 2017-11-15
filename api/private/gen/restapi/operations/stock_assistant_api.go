@@ -35,6 +35,9 @@ func NewStockAssistantAPI(spec *loads.Document) *StockAssistantAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		StockGetHandler: StockGetHandlerFunc(func(params StockGetParams) middleware.Responder {
+			return middleware.NotImplemented("operation StockGet has not yet been implemented")
+		}),
 		StockIndexAdviceListHandler: StockIndexAdviceListHandlerFunc(func(params StockIndexAdviceListParams) middleware.Responder {
 			return middleware.NotImplemented("operation StockIndexAdviceList has not yet been implemented")
 		}),
@@ -112,6 +115,8 @@ type StockAssistantAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// StockGetHandler sets the operation handler for the stock get operation
+	StockGetHandler StockGetHandler
 	// StockIndexAdviceListHandler sets the operation handler for the stock index advice list operation
 	StockIndexAdviceListHandler StockIndexAdviceListHandler
 	// UserIndexEvaluateGetHandler sets the operation handler for the user index evaluate get operation
@@ -205,6 +210,10 @@ func (o *StockAssistantAPI) Validate() error {
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
+	}
+
+	if o.StockGetHandler == nil {
+		unregistered = append(unregistered, "StockGetHandler")
 	}
 
 	if o.StockIndexAdviceListHandler == nil {
@@ -360,6 +369,11 @@ func (o *StockAssistantAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/stocks/{stockId}"] = NewStockGet(o.context, o.StockGetHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

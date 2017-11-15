@@ -190,6 +190,10 @@ func (h *StockAssistantHandler) UserSettingsDelete(p operations.UserSettingDelet
 func (h *StockAssistantHandler) StockIndexAdviceList(p operations.StockIndexAdviceListParams) middleware.Responder {
 	query := &models.StockIndexAdviceQuery{}
 
+	if p.UserID != nil {
+		query.UserId = *p.UserID
+	}
+
 	if p.PageToken != nil {
 		query.PageToken = *p.PageToken
 	}
@@ -206,4 +210,13 @@ func (h *StockAssistantHandler) StockIndexAdviceList(p operations.StockIndexAdvi
 	return operations.NewStockIndexAdviceListOK().
 		WithNeuronXNextPageToken(nextPageToken).
 		WithPayload(fromStockIndexAdviceList(result))
+}
+
+func (h *StockAssistantHandler) StockGet(p operations.StockGetParams) middleware.Responder {
+	stock, err := h.service.StockGet(p.StockID)
+	if err != nil {
+		return restful.Responder(err)
+	}
+
+	return operations.NewStockGetOK().WithPayload(fromStock(stock))
 }
