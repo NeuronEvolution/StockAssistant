@@ -1,17 +1,16 @@
 package services
 
 import (
-	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
-	"github.com/NeuronEvolution/StockAssistant/models"
 	"context"
-	"database/sql"
-	"time"
 	"fmt"
+	"github.com/NeuronEvolution/StockAssistant/models"
+	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
+	"time"
 )
 
 func (s *StockAssistantService) UserSettingList(userId string) (settingsList []*models.UserSetting, err error) {
 	dbList, err := s.db.UserSetting.GetQuery().
-		UserId_Equal(userId).QueryList(context.Background(),nil)
+		UserId_Equal(userId).QueryList(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +20,7 @@ func (s *StockAssistantService) UserSettingList(userId string) (settingsList []*
 
 func (s *StockAssistantService) UserSettingGet(userId string, configKey string) (setting *models.UserSetting, err error) {
 	dbSetting, err := s.db.UserSetting.GetQuery().
-		UserId_Equal(userId).And().ConfigKey_Equal(configKey).QueryOne(context.Background(),nil)
+		UserId_Equal(userId).And().ConfigKey_Equal(configKey).QueryOne(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +29,7 @@ func (s *StockAssistantService) UserSettingGet(userId string, configKey string) 
 }
 
 func (s *StockAssistantService) UserSettingSave(userId string, setting *models.UserSetting) (settingSaved *models.UserSetting, err error) {
-	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	tx, err := s.db.BeginReadCommittedTx(context.Background(), false)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +69,7 @@ func (s *StockAssistantService) UserSettingSave(userId string, setting *models.U
 }
 
 func (s *StockAssistantService) UserSettingDelete(userId string, configKey string) (err error) {
-	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	tx, err := s.db.BeginReadCommittedTx(context.Background(),false)
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
@@ -59,7 +58,7 @@ func (s *StockAssistantService) UserIndexEvaluateGet(userId string, stockId stri
 }
 
 func (s *StockAssistantService) UserIndexEvaluateSave(userId string, stockId string, indexEvaluate *models.UserIndexEvaluate) (indexEvaluateSaved *models.UserIndexEvaluate, err error) {
-	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	tx, err := s.db.BeginReadCommittedTx(context.Background(), false)
 	if err != nil {
 		return nil, err
 	}

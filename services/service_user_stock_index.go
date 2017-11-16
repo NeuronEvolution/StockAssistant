@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
@@ -73,7 +72,7 @@ func (s *StockAssistantService) UserStockIndexGet(userId string, indexName strin
 }
 
 func (s *StockAssistantService) UserStockIndexAdd(userId string, index *models.UserStockIndex) (indexAdded *models.UserStockIndex, err error) {
-	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	tx, err := s.db.BeginReadCommittedTx(context.Background(), false)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +120,7 @@ func (s *StockAssistantService) UserStockIndexAdd(userId string, index *models.U
 }
 
 func (s *StockAssistantService) UserStockIndexUpdate(userId string, index *models.UserStockIndex) (indexUpdated *models.UserStockIndex, err error) {
-	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	tx, err := s.db.BeginReadCommittedTx(context.Background(), false)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +163,7 @@ func (s *StockAssistantService) UserStockIndexUpdate(userId string, index *model
 }
 
 func (s *StockAssistantService) UserStockIndexDelete(userId string, indexName string) (err error) {
-	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	tx, err := s.db.BeginReadCommittedTx(context.Background(), false)
 	if err != nil {
 		return err
 	}
@@ -201,7 +200,7 @@ func (s *StockAssistantService) UserStockIndexDelete(userId string, indexName st
 }
 
 func (s *StockAssistantService) UserStockIndexRename(userId string, indexNameOld string, indexNameNew string) (indexNew *models.UserStockIndex, err error) {
-	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
+	tx, err := s.db.BeginReadCommittedTx(context.Background(), false)
 	if err != nil {
 		return nil, err
 	}

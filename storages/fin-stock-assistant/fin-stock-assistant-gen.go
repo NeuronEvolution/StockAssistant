@@ -116,8 +116,6 @@ type Stock struct {
 	ProvinceNameEn string //size=128
 	CreateTime     time.Time
 	UpdateTime     time.Time
-
-	GROUP_BY_COUNT int64
 }
 
 type StockQuery struct {
@@ -720,8 +718,6 @@ type StockIndexAdvice struct {
 	UsedCount  int64  //size=20
 	CreateTime time.Time
 	UpdateTime time.Time
-
-	GROUP_BY_COUNT int64
 }
 
 type StockIndexAdviceQuery struct {
@@ -1133,8 +1129,6 @@ type UserIndexEvaluate struct {
 	EvalRemark string //size=256
 	CreateTime time.Time
 	UpdateTime time.Time
-
-	GROUP_BY_COUNT int64
 }
 
 type UserIndexEvaluateQuery struct {
@@ -1594,8 +1588,6 @@ type UserSetting struct {
 	ConfigValue string //size=1024
 	CreateTime  time.Time
 	UpdateTime  time.Time
-
-	GROUP_BY_COUNT int64
 }
 
 type UserSettingQuery struct {
@@ -2036,8 +2028,6 @@ type UserStockEvaluate struct {
 	StockNameCn  string //size=32
 	LaunchDate   time.Time
 	IndustryName string //size=32
-
-	GROUP_BY_COUNT int64
 }
 
 type UserStockEvaluateQuery struct {
@@ -2596,8 +2586,6 @@ type UserStockIndex struct {
 	AiWeight   int32  //size=11
 	CreateTime time.Time
 	UpdateTime time.Time
-
-	GROUP_BY_COUNT int64
 }
 
 type UserStockIndexQuery struct {
