@@ -21,15 +21,11 @@ const UserStockEvaluateListOKCode int = 200
 swagger:response userStockEvaluateListOK
 */
 type UserStockEvaluateListOK struct {
-	/*
-	  Required: true
-	*/
-	NeuronXNextPageToken string `json:"Neuron-X-NextPageToken"`
 
 	/*
 	  In: Body
 	*/
-	Payload models.UserStockEvaluateListOKBody `json:"body,omitempty"`
+	Payload *models.UserStockEvaluateListResponse `json:"body,omitempty"`
 }
 
 // NewUserStockEvaluateListOK creates UserStockEvaluateListOK with default headers values
@@ -37,48 +33,27 @@ func NewUserStockEvaluateListOK() *UserStockEvaluateListOK {
 	return &UserStockEvaluateListOK{}
 }
 
-// WithNeuronXNextPageToken adds the neuronXNextPageToken to the user stock evaluate list o k response
-func (o *UserStockEvaluateListOK) WithNeuronXNextPageToken(neuronXNextPageToken string) *UserStockEvaluateListOK {
-	o.NeuronXNextPageToken = neuronXNextPageToken
-	return o
-}
-
-// SetNeuronXNextPageToken sets the neuronXNextPageToken to the user stock evaluate list o k response
-func (o *UserStockEvaluateListOK) SetNeuronXNextPageToken(neuronXNextPageToken string) {
-	o.NeuronXNextPageToken = neuronXNextPageToken
-}
-
 // WithPayload adds the payload to the user stock evaluate list o k response
-func (o *UserStockEvaluateListOK) WithPayload(payload models.UserStockEvaluateListOKBody) *UserStockEvaluateListOK {
+func (o *UserStockEvaluateListOK) WithPayload(payload *models.UserStockEvaluateListResponse) *UserStockEvaluateListOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the user stock evaluate list o k response
-func (o *UserStockEvaluateListOK) SetPayload(payload models.UserStockEvaluateListOKBody) {
+func (o *UserStockEvaluateListOK) SetPayload(payload *models.UserStockEvaluateListResponse) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
 func (o *UserStockEvaluateListOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	// response header Neuron-X-NextPageToken
-
-	neuronXNextPageToken := o.NeuronXNextPageToken
-	if neuronXNextPageToken != "" {
-		rw.Header().Set("Neuron-X-NextPageToken", neuronXNextPageToken)
-	}
-
 	rw.WriteHeader(200)
-	payload := o.Payload
-	if payload == nil {
-		payload = make(models.UserStockEvaluateListOKBody, 0, 50)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }
 
 /*UserStockEvaluateListDefault Error response

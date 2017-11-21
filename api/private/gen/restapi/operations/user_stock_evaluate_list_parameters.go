@@ -35,7 +35,7 @@ type UserStockEvaluateListParams struct {
 	/*not evaluated
 	  In: query
 	*/
-	NotEvaluated *string
+	NotEvaluated *bool
 	/*page size
 	  In: query
 	*/
@@ -103,7 +103,11 @@ func (o *UserStockEvaluateListParams) bindNotEvaluated(rawData []string, hasKey 
 		return nil
 	}
 
-	o.NotEvaluated = &raw
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("notEvaluated", "query", "bool", raw)
+	}
+	o.NotEvaluated = &value
 
 	return nil
 }

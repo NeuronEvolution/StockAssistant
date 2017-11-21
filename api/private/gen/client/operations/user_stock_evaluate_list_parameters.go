@@ -67,7 +67,7 @@ type UserStockEvaluateListParams struct {
 	  not evaluated
 
 	*/
-	NotEvaluated *string
+	NotEvaluated *bool
 	/*PageSize
 	  page size
 
@@ -128,13 +128,13 @@ func (o *UserStockEvaluateListParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithNotEvaluated adds the notEvaluated to the user stock evaluate list params
-func (o *UserStockEvaluateListParams) WithNotEvaluated(notEvaluated *string) *UserStockEvaluateListParams {
+func (o *UserStockEvaluateListParams) WithNotEvaluated(notEvaluated *bool) *UserStockEvaluateListParams {
 	o.SetNotEvaluated(notEvaluated)
 	return o
 }
 
 // SetNotEvaluated adds the notEvaluated to the user stock evaluate list params
-func (o *UserStockEvaluateListParams) SetNotEvaluated(notEvaluated *string) {
+func (o *UserStockEvaluateListParams) SetNotEvaluated(notEvaluated *bool) {
 	o.NotEvaluated = notEvaluated
 }
 
@@ -193,11 +193,11 @@ func (o *UserStockEvaluateListParams) WriteToRequest(r runtime.ClientRequest, re
 	if o.NotEvaluated != nil {
 
 		// query param notEvaluated
-		var qrNotEvaluated string
+		var qrNotEvaluated bool
 		if o.NotEvaluated != nil {
 			qrNotEvaluated = *o.NotEvaluated
 		}
-		qNotEvaluated := qrNotEvaluated
+		qNotEvaluated := swag.FormatBool(qrNotEvaluated)
 		if qNotEvaluated != "" {
 			if err := r.SetQueryParam("notEvaluated", qNotEvaluated); err != nil {
 				return err

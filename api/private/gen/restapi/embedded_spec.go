@@ -232,7 +232,7 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "type": "boolean",
             "description": "not evaluated",
             "name": "notEvaluated",
             "in": "query"
@@ -242,12 +242,7 @@ func init() {
           "200": {
             "description": "ok",
             "schema": {
-              "$ref": "#/definitions/userStockEvaluateListOKBody"
-            },
-            "headers": {
-              "Neuron-X-NextPageToken": {
-                "type": "string"
-              }
+              "$ref": "#/definitions/UserStockEvaluateListResponse"
             }
           },
           "default": {
@@ -760,6 +755,17 @@ func init() {
           "description": "score",
           "type": "number",
           "format": "double"
+        }
+      }
+    },
+    "UserStockEvaluateListResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "$ref": "#/definitions/userStockEvaluateListResponseItems"
+        },
+        "nextPageToken": {
+          "type": "string"
         }
       }
     },
@@ -1344,12 +1350,12 @@ func init() {
       },
       "x-go-gen-location": "operations"
     },
-    "userStockEvaluateListOKBody": {
+    "userStockEvaluateListResponseItems": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/UserStockEvaluate"
       },
-      "x-go-gen-location": "operations"
+      "x-go-gen-location": "models"
     },
     "userStockIndexAddDefaultBody": {
       "type": "object",

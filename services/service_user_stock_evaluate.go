@@ -5,25 +5,44 @@ import (
 	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
 	"github.com/NeuronFramework/errors"
+	"strconv"
 )
 
 func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEvaluateListQuery) (result []*models.UserStockEvaluate, nextPageToken string, err error) {
-	if query.PageSize == 0 {
-		query.PageSize = 40
+	start := int64(0)
+	if query.PageToken != "" {
+		iStart, err := strconv.Atoi(query.PageToken)
+		if err != nil {
+			return nil, "", errors.InvalidParams(&errors.ParamError{Field: "PageToken", Code: "InvalidFormat", Message: "PageToken错误"})
+		}
+		start = int64(iStart)
+	}
+
+	count := int64(0)
+	if query.PageSize > 0 {
+		count = int64(query.PageSize)
 	}
 
 	if query.Evaluated {
 		dbStockEvaluateList, err := s.db.UserStockEvaluate.GetQuery().
 			UserId_Equal(query.UserId).
-			OrderBy(fin_stock_assistant.USER_STOCK_EVALUATE_FIELD_TOTAL_SCORE, false).
+			OrderBy(fin_stock_assistant.USER_STOCK_EVALUATE_FIELD_TOTAL_SCORE, false).Limit(start, count).
 			QueryList(context.Background(), nil)
 		if err != nil {
 			return nil, "", err
 		}
 
-		return fin_stock_assistant.FromStockEvaluateList(dbStockEvaluateList), "", nil
+		result = fin_stock_assistant.FromStockEvaluateList(dbStockEvaluateList)
+
+		if len(result) < int(count) {
+			nextPageToken = ""
+		} else {
+			nextPageToken = strconv.Itoa(int(start + count))
+		}
+
+		return result, nextPageToken, nil
 	} else {
-		dbStockList, err := s.db.Stock.GetQuery().QueryList(context.Background(), nil)
+		dbStockList, err := s.db.Stock.GetQuery().OrderBy(fin_stock_assistant.STOCK_FIELD_STOCK_CODE, true).QueryList(context.Background(), nil)
 		if err != nil {
 			return nil, "", err
 		}
@@ -48,12 +67,19 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 			}
 		}
 
+		skipped := int64(0)
+
 		//limit select
 		result = make([]*models.UserStockEvaluate, 0)
 		for i := 0; i < len(dbStockList); i++ {
 			v := dbStockList[i]
 			_, has := evaluatedMap[v.StockId]
 			if has {
+				continue
+			}
+
+			if skipped < start {
+				skipped++
 				continue
 			}
 
@@ -70,12 +96,18 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 
 			result = append(result, e)
 
-			if len(result) >= int(query.PageSize) {
+			if len(result) >= int(count) {
 				break
 			}
 		}
 
-		return result, "", nil
+		if len(result) < int(count) {
+			nextPageToken = ""
+		} else {
+			nextPageToken = strconv.Itoa(int(start + count))
+		}
+
+		return result, nextPageToken, nil
 	}
 }
 

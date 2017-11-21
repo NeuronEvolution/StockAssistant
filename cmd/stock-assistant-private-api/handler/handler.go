@@ -1,6 +1,7 @@
 package handler
 
 import (
+	api "github.com/NeuronEvolution/StockAssistant/api/private/gen/models"
 	"github.com/NeuronEvolution/StockAssistant/api/private/gen/restapi/operations"
 	"github.com/NeuronEvolution/StockAssistant/models"
 	"github.com/NeuronEvolution/StockAssistant/services"
@@ -111,8 +112,13 @@ func (h *StockAssistantHandler) UserStockEvaluateList(p operations.UserStockEval
 		return restful.Responder(err)
 	}
 
-	return operations.NewUserStockEvaluateListOK().WithNeuronXNextPageToken(nextPageToken).
-		WithPayload(fromStockEvaluateList(result))
+	response := &api.UserStockEvaluateListResponse{
+		Items:         fromStockEvaluateList(result),
+		NextPageToken: nextPageToken,
+	}
+
+	return operations.NewUserStockEvaluateListOK().
+		WithPayload(response)
 }
 
 func (h *StockAssistantHandler) UserStockEvaluateGet(p operations.UserStockEvaluateGetParams) middleware.Responder {

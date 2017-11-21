@@ -18,7 +18,7 @@ import (
 type UserStockEvaluateListURL struct {
 	UserID string
 
-	NotEvaluated *string
+	NotEvaluated *bool
 	PageSize     *int32
 	PageToken    *string
 	Sort         *string
@@ -65,7 +65,7 @@ func (o *UserStockEvaluateListURL) Build() (*url.URL, error) {
 
 	var notEvaluated string
 	if o.NotEvaluated != nil {
-		notEvaluated = *o.NotEvaluated
+		notEvaluated = swag.FormatBool(*o.NotEvaluated)
 	}
 	if notEvaluated != "" {
 		qs.Set("notEvaluated", notEvaluated)
