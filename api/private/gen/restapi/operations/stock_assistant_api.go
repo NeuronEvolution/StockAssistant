@@ -86,6 +86,9 @@ func NewStockAssistantAPI(spec *loads.Document) *StockAssistantAPI {
 		UserStockIndexUpdateHandler: UserStockIndexUpdateHandlerFunc(func(params UserStockIndexUpdateParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserStockIndexUpdate has not yet been implemented")
 		}),
+		OauthJumpHandler: OauthJumpHandlerFunc(func(params OauthJumpParams) middleware.Responder {
+			return middleware.NotImplemented("operation OauthJump has not yet been implemented")
+		}),
 	}
 }
 
@@ -149,6 +152,8 @@ type StockAssistantAPI struct {
 	UserStockIndexRenameHandler UserStockIndexRenameHandler
 	// UserStockIndexUpdateHandler sets the operation handler for the user stock index update operation
 	UserStockIndexUpdateHandler UserStockIndexUpdateHandler
+	// OauthJumpHandler sets the operation handler for the oauth jump operation
+	OauthJumpHandler OauthJumpHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -278,6 +283,10 @@ func (o *StockAssistantAPI) Validate() error {
 
 	if o.UserStockIndexUpdateHandler == nil {
 		unregistered = append(unregistered, "UserStockIndexUpdateHandler")
+	}
+
+	if o.OauthJumpHandler == nil {
+		unregistered = append(unregistered, "OauthJumpHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -454,6 +463,11 @@ func (o *StockAssistantAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/{userId}/stockIndices/{indexName}"] = NewUserStockIndexUpdate(o.context, o.UserStockIndexUpdateHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/oauthJump"] = NewOauthJump(o.context, o.OauthJumpHandler)
 
 }
 

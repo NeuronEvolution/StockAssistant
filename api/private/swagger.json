@@ -69,6 +69,35 @@
     }
   },
   "paths": {
+    "/oauthJump": {
+      "post": {
+        "summary": "",
+        "operationId": "oauthJump",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "authorizationCode",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "type": "string",
+              "description": "jwt"
+            }
+          }
+        }
+      }
+    },
     "/{userId}/stockIndices": {
       "parameters": [
         {
@@ -620,25 +649,25 @@
     }
   },
   "definitions": {
-    "StockUrl":{
+    "StockUrl": {
       "description": "stock url",
       "type": "object",
       "properties": {
-        "name":{
+        "name": {
           "description": "name",
           "type": "string"
         },
-        "icon":{
+        "icon": {
           "description": "icon",
           "type": "string"
         },
-        "url":{
+        "url": {
           "description": "url",
           "type": "string"
         }
       }
     },
-    "Stock":{
+    "Stock": {
       "description": "stock",
       "type": "object",
       "properties": {
@@ -650,40 +679,40 @@
           "description": "Exchange id",
           "type": "string"
         },
-        "stockCode":{
+        "stockCode": {
           "description": "Stock code",
-          "type":"string"
+          "type": "string"
         },
-        "stockNameCN":{
+        "stockNameCN": {
           "description": "Stock name cn",
           "type": "string"
         },
-        "launchDate":{
+        "launchDate": {
           "description": "Launch date",
           "type": "string",
           "format": "date-time"
         },
-        "websiteUrl":{
+        "websiteUrl": {
           "description": "Website url",
           "type": "string"
         },
-        "industryName":{
+        "industryName": {
           "description": "Industry name",
           "type": "string"
         },
-        "cityNameCN":{
+        "cityNameCN": {
           "description": "City name cn",
           "type": "string"
         },
-        "provinceNameCN":{
+        "provinceNameCN": {
           "description": "Province name cn",
           "type": "string"
         },
-        "stockUrlList":{
+        "stockUrlList": {
           "description": "url list",
           "type": "array",
           "items": {
-            "$ref":"#/definitions/StockUrl"
+            "$ref": "#/definitions/StockUrl"
           }
         }
       }
@@ -739,7 +768,7 @@
           "type": "number",
           "format": "double"
         },
-        "indexCount":{
+        "indexCount": {
           "description": "index count",
           "type": "integer",
           "format": "int32"
@@ -775,16 +804,16 @@
         }
       }
     },
-    "UserStockEvaluateListResponse":{
+    "UserStockEvaluateListResponse": {
       "type": "object",
       "properties": {
-        "items":{
+        "items": {
           "type": "array",
           "items": {
-            "$ref":"#/definitions/UserStockEvaluate"
+            "$ref": "#/definitions/UserStockEvaluate"
           }
         },
-        "nextPageToken":{
+        "nextPageToken": {
           "type": "string"
         }
       }
@@ -826,7 +855,7 @@
           "type": "integer",
           "format": "int64"
         },
-        "haveUsed":{
+        "haveUsed": {
           "description": "i have used",
           "type": "boolean"
         }

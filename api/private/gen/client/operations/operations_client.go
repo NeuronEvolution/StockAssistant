@@ -500,6 +500,34 @@ func (a *Client) UserStockIndexUpdate(params *UserStockIndexUpdateParams) (*User
 
 }
 
+/*
+OauthJump oauth jump API
+*/
+func (a *Client) OauthJump(params *OauthJumpParams) (*OauthJumpOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewOauthJumpParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "oauthJump",
+		Method:             "POST",
+		PathPattern:        "/oauthJump",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &OauthJumpReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*OauthJumpOK), nil
+
+}
+
 // SetTransport changes the transport on the client
 func (a *Client) SetTransport(transport runtime.ClientTransport) {
 	a.transport = transport

@@ -23,7 +23,7 @@ func NewStockAssistantService(options *StockAssistantServiceOptions) (s *StockAs
 	s.logger = log.TypedLogger(s)
 	s.options = options
 
-	s.db, err = fin_stock_assistant.NewDB(options.FinStockAssistantConnectionString)
+	s.db, err = fin_stock_assistant.NewDB("root:123456@tcp(127.0.0.1:3307)/fin-stock-assistant?parseTime=true")
 	if err != nil {
 		return nil, err
 	}

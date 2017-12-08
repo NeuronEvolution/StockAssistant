@@ -22,13 +22,11 @@ func main() {
 
 	logger := zap.L().Named("main")
 
-	var bind_addr string
-	var storageConnectionString = ""
+	var bindAddr string
+	var storageConnectionString= ""
 
 	cmd := cobra.Command{}
-	cmd.PersistentFlags().StringVar(&bind_addr, "bind-addr", ":8082", "api server bind addr")
-	cmd.PersistentFlags().StringVar(&storageConnectionString, "mysql-connection-string",
-		"root:123456@tcp(127.0.0.1:3307)/fin-stock-assistant?parseTime=true", "mysql connection string")
+	cmd.PersistentFlags().StringVar(&bindAddr, "bind-addr", ":8082", "api server bind addr")
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 		if err != nil {
@@ -59,8 +57,8 @@ func main() {
 		api.StockIndexAdviceListHandler = operations.StockIndexAdviceListHandlerFunc(h.StockIndexAdviceList)
 		api.StockGetHandler = operations.StockGetHandlerFunc(h.StockGet)
 
-		logger.Info("Start server", zap.String("addr", bind_addr))
-		err = http.ListenAndServe(bind_addr,
+		logger.Info("Start server", zap.String("addr", bindAddr))
+		err = http.ListenAndServe(bindAddr,
 			restful.Recovery(cors.AllowAll().Handler(api.Serve(nil))))
 		if err != nil {
 			return errors.WithStack(err)

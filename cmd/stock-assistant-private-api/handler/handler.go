@@ -35,6 +35,15 @@ func NewStockAssistantHandler(options *StockAssistantHandlerOptions) (h *StockAs
 	return h, nil
 }
 
+func (h *StockAssistantHandler)OauthJump(p operations.OauthJumpParams)middleware.Responder {
+	jwt, err := h.service.OauthJump(p.AuthorizationCode, p.State)
+	if err != nil {
+		return restful.Responder(err)
+	}
+
+	return operations.NewOauthJumpOK().WithPayload(jwt)
+}
+
 func (h *StockAssistantHandler) UserStockIndexList(p operations.UserStockIndexListParams) middleware.Responder {
 	indexList, err := h.service.UserStockIndexList(p.UserID)
 	if err != nil {

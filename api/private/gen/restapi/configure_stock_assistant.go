@@ -87,6 +87,9 @@ func configureAPI(api *operations.StockAssistantAPI) http.Handler {
 	api.UserStockIndexUpdateHandler = operations.UserStockIndexUpdateHandlerFunc(func(params operations.UserStockIndexUpdateParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserStockIndexUpdate has not yet been implemented")
 	})
+	api.OauthJumpHandler = operations.OauthJumpHandlerFunc(func(params operations.OauthJumpParams) middleware.Responder {
+		return middleware.NotImplemented("operation .OauthJump has not yet been implemented")
+	})
 
 	api.ServerShutdown = func() {}
 

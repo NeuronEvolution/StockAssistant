@@ -538,12 +538,12 @@ func (dao *StockDao) init() (err error) {
 	return nil
 }
 func (dao *StockDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO stock (stock_id,exchange_id,stock_code,stock_name_cn,stock_name_en,launch_date,company_name_cn,company_name_en,website_url,industry_name,city_name_cn,city_name_en,province_name_cn,province_name_en,create_time,update_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO stock (stock_id,exchange_id,stock_code,stock_name_cn,stock_name_en,launch_date,company_name_cn,company_name_en,website_url,industry_name,city_name_cn,city_name_en,province_name_cn,province_name_en) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	return err
 }
 
 func (dao *StockDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE stock SET stock_id=?,exchange_id=?,stock_code=?,stock_name_cn=?,stock_name_en=?,launch_date=?,company_name_cn=?,company_name_en=?,website_url=?,industry_name=?,city_name_cn=?,city_name_en=?,province_name_cn=?,province_name_en=?,create_time=?,update_time=? WHERE id=?")
+	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE stock SET stock_id=?,exchange_id=?,stock_code=?,stock_name_cn=?,stock_name_en=?,launch_date=?,company_name_cn=?,company_name_en=?,website_url=?,industry_name=?,city_name_cn=?,city_name_en=?,province_name_cn=?,province_name_en=? WHERE id=?")
 	return err
 }
 
@@ -558,7 +558,7 @@ func (dao *StockDao) Insert(ctx context.Context, tx *wrap.Tx, e *Stock) (id int6
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.StockId, e.ExchangeId, e.StockCode, e.StockNameCn, e.StockNameEn, e.LaunchDate, e.CompanyNameCn, e.CompanyNameEn, e.WebsiteUrl, e.IndustryName, e.CityNameCn, e.CityNameEn, e.ProvinceNameCn, e.ProvinceNameEn, e.CreateTime, e.UpdateTime)
+	result, err := stmt.Exec(ctx, e.StockId, e.ExchangeId, e.StockCode, e.StockNameCn, e.StockNameEn, e.LaunchDate, e.CompanyNameCn, e.CompanyNameEn, e.WebsiteUrl, e.IndustryName, e.CityNameCn, e.CityNameEn, e.ProvinceNameCn, e.ProvinceNameEn)
 	if err != nil {
 		return 0, err
 	}
@@ -577,7 +577,7 @@ func (dao *StockDao) Update(ctx context.Context, tx *wrap.Tx, e *Stock) (err err
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	_, err = stmt.Exec(ctx, e.StockId, e.ExchangeId, e.StockCode, e.StockNameCn, e.StockNameEn, e.LaunchDate, e.CompanyNameCn, e.CompanyNameEn, e.WebsiteUrl, e.IndustryName, e.CityNameCn, e.CityNameEn, e.ProvinceNameCn, e.ProvinceNameEn, e.CreateTime, e.UpdateTime, e.Id)
+	_, err = stmt.Exec(ctx, e.StockId, e.ExchangeId, e.StockCode, e.StockNameCn, e.StockNameEn, e.LaunchDate, e.CompanyNameCn, e.CompanyNameEn, e.WebsiteUrl, e.IndustryName, e.CityNameCn, e.CityNameEn, e.ProvinceNameCn, e.ProvinceNameEn, e.Id)
 	if err != nil {
 		return err
 	}
@@ -940,12 +940,12 @@ func (dao *StockIndexAdviceDao) init() (err error) {
 	return nil
 }
 func (dao *StockIndexAdviceDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO stock_index_advice (index_name,used_count,create_time,update_time) VALUES (?,?,?,?)")
+	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO stock_index_advice (index_name,used_count) VALUES (?,?)")
 	return err
 }
 
 func (dao *StockIndexAdviceDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE stock_index_advice SET index_name=?,used_count=?,create_time=?,update_time=? WHERE id=?")
+	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE stock_index_advice SET index_name=?,used_count=? WHERE id=?")
 	return err
 }
 
@@ -960,7 +960,7 @@ func (dao *StockIndexAdviceDao) Insert(ctx context.Context, tx *wrap.Tx, e *Stoc
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.IndexName, e.UsedCount, e.CreateTime, e.UpdateTime)
+	result, err := stmt.Exec(ctx, e.IndexName, e.UsedCount)
 	if err != nil {
 		return 0, err
 	}
@@ -979,7 +979,7 @@ func (dao *StockIndexAdviceDao) Update(ctx context.Context, tx *wrap.Tx, e *Stoc
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	_, err = stmt.Exec(ctx, e.IndexName, e.UsedCount, e.CreateTime, e.UpdateTime, e.Id)
+	_, err = stmt.Exec(ctx, e.IndexName, e.UsedCount, e.Id)
 	if err != nil {
 		return err
 	}
@@ -1405,12 +1405,12 @@ func (dao *UserIndexEvaluateDao) init() (err error) {
 	return nil
 }
 func (dao *UserIndexEvaluateDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_index_evaluate (user_id,stock_id,index_name,eval_stars,eval_remark,create_time,update_time) VALUES (?,?,?,?,?,?,?)")
+	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_index_evaluate (user_id,stock_id,index_name,eval_stars,eval_remark) VALUES (?,?,?,?,?)")
 	return err
 }
 
 func (dao *UserIndexEvaluateDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_index_evaluate SET user_id=?,stock_id=?,index_name=?,eval_stars=?,eval_remark=?,create_time=?,update_time=? WHERE id=?")
+	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_index_evaluate SET user_id=?,stock_id=?,index_name=?,eval_stars=?,eval_remark=? WHERE id=?")
 	return err
 }
 
@@ -1425,7 +1425,7 @@ func (dao *UserIndexEvaluateDao) Insert(ctx context.Context, tx *wrap.Tx, e *Use
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.IndexName, e.EvalStars, e.EvalRemark, e.CreateTime, e.UpdateTime)
+	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.IndexName, e.EvalStars, e.EvalRemark)
 	if err != nil {
 		return 0, err
 	}
@@ -1444,7 +1444,7 @@ func (dao *UserIndexEvaluateDao) Update(ctx context.Context, tx *wrap.Tx, e *Use
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	_, err = stmt.Exec(ctx, e.UserId, e.StockId, e.IndexName, e.EvalStars, e.EvalRemark, e.CreateTime, e.UpdateTime, e.Id)
+	_, err = stmt.Exec(ctx, e.UserId, e.StockId, e.IndexName, e.EvalStars, e.EvalRemark, e.Id)
 	if err != nil {
 		return err
 	}
@@ -1824,12 +1824,12 @@ func (dao *UserSettingDao) init() (err error) {
 	return nil
 }
 func (dao *UserSettingDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_setting (user_id,config_key,config_value,create_time,update_time) VALUES (?,?,?,?,?)")
+	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_setting (user_id,config_key,config_value) VALUES (?,?,?)")
 	return err
 }
 
 func (dao *UserSettingDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_setting SET user_id=?,config_key=?,config_value=?,create_time=?,update_time=? WHERE id=?")
+	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_setting SET user_id=?,config_key=?,config_value=? WHERE id=?")
 	return err
 }
 
@@ -1844,7 +1844,7 @@ func (dao *UserSettingDao) Insert(ctx context.Context, tx *wrap.Tx, e *UserSetti
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.UserId, e.ConfigKey, e.ConfigValue, e.CreateTime, e.UpdateTime)
+	result, err := stmt.Exec(ctx, e.UserId, e.ConfigKey, e.ConfigValue)
 	if err != nil {
 		return 0, err
 	}
@@ -1863,7 +1863,7 @@ func (dao *UserSettingDao) Update(ctx context.Context, tx *wrap.Tx, e *UserSetti
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	_, err = stmt.Exec(ctx, e.UserId, e.ConfigKey, e.ConfigValue, e.CreateTime, e.UpdateTime, e.Id)
+	_, err = stmt.Exec(ctx, e.UserId, e.ConfigKey, e.ConfigValue, e.Id)
 	if err != nil {
 		return err
 	}
@@ -2394,12 +2394,12 @@ func (dao *UserStockEvaluateDao) init() (err error) {
 	return nil
 }
 func (dao *UserStockEvaluateDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_stock_evaluate (user_id,stock_id,total_score,index_count,eval_remark,create_time,update_time,exchange_id,stock_code,stock_name_cn,launch_date,industry_name) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
+	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_stock_evaluate (user_id,stock_id,total_score,index_count,eval_remark,exchange_id,stock_code,stock_name_cn,launch_date,industry_name) VALUES (?,?,?,?,?,?,?,?,?,?)")
 	return err
 }
 
 func (dao *UserStockEvaluateDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_stock_evaluate SET user_id=?,stock_id=?,total_score=?,index_count=?,eval_remark=?,create_time=?,update_time=?,exchange_id=?,stock_code=?,stock_name_cn=?,launch_date=?,industry_name=? WHERE id=?")
+	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_stock_evaluate SET user_id=?,stock_id=?,total_score=?,index_count=?,eval_remark=?,exchange_id=?,stock_code=?,stock_name_cn=?,launch_date=?,industry_name=? WHERE id=?")
 	return err
 }
 
@@ -2414,7 +2414,7 @@ func (dao *UserStockEvaluateDao) Insert(ctx context.Context, tx *wrap.Tx, e *Use
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.TotalScore, e.IndexCount, e.EvalRemark, e.CreateTime, e.UpdateTime, e.ExchangeId, e.StockCode, e.StockNameCn, e.LaunchDate, e.IndustryName)
+	result, err := stmt.Exec(ctx, e.UserId, e.StockId, e.TotalScore, e.IndexCount, e.EvalRemark, e.ExchangeId, e.StockCode, e.StockNameCn, e.LaunchDate, e.IndustryName)
 	if err != nil {
 		return 0, err
 	}
@@ -2433,7 +2433,7 @@ func (dao *UserStockEvaluateDao) Update(ctx context.Context, tx *wrap.Tx, e *Use
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	_, err = stmt.Exec(ctx, e.UserId, e.StockId, e.TotalScore, e.IndexCount, e.EvalRemark, e.CreateTime, e.UpdateTime, e.ExchangeId, e.StockCode, e.StockNameCn, e.LaunchDate, e.IndustryName, e.Id)
+	_, err = stmt.Exec(ctx, e.UserId, e.StockId, e.TotalScore, e.IndexCount, e.EvalRemark, e.ExchangeId, e.StockCode, e.StockNameCn, e.LaunchDate, e.IndustryName, e.Id)
 	if err != nil {
 		return err
 	}
@@ -2880,12 +2880,12 @@ func (dao *UserStockIndexDao) init() (err error) {
 	return nil
 }
 func (dao *UserStockIndexDao) prepareInsertStmt() (err error) {
-	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_stock_index (user_id,index_name,ui_order,index_desc,eval_weight,ai_weight,create_time,update_time) VALUES (?,?,?,?,?,?,?,?)")
+	dao.insertStmt, err = dao.db.Prepare(context.Background(), "INSERT INTO user_stock_index (user_id,index_name,ui_order,index_desc,eval_weight,ai_weight) VALUES (?,?,?,?,?,?)")
 	return err
 }
 
 func (dao *UserStockIndexDao) prepareUpdateStmt() (err error) {
-	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_stock_index SET user_id=?,index_name=?,ui_order=?,index_desc=?,eval_weight=?,ai_weight=?,create_time=?,update_time=? WHERE id=?")
+	dao.updateStmt, err = dao.db.Prepare(context.Background(), "UPDATE user_stock_index SET user_id=?,index_name=?,ui_order=?,index_desc=?,eval_weight=?,ai_weight=? WHERE id=?")
 	return err
 }
 
@@ -2900,7 +2900,7 @@ func (dao *UserStockIndexDao) Insert(ctx context.Context, tx *wrap.Tx, e *UserSt
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	result, err := stmt.Exec(ctx, e.UserId, e.IndexName, e.UiOrder, e.IndexDesc, e.EvalWeight, e.AiWeight, e.CreateTime, e.UpdateTime)
+	result, err := stmt.Exec(ctx, e.UserId, e.IndexName, e.UiOrder, e.IndexDesc, e.EvalWeight, e.AiWeight)
 	if err != nil {
 		return 0, err
 	}
@@ -2919,7 +2919,7 @@ func (dao *UserStockIndexDao) Update(ctx context.Context, tx *wrap.Tx, e *UserSt
 		stmt = tx.Stmt(ctx, stmt)
 	}
 
-	_, err = stmt.Exec(ctx, e.UserId, e.IndexName, e.UiOrder, e.IndexDesc, e.EvalWeight, e.AiWeight, e.CreateTime, e.UpdateTime, e.Id)
+	_, err = stmt.Exec(ctx, e.UserId, e.IndexName, e.UiOrder, e.IndexDesc, e.EvalWeight, e.AiWeight, e.Id)
 	if err != nil {
 		return err
 	}

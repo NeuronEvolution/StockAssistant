@@ -30,6 +30,34 @@ func init() {
   },
   "basePath": "/api/stock-assistant/v1",
   "paths": {
+    "/oauthJump": {
+      "post": {
+        "operationId": "oauthJump",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorizationCode",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "state",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "description": "jwt",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "/stockIndexAdvices": {
       "get": {
         "summary": "list",
