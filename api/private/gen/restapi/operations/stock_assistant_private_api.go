@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 
-	errors "github.com/go-openapi/errors"
+	"github.com/NeuronFramework/restful"
 	loads "github.com/go-openapi/loads"
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
@@ -20,16 +20,16 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// NewStockAssistantAPI creates a new StockAssistant instance
-func NewStockAssistantAPI(spec *loads.Document) *StockAssistantAPI {
-	return &StockAssistantAPI{
+// NewStockAssistantPrivateAPI creates a new StockAssistantPrivate instance
+func NewStockAssistantPrivateAPI(spec *loads.Document) *StockAssistantPrivateAPI {
+	return &StockAssistantPrivateAPI{
 		handlers:            make(map[string]map[string]http.Handler),
 		formats:             strfmt.Default,
 		defaultConsumes:     "application/json",
 		defaultProduces:     "application/json",
 		ServerShutdown:      func() {},
 		spec:                spec,
-		ServeError:          errors.ServeError,
+		ServeError:          restful.ServeError,
 		BasicAuthenticator:  security.BasicAuth,
 		APIKeyAuthenticator: security.APIKeyAuth,
 		BearerAuthenticator: security.BearerAuth,
@@ -49,18 +49,6 @@ func NewStockAssistantAPI(spec *loads.Document) *StockAssistantAPI {
 		}),
 		UserIndexEvaluateSaveHandler: UserIndexEvaluateSaveHandlerFunc(func(params UserIndexEvaluateSaveParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserIndexEvaluateSave has not yet been implemented")
-		}),
-		UserSettingDeleteHandler: UserSettingDeleteHandlerFunc(func(params UserSettingDeleteParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserSettingDelete has not yet been implemented")
-		}),
-		UserSettingGetHandler: UserSettingGetHandlerFunc(func(params UserSettingGetParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserSettingGet has not yet been implemented")
-		}),
-		UserSettingListHandler: UserSettingListHandlerFunc(func(params UserSettingListParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserSettingList has not yet been implemented")
-		}),
-		UserSettingSaveHandler: UserSettingSaveHandlerFunc(func(params UserSettingSaveParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserSettingSave has not yet been implemented")
 		}),
 		UserStockEvaluateGetHandler: UserStockEvaluateGetHandlerFunc(func(params UserStockEvaluateGetParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserStockEvaluateGet has not yet been implemented")
@@ -86,14 +74,11 @@ func NewStockAssistantAPI(spec *loads.Document) *StockAssistantAPI {
 		UserStockIndexUpdateHandler: UserStockIndexUpdateHandlerFunc(func(params UserStockIndexUpdateParams) middleware.Responder {
 			return middleware.NotImplemented("operation UserStockIndexUpdate has not yet been implemented")
 		}),
-		OauthJumpHandler: OauthJumpHandlerFunc(func(params OauthJumpParams) middleware.Responder {
-			return middleware.NotImplemented("operation OauthJump has not yet been implemented")
-		}),
 	}
 }
 
-/*StockAssistantAPI the stock assistant API */
-type StockAssistantAPI struct {
+/*StockAssistantPrivateAPI the stock assistant private API */
+type StockAssistantPrivateAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context
 	handlers        map[string]map[string]http.Handler
@@ -128,14 +113,6 @@ type StockAssistantAPI struct {
 	UserIndexEvaluateListHandler UserIndexEvaluateListHandler
 	// UserIndexEvaluateSaveHandler sets the operation handler for the user index evaluate save operation
 	UserIndexEvaluateSaveHandler UserIndexEvaluateSaveHandler
-	// UserSettingDeleteHandler sets the operation handler for the user setting delete operation
-	UserSettingDeleteHandler UserSettingDeleteHandler
-	// UserSettingGetHandler sets the operation handler for the user setting get operation
-	UserSettingGetHandler UserSettingGetHandler
-	// UserSettingListHandler sets the operation handler for the user setting list operation
-	UserSettingListHandler UserSettingListHandler
-	// UserSettingSaveHandler sets the operation handler for the user setting save operation
-	UserSettingSaveHandler UserSettingSaveHandler
 	// UserStockEvaluateGetHandler sets the operation handler for the user stock evaluate get operation
 	UserStockEvaluateGetHandler UserStockEvaluateGetHandler
 	// UserStockEvaluateListHandler sets the operation handler for the user stock evaluate list operation
@@ -152,8 +129,6 @@ type StockAssistantAPI struct {
 	UserStockIndexRenameHandler UserStockIndexRenameHandler
 	// UserStockIndexUpdateHandler sets the operation handler for the user stock index update operation
 	UserStockIndexUpdateHandler UserStockIndexUpdateHandler
-	// OauthJumpHandler sets the operation handler for the oauth jump operation
-	OauthJumpHandler OauthJumpHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -171,42 +146,42 @@ type StockAssistantAPI struct {
 }
 
 // SetDefaultProduces sets the default produces media type
-func (o *StockAssistantAPI) SetDefaultProduces(mediaType string) {
+func (o *StockAssistantPrivateAPI) SetDefaultProduces(mediaType string) {
 	o.defaultProduces = mediaType
 }
 
 // SetDefaultConsumes returns the default consumes media type
-func (o *StockAssistantAPI) SetDefaultConsumes(mediaType string) {
+func (o *StockAssistantPrivateAPI) SetDefaultConsumes(mediaType string) {
 	o.defaultConsumes = mediaType
 }
 
 // SetSpec sets a spec that will be served for the clients.
-func (o *StockAssistantAPI) SetSpec(spec *loads.Document) {
+func (o *StockAssistantPrivateAPI) SetSpec(spec *loads.Document) {
 	o.spec = spec
 }
 
 // DefaultProduces returns the default produces media type
-func (o *StockAssistantAPI) DefaultProduces() string {
+func (o *StockAssistantPrivateAPI) DefaultProduces() string {
 	return o.defaultProduces
 }
 
 // DefaultConsumes returns the default consumes media type
-func (o *StockAssistantAPI) DefaultConsumes() string {
+func (o *StockAssistantPrivateAPI) DefaultConsumes() string {
 	return o.defaultConsumes
 }
 
 // Formats returns the registered string formats
-func (o *StockAssistantAPI) Formats() strfmt.Registry {
+func (o *StockAssistantPrivateAPI) Formats() strfmt.Registry {
 	return o.formats
 }
 
 // RegisterFormat registers a custom format validator
-func (o *StockAssistantAPI) RegisterFormat(name string, format strfmt.Format, validator strfmt.Validator) {
+func (o *StockAssistantPrivateAPI) RegisterFormat(name string, format strfmt.Format, validator strfmt.Validator) {
 	o.formats.Add(name, format, validator)
 }
 
-// Validate validates the registrations in the StockAssistantAPI
-func (o *StockAssistantAPI) Validate() error {
+// Validate validates the registrations in the StockAssistantPrivateAPI
+func (o *StockAssistantPrivateAPI) Validate() error {
 	var unregistered []string
 
 	if o.JSONConsumer == nil {
@@ -235,22 +210,6 @@ func (o *StockAssistantAPI) Validate() error {
 
 	if o.UserIndexEvaluateSaveHandler == nil {
 		unregistered = append(unregistered, "UserIndexEvaluateSaveHandler")
-	}
-
-	if o.UserSettingDeleteHandler == nil {
-		unregistered = append(unregistered, "UserSettingDeleteHandler")
-	}
-
-	if o.UserSettingGetHandler == nil {
-		unregistered = append(unregistered, "UserSettingGetHandler")
-	}
-
-	if o.UserSettingListHandler == nil {
-		unregistered = append(unregistered, "UserSettingListHandler")
-	}
-
-	if o.UserSettingSaveHandler == nil {
-		unregistered = append(unregistered, "UserSettingSaveHandler")
 	}
 
 	if o.UserStockEvaluateGetHandler == nil {
@@ -285,10 +244,6 @@ func (o *StockAssistantAPI) Validate() error {
 		unregistered = append(unregistered, "UserStockIndexUpdateHandler")
 	}
 
-	if o.OauthJumpHandler == nil {
-		unregistered = append(unregistered, "OauthJumpHandler")
-	}
-
 	if len(unregistered) > 0 {
 		return fmt.Errorf("missing registration: %s", strings.Join(unregistered, ", "))
 	}
@@ -297,26 +252,26 @@ func (o *StockAssistantAPI) Validate() error {
 }
 
 // ServeErrorFor gets a error handler for a given operation id
-func (o *StockAssistantAPI) ServeErrorFor(operationID string) func(http.ResponseWriter, *http.Request, error) {
+func (o *StockAssistantPrivateAPI) ServeErrorFor(operationID string) func(http.ResponseWriter, *http.Request, error) {
 	return o.ServeError
 }
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
-func (o *StockAssistantAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
+func (o *StockAssistantPrivateAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
 
 	return nil
 
 }
 
 // Authorizer returns the registered authorizer
-func (o *StockAssistantAPI) Authorizer() runtime.Authorizer {
+func (o *StockAssistantPrivateAPI) Authorizer() runtime.Authorizer {
 
 	return nil
 
 }
 
 // ConsumersFor gets the consumers for the specified media types
-func (o *StockAssistantAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
+func (o *StockAssistantPrivateAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
 
 	result := make(map[string]runtime.Consumer)
 	for _, mt := range mediaTypes {
@@ -332,7 +287,7 @@ func (o *StockAssistantAPI) ConsumersFor(mediaTypes []string) map[string]runtime
 }
 
 // ProducersFor gets the producers for the specified media types
-func (o *StockAssistantAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
+func (o *StockAssistantPrivateAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
 
 	result := make(map[string]runtime.Producer)
 	for _, mt := range mediaTypes {
@@ -348,7 +303,7 @@ func (o *StockAssistantAPI) ProducersFor(mediaTypes []string) map[string]runtime
 }
 
 // HandlerFor gets a http.Handler for the provided operation method and path
-func (o *StockAssistantAPI) HandlerFor(method, path string) (http.Handler, bool) {
+func (o *StockAssistantPrivateAPI) HandlerFor(method, path string) (http.Handler, bool) {
 	if o.handlers == nil {
 		return nil, false
 	}
@@ -363,8 +318,8 @@ func (o *StockAssistantAPI) HandlerFor(method, path string) (http.Handler, bool)
 	return h, ok
 }
 
-// Context returns the middleware context for the stock assistant API
-func (o *StockAssistantAPI) Context() *middleware.Context {
+// Context returns the middleware context for the stock assistant private API
+func (o *StockAssistantPrivateAPI) Context() *middleware.Context {
 	if o.context == nil {
 		o.context = middleware.NewRoutableContext(o.spec, o, nil)
 	}
@@ -372,7 +327,7 @@ func (o *StockAssistantAPI) Context() *middleware.Context {
 	return o.context
 }
 
-func (o *StockAssistantAPI) initHandlerCache() {
+func (o *StockAssistantPrivateAPI) initHandlerCache() {
 	o.Context() // don't care about the result, just that the initialization happened
 
 	if o.handlers == nil {
@@ -403,26 +358,6 @@ func (o *StockAssistantAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/{userId}/stockEvaluates/{stockId}/indexEvaluates"] = NewUserIndexEvaluateSave(o.context, o.UserIndexEvaluateSaveHandler)
-
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/{userId}/settings/{configKey}"] = NewUserSettingDelete(o.context, o.UserSettingDeleteHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/{userId}/settings/{configKey}"] = NewUserSettingGet(o.context, o.UserSettingGetHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/{userId}/settings"] = NewUserSettingList(o.context, o.UserSettingListHandler)
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/{userId}/settings"] = NewUserSettingSave(o.context, o.UserSettingSaveHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -464,16 +399,11 @@ func (o *StockAssistantAPI) initHandlerCache() {
 	}
 	o.handlers["POST"]["/{userId}/stockIndices/{indexName}"] = NewUserStockIndexUpdate(o.context, o.UserStockIndexUpdateHandler)
 
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/oauthJump"] = NewOauthJump(o.context, o.OauthJumpHandler)
-
 }
 
 // Serve creates a http handler to serve the API over HTTP
 // can be used directly in http.ListenAndServe(":8000", api.Serve(nil))
-func (o *StockAssistantAPI) Serve(builder middleware.Builder) http.Handler {
+func (o *StockAssistantPrivateAPI) Serve(builder middleware.Builder) http.Handler {
 	o.Init()
 
 	if o.Middleware != nil {
@@ -482,8 +412,8 @@ func (o *StockAssistantAPI) Serve(builder middleware.Builder) http.Handler {
 	return o.context.APIHandler(builder)
 }
 
-// Init allows you to just initialize the handler cache, you can then recompose the middelware as you see fit
-func (o *StockAssistantAPI) Init() {
+// Init allows you to just initialize the handler cache, you can then recompose the middleware as you see fit
+func (o *StockAssistantPrivateAPI) Init() {
 	if len(o.handlers) == 0 {
 		o.initHandlerCache()
 	}

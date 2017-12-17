@@ -28,7 +28,7 @@ func NewUserIndexEvaluateGetParams() UserIndexEvaluateGetParams {
 type UserIndexEvaluateGetParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*index name
 	  Required: true

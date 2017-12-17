@@ -16,7 +16,6 @@ import (
 
 // StockStockURLList url list
 // swagger:model stockStockUrlList
-
 type StockStockURLList []*StockURL
 
 // Validate validates this stock stock Url list

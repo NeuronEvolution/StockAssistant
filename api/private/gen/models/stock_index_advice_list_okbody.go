@@ -14,13 +14,12 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// UserStockIndexListDefaultBodyErrors Errors
-// swagger:model userStockIndexListDefaultBodyErrors
+// StockIndexAdviceListOKBody stock index advice list o k body
+// swagger:model stockIndexAdviceListOKBody
+type StockIndexAdviceListOKBody []*StockIndexAdvice
 
-type UserStockIndexListDefaultBodyErrors []*UserStockIndexUpdateDefaultBodyErrorsItems
-
-// Validate validates this user stock index list default body errors
-func (m UserStockIndexListDefaultBodyErrors) Validate(formats strfmt.Registry) error {
+// Validate validates this stock index advice list o k body
+func (m StockIndexAdviceListOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {

@@ -28,7 +28,7 @@ func NewUserStockIndexGetParams() UserStockIndexGetParams {
 type UserStockIndexGetParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*index id
 	  Required: true

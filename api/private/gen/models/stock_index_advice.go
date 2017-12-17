@@ -14,7 +14,6 @@ import (
 
 // StockIndexAdvice stock index
 // swagger:model StockIndexAdvice
-
 type StockIndexAdvice struct {
 
 	// i have used
@@ -26,12 +25,6 @@ type StockIndexAdvice struct {
 	// used count
 	UsedCount int64 `json:"usedCount,omitempty"`
 }
-
-/* polymorph StockIndexAdvice haveUsed false */
-
-/* polymorph StockIndexAdvice indexName false */
-
-/* polymorph StockIndexAdvice usedCount false */
 
 // Validate validates this stock index advice
 func (m *StockIndexAdvice) Validate(formats strfmt.Registry) error {

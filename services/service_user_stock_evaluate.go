@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEvaluateListQuery) (result []*models.UserStockEvaluate, nextPageToken string, err error) {
+func (s *StockAssistantService) UserStockEvaluateList(ctx context.Context, query *models.UserStockEvaluateListQuery) (result []*models.UserStockEvaluate, nextPageToken string, err error) {
 	start := int64(0)
 	if query.PageToken != "" {
 		iStart, err := strconv.Atoi(query.PageToken)
@@ -27,7 +27,7 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 		dbStockEvaluateList, err := s.db.UserStockEvaluate.GetQuery().
 			UserId_Equal(query.UserId).
 			OrderBy(fin_stock_assistant.USER_STOCK_EVALUATE_FIELD_TOTAL_SCORE, false).Limit(start, count).
-			QueryList(context.Background(), nil)
+			QueryList(ctx, nil)
 		if err != nil {
 			return nil, "", err
 		}
@@ -42,7 +42,7 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 
 		return result, nextPageToken, nil
 	} else {
-		dbStockList, err := s.db.Stock.GetQuery().OrderBy(fin_stock_assistant.STOCK_FIELD_STOCK_CODE, true).QueryList(context.Background(), nil)
+		dbStockList, err := s.db.Stock.GetQuery().OrderBy(fin_stock_assistant.STOCK_FIELD_STOCK_CODE, true).QueryList(ctx, nil)
 		if err != nil {
 			return nil, "", err
 		}
@@ -56,7 +56,7 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 		//filter evaluated
 		dbStockEvaluateList, err := s.db.UserStockEvaluate.GetQuery().
 			UserId_Equal(query.UserId).
-			QueryList(context.Background(), nil)
+			QueryList(ctx, nil)
 		if err != nil {
 			return nil, "", err
 		}
@@ -111,17 +111,17 @@ func (s *StockAssistantService) UserStockEvaluateList(query *models.UserStockEva
 	}
 }
 
-func (s *StockAssistantService) UserStockEvaluateGet(userId string, stockId string) (eval *models.UserStockEvaluate, err error) {
+func (s *StockAssistantService) UserStockEvaluateGet(ctx context.Context, userId string, stockId string) (eval *models.UserStockEvaluate, err error) {
 	dbStockEvaluate, err := s.db.UserStockEvaluate.GetQuery().
 		UserId_Equal(userId).And().StockId_Equal(stockId).
-		QueryOne(context.Background(), nil)
+		QueryOne(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	stockEvaluate := fin_stock_assistant.FromStockEvaluate(dbStockEvaluate)
 
-	dbStock, err := s.db.Stock.GetQuery().StockId_Equal(stockId).QueryOne(context.Background(), nil)
+	dbStock, err := s.db.Stock.GetQuery().StockId_Equal(stockId).QueryOne(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

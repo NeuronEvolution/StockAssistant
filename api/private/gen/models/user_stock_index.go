@@ -14,7 +14,6 @@ import (
 
 // UserStockIndex User stock index
 // swagger:model UserStockIndex
-
 type UserStockIndex struct {
 
 	// ai weight
@@ -29,14 +28,6 @@ type UserStockIndex struct {
 	// name
 	Name string `json:"name,omitempty"`
 }
-
-/* polymorph UserStockIndex aiWeight false */
-
-/* polymorph UserStockIndex desc false */
-
-/* polymorph UserStockIndex evalWeight false */
-
-/* polymorph UserStockIndex name false */
 
 // Validate validates this user stock index
 func (m *UserStockIndex) Validate(formats strfmt.Registry) error {

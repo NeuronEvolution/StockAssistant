@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
+	"go.uber.org/zap"
 )
 
 // StockGetHandlerFunc turns a function with the right signature into a stock get handler
@@ -51,7 +52,11 @@ func (o *StockGet) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	zap.L().Named("api").Info("StockGet", zap.Any("request", &Params))
+
 	res := o.Handler.Handle(Params) // actually handle the request
+
+	zap.L().Named("api").Info("StockGet", zap.Any("response", res))
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

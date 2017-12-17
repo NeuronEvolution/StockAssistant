@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
+	"go.uber.org/zap"
 )
 
 // UserStockEvaluateListHandlerFunc turns a function with the right signature into a user stock evaluate list handler
@@ -51,7 +52,11 @@ func (o *UserStockEvaluateList) ServeHTTP(rw http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	zap.L().Named("api").Info("UserStockEvaluateList", zap.Any("request", &Params))
+
 	res := o.Handler.Handle(Params) // actually handle the request
+
+	zap.L().Named("api").Info("UserStockEvaluateList", zap.Any("response", res))
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

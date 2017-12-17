@@ -30,7 +30,7 @@ func NewStockIndexAdviceListParams() StockIndexAdviceListParams {
 type StockIndexAdviceListParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*
 	  In: query

@@ -14,7 +14,6 @@ import (
 
 // UserIndexEvaluate index evaluate
 // swagger:model UserIndexEvaluate
-
 type UserIndexEvaluate struct {
 
 	// eval remark
@@ -29,14 +28,6 @@ type UserIndexEvaluate struct {
 	// update time
 	UpdateTime strfmt.DateTime `json:"updateTime,omitempty"`
 }
-
-/* polymorph UserIndexEvaluate evalRemark false */
-
-/* polymorph UserIndexEvaluate evalStars false */
-
-/* polymorph UserIndexEvaluate indexName false */
-
-/* polymorph UserIndexEvaluate updateTime false */
 
 // Validate validates this user index evaluate
 func (m *UserIndexEvaluate) Validate(formats strfmt.Registry) error {

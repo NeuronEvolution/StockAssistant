@@ -6,8 +6,8 @@ import (
 	"github.com/NeuronEvolution/StockAssistant/storages/fin-stock-assistant"
 )
 
-func (s *StockAssistantService) StockGet(stockId string) (stock *models.Stock, err error) {
-	dbStock, err := s.db.Stock.GetQuery().StockId_Equal(stockId).QueryOne(context.Background(), nil)
+func (s *StockAssistantService) StockGet(ctx context.Context, stockId string) (stock *models.Stock, err error) {
+	dbStock, err := s.db.Stock.GetQuery().StockId_Equal(stockId).QueryOne(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

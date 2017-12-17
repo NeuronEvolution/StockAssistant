@@ -14,7 +14,6 @@ import (
 
 // Stock stock
 // swagger:model Stock
-
 type Stock struct {
 
 	// City name cn
@@ -47,26 +46,6 @@ type Stock struct {
 	// Website url
 	WebsiteURL string `json:"websiteUrl,omitempty"`
 }
-
-/* polymorph Stock cityNameCN false */
-
-/* polymorph Stock exchangeId false */
-
-/* polymorph Stock industryName false */
-
-/* polymorph Stock launchDate false */
-
-/* polymorph Stock provinceNameCN false */
-
-/* polymorph Stock stockCode false */
-
-/* polymorph Stock stockId false */
-
-/* polymorph Stock stockNameCN false */
-
-/* polymorph Stock stockUrlList false */
-
-/* polymorph Stock websiteUrl false */
 
 // Validate validates this stock
 func (m *Stock) Validate(formats strfmt.Registry) error {

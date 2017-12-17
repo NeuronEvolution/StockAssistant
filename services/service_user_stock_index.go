@@ -16,7 +16,7 @@ func (s *StockAssistantService) reCalcStockEvaluates(ctx context.Context, tx *wr
 	aiWeightOld int32, aiWeightNew int32, deleting bool) (err error) {
 	dbIndexEvaluateList, err := s.db.UserIndexEvaluate.GetQuery().ForShare().
 		UserId_Equal(userId).And().IndexName_Equal(indexName).
-		QueryList(context.Background(), tx)
+		QueryList(ctx, tx)
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func (s *StockAssistantService) reCalcStockEvaluates(ctx context.Context, tx *wr
 		for _, dbIndexEvaluate := range dbIndexEvaluateList {
 			dbStockEvaluate, err := s.db.UserStockEvaluate.GetQuery().ForUpdate().
 				UserId_Equal(userId).And().StockId_Equal(dbIndexEvaluate.StockId).
-				QueryOne(context.Background(), tx)
+				QueryOne(ctx, tx)
 			if err != nil {
 				return err
 			}
@@ -40,7 +40,7 @@ func (s *StockAssistantService) reCalcStockEvaluates(ctx context.Context, tx *wr
 				dbStockEvaluate.IndexCount--
 			}
 
-			err = s.db.UserStockEvaluate.Update(context.Background(), tx, dbStockEvaluate)
+			err = s.db.UserStockEvaluate.Update(ctx, tx, dbStockEvaluate)
 			if err != nil {
 				return err
 			}
@@ -50,10 +50,10 @@ func (s *StockAssistantService) reCalcStockEvaluates(ctx context.Context, tx *wr
 	return nil
 }
 
-func (s *StockAssistantService) UserStockIndexList(userId string) (indexList []*models.UserStockIndex, err error) {
+func (s *StockAssistantService) UserStockIndexList(ctx context.Context, userId string) (indexList []*models.UserStockIndex, err error) {
 	dbIndexList, err := s.db.UserStockIndex.GetQuery().
 		UserId_Equal(userId).
-		QueryList(context.Background(), nil)
+		QueryList(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -61,9 +61,9 @@ func (s *StockAssistantService) UserStockIndexList(userId string) (indexList []*
 	return fin_stock_assistant.FromStockIndexList(dbIndexList), nil
 }
 
-func (s *StockAssistantService) UserStockIndexGet(userId string, indexName string) (index *models.UserStockIndex, err error) {
+func (s *StockAssistantService) UserStockIndexGet(ctx context.Context, userId string, indexName string) (index *models.UserStockIndex, err error) {
 	dbIndex, err := s.db.UserStockIndex.GetQuery().
-		UserId_Equal(userId).And().IndexName_Equal(indexName).QueryOne(context.Background(), nil)
+		UserId_Equal(userId).And().IndexName_Equal(indexName).QueryOne(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -71,127 +71,118 @@ func (s *StockAssistantService) UserStockIndexGet(userId string, indexName strin
 	return fin_stock_assistant.FromStockIndex(dbIndex), nil
 }
 
-func (s *StockAssistantService) UserStockIndexAdd(userId string, index *models.UserStockIndex) (indexAdded *models.UserStockIndex, err error) {
-	tx, err := s.db.BeginReadCommittedTx(context.Background(), false)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
-
-	dbIndex, err := s.db.UserStockIndex.GetQuery().ForUpdate().
-		UserId_Equal(userId).And().IndexName_Equal(index.IndexName).
-		QueryOne(context.Background(), tx)
-	if err != nil {
-		return nil, err
-	}
-
-	if dbIndex != nil {
-		return nil, errors.AlreadyExists("指标已经存在")
-	}
-
-	//new index last ui
-	indexCount, err := s.db.UserStockIndex.GetQuery().ForShare().
-		UserId_Equal(userId).
-		QueryCount(context.Background(), tx)
-	if err != nil {
-		return nil, err
-	}
-
-	dbIndex = &fin_stock_assistant.UserStockIndex{}
-	dbIndex.UserId = userId
-	dbIndex.IndexName = index.IndexName
-	dbIndex.IndexDesc = index.IndexDesc
-	dbIndex.EvalWeight = index.EvalWeight
-	dbIndex.AiWeight = index.AIWeight
-	dbIndex.UiOrder = int32(indexCount + 1)
-	dbIndex.UpdateTime = time.Now()
-	dbIndex.CreateTime = time.Now()
-	_, err = s.db.UserStockIndex.Insert(context.Background(), tx, dbIndex)
-	if err != nil {
-		return nil, err
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		return nil, err
-	}
-
-	return fin_stock_assistant.FromStockIndex(dbIndex), nil
-}
-
-func (s *StockAssistantService) UserStockIndexUpdate(userId string, index *models.UserStockIndex) (indexUpdated *models.UserStockIndex, err error) {
-	tx, err := s.db.BeginReadCommittedTx(context.Background(), false)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
-
-	dbIndex, err := s.db.UserStockIndex.GetQuery().ForUpdate().
-		UserId_Equal(userId).And().IndexName_Equal(index.IndexName).
-		QueryOne(context.Background(), tx)
-	if err != nil {
-		return nil, err
-	}
-
-	if dbIndex == nil {
-		return nil, errors.NotFound("指标不存在")
-	}
-
-	if index.EvalWeight != dbIndex.EvalWeight || index.AIWeight != dbIndex.AiWeight {
-		err = s.reCalcStockEvaluates(context.Background(), tx,
-			userId, index.IndexName, dbIndex.EvalWeight, index.EvalWeight, dbIndex.AiWeight, index.AIWeight, false)
+func (s *StockAssistantService) UserStockIndexAdd(ctx context.Context, userId string, index *models.UserStockIndex) (indexAdded *models.UserStockIndex, err error) {
+	var dbUserStockIndex *fin_stock_assistant.UserStockIndex
+	err = s.db.TransactionReadCommitted(ctx, func(tx *wrap.Tx) (err error) {
+		dbUserStockIndex, err = s.db.UserStockIndex.GetQuery().ForUpdate().
+			UserId_Equal(userId).And().IndexName_Equal(index.IndexName).
+			QueryOne(ctx, tx)
 		if err != nil {
-			return nil, err
+			return err
 		}
-	}
 
-	dbIndex.IndexDesc = index.IndexDesc
-	dbIndex.EvalWeight = index.EvalWeight
-	dbIndex.AiWeight = index.AIWeight
-	dbIndex.UpdateTime = time.Now()
-	err = s.db.UserStockIndex.Update(context.Background(), tx, dbIndex)
+		if dbUserStockIndex != nil {
+			return errors.AlreadyExists("指标已经存在")
+		}
+
+		//new index last ui
+		indexCount, err := s.db.UserStockIndex.GetQuery().ForShare().
+			UserId_Equal(userId).
+			QueryCount(ctx, tx)
+		if err != nil {
+			return err
+		}
+
+		dbUserStockIndex = &fin_stock_assistant.UserStockIndex{}
+		dbUserStockIndex.UserId = userId
+		dbUserStockIndex.IndexName = index.IndexName
+		dbUserStockIndex.IndexDesc = index.IndexDesc
+		dbUserStockIndex.EvalWeight = index.EvalWeight
+		dbUserStockIndex.AiWeight = index.AIWeight
+		dbUserStockIndex.UiOrder = int32(indexCount + 1)
+		dbUserStockIndex.UpdateTime = time.Now()
+		dbUserStockIndex.CreateTime = time.Now()
+		_, err = s.db.UserStockIndex.Insert(ctx, tx, dbUserStockIndex)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	err = tx.Commit()
-	if err != nil {
-		return nil, err
-	}
-
-	return fin_stock_assistant.FromStockIndex(dbIndex), nil
+	return fin_stock_assistant.FromStockIndex(dbUserStockIndex), nil
 }
 
-func (s *StockAssistantService) UserStockIndexDelete(userId string, indexName string) (err error) {
-	tx, err := s.db.BeginReadCommittedTx(context.Background(), false)
+func (s *StockAssistantService) UserStockIndexUpdate(ctx context.Context, userId string, index *models.UserStockIndex) (indexUpdated *models.UserStockIndex, err error) {
+	var dbUserStockIndex *fin_stock_assistant.UserStockIndex
+	err = s.db.TransactionReadCommitted(ctx, func(tx *wrap.Tx) (err error) {
+		dbUserStockIndex, err = s.db.UserStockIndex.GetQuery().ForUpdate().
+			UserId_Equal(userId).And().IndexName_Equal(index.IndexName).
+			QueryOne(ctx, tx)
+		if err != nil {
+			return err
+		}
+
+		if dbUserStockIndex == nil {
+			return errors.NotFound("指标不存在")
+		}
+
+		if index.EvalWeight != dbUserStockIndex.EvalWeight || index.AIWeight != dbUserStockIndex.AiWeight {
+			err = s.reCalcStockEvaluates(ctx, tx,
+				userId, index.IndexName, dbUserStockIndex.EvalWeight, index.EvalWeight,
+				dbUserStockIndex.AiWeight, index.AIWeight, false)
+			if err != nil {
+				return err
+			}
+		}
+
+		dbUserStockIndex.IndexDesc = index.IndexDesc
+		dbUserStockIndex.EvalWeight = index.EvalWeight
+		dbUserStockIndex.AiWeight = index.AIWeight
+		dbUserStockIndex.UpdateTime = time.Now()
+		err = s.db.UserStockIndex.Update(ctx, tx, dbUserStockIndex)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	dbIndex, err := s.db.UserStockIndex.GetQuery().ForUpdate().
-		UserId_Equal(userId).And().IndexName_Equal(indexName).
-		QueryOne(context.Background(), tx)
-	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if dbIndex == nil {
-		return errors.NotFound("指标不存在")
-	}
+	return fin_stock_assistant.FromStockIndex(dbUserStockIndex), nil
+}
 
-	err = s.reCalcStockEvaluates(context.Background(), tx,
-		userId, indexName, dbIndex.EvalWeight, 0, dbIndex.AiWeight, 0, true)
-	if err != nil {
-		return err
-	}
+func (s *StockAssistantService) UserStockIndexDelete(ctx context.Context, userId string, indexName string) (err error) {
+	err = s.db.TransactionReadCommitted(ctx, func(tx *wrap.Tx) (err error) {
+		dbIndex, err := s.db.UserStockIndex.GetQuery().ForUpdate().
+			UserId_Equal(userId).And().IndexName_Equal(indexName).
+			QueryOne(ctx, tx)
+		if err != nil {
+			return err
+		}
 
-	err = s.db.UserStockIndex.Delete(context.Background(), tx, dbIndex.Id)
-	if err != nil {
-		return err
-	}
+		if dbIndex == nil {
+			return errors.NotFound("指标不存在")
+		}
 
-	err = tx.Commit()
+		err = s.reCalcStockEvaluates(ctx, tx,
+			userId, indexName, dbIndex.EvalWeight, 0, dbIndex.AiWeight, 0, true)
+		if err != nil {
+			return err
+		}
+
+		err = s.db.UserStockIndex.Delete(ctx, tx, dbIndex.Id)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return err
 	}
@@ -199,64 +190,61 @@ func (s *StockAssistantService) UserStockIndexDelete(userId string, indexName st
 	return nil
 }
 
-func (s *StockAssistantService) UserStockIndexRename(userId string, indexNameOld string, indexNameNew string) (indexNew *models.UserStockIndex, err error) {
-	tx, err := s.db.BeginReadCommittedTx(context.Background(), false)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
+func (s *StockAssistantService) UserStockIndexRename(ctx context.Context, userId string, indexNameOld string, indexNameNew string) (indexNew *models.UserStockIndex, err error) {
+	var dbIndexOld *fin_stock_assistant.UserStockIndex
+	err = s.db.TransactionReadCommitted(ctx, func(tx *wrap.Tx) (err error) {
+		if indexNameNew == indexNameOld {
+			return fmt.Errorf("name same")
+		}
 
-	if indexNameNew == indexNameOld {
-		return nil, fmt.Errorf("name same")
-	}
+		dbIndexOld, err = s.db.UserStockIndex.GetQuery().ForUpdate().
+			UserId_Equal(userId).And().IndexName_Equal(indexNameOld).
+			QueryOne(ctx, tx)
+		if err != nil {
+			return err
+		}
 
-	dbIndexOld, err := s.db.UserStockIndex.GetQuery().ForUpdate().
-		UserId_Equal(userId).And().IndexName_Equal(indexNameOld).
-		QueryOne(context.Background(), tx)
-	if err != nil {
-		return nil, err
-	}
+		if dbIndexOld == nil {
+			return fmt.Errorf("index old not exist")
+		}
 
-	if dbIndexOld == nil {
-		return nil, fmt.Errorf("index old not exist")
-	}
+		dbIndexNew, err := s.db.UserStockIndex.GetQuery().ForUpdate().
+			UserId_Equal(userId).And().IndexName_Equal(indexNameNew).
+			QueryOne(ctx, tx)
+		if err != nil {
+			return err
+		}
 
-	dbIndexNew, err := s.db.UserStockIndex.GetQuery().ForUpdate().
-		UserId_Equal(userId).And().IndexName_Equal(indexNameNew).
-		QueryOne(context.Background(), tx)
-	if err != nil {
-		return nil, err
-	}
+		if dbIndexNew != nil {
+			return fmt.Errorf("index new exist")
+		}
 
-	if dbIndexNew != nil {
-		return nil, fmt.Errorf("index new exist")
-	}
+		dbIndexOld.IndexName = indexNameNew
+		dbIndexOld.UpdateTime = time.Now()
+		err = s.db.UserStockIndex.Update(ctx, tx, dbIndexOld)
+		if err != nil {
+			return err
+		}
 
-	dbIndexOld.IndexName = indexNameNew
-	dbIndexOld.UpdateTime = time.Now()
-	err = s.db.UserStockIndex.Update(context.Background(), tx, dbIndexOld)
-	if err != nil {
-		return nil, err
-	}
-
-	//update index evaluates
-	dbIndexEvaluateList, err := s.db.UserIndexEvaluate.GetQuery().ForUpdate().
-		UserId_Equal(userId).And().IndexName_Equal(indexNameOld).
-		QueryList(context.Background(), tx)
-	if err != nil {
-		return nil, err
-	}
-	if dbIndexEvaluateList != nil {
-		for _, v := range dbIndexEvaluateList {
-			v.IndexName = indexNameNew
-			err := s.db.UserIndexEvaluate.Update(context.Background(), tx, v)
-			if err != nil {
-				return nil, err
+		//update index evaluates
+		dbIndexEvaluateList, err := s.db.UserIndexEvaluate.GetQuery().ForUpdate().
+			UserId_Equal(userId).And().IndexName_Equal(indexNameOld).
+			QueryList(ctx, tx)
+		if err != nil {
+			return err
+		}
+		if dbIndexEvaluateList != nil {
+			for _, v := range dbIndexEvaluateList {
+				v.IndexName = indexNameNew
+				err := s.db.UserIndexEvaluate.Update(ctx, tx, v)
+				if err != nil {
+					return err
+				}
 			}
 		}
-	}
 
-	err = tx.Commit()
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}

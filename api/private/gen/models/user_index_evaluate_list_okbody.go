@@ -14,13 +14,12 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// UserIndexEvaluateSaveDefaultBodyErrors Errors
-// swagger:model userIndexEvaluateSaveDefaultBodyErrors
+// UserIndexEvaluateListOKBody user index evaluate list o k body
+// swagger:model userIndexEvaluateListOKBody
+type UserIndexEvaluateListOKBody []*UserIndexEvaluate
 
-type UserIndexEvaluateSaveDefaultBodyErrors []*UserStockIndexUpdateDefaultBodyErrorsItems
-
-// Validate validates this user index evaluate save default body errors
-func (m UserIndexEvaluateSaveDefaultBodyErrors) Validate(formats strfmt.Registry) error {
+// Validate validates this user index evaluate list o k body
+func (m UserIndexEvaluateListOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {

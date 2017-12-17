@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
+	"go.uber.org/zap"
 )
 
 // UserIndexEvaluateSaveHandlerFunc turns a function with the right signature into a user index evaluate save handler
@@ -51,7 +52,11 @@ func (o *UserIndexEvaluateSave) ServeHTTP(rw http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	zap.L().Named("api").Info("UserIndexEvaluateSave", zap.Any("request", &Params))
+
 	res := o.Handler.Handle(Params) // actually handle the request
+
+	zap.L().Named("api").Info("UserIndexEvaluateSave", zap.Any("response", res))
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

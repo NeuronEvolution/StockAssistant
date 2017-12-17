@@ -14,7 +14,6 @@ import (
 
 // StockURL stock url
 // swagger:model StockUrl
-
 type StockURL struct {
 
 	// icon
@@ -26,12 +25,6 @@ type StockURL struct {
 	// url
 	URL string `json:"url,omitempty"`
 }
-
-/* polymorph StockUrl icon false */
-
-/* polymorph StockUrl name false */
-
-/* polymorph StockUrl url false */
 
 // Validate validates this stock Url
 func (m *StockURL) Validate(formats strfmt.Registry) error {

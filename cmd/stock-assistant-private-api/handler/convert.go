@@ -122,43 +122,6 @@ func fromStockEvaluateList(p []*models.UserStockEvaluate) (r []*api.UserStockEva
 	return r
 }
 
-func fromUserSetting(p *models.UserSetting) (r *api.UserSetting) {
-	if p == nil {
-		return nil
-	}
-
-	r = &api.UserSetting{}
-	r.Key = p.ConfigKey
-	r.Value = p.ConfigValue
-
-	return r
-}
-
-func toUserSetting(p *api.UserSetting) (r *models.UserSetting) {
-	if p == nil {
-		return nil
-	}
-
-	r = &models.UserSetting{}
-	r.ConfigKey = p.Key
-	r.ConfigValue = p.Value
-
-	return r
-}
-
-func fromUserSettingList(p []*models.UserSetting) (r []*api.UserSetting) {
-	if p == nil {
-		return nil
-	}
-
-	r = make([]*api.UserSetting, len(p))
-	for i, v := range p {
-		r[i] = fromUserSetting(v)
-	}
-
-	return r
-}
-
 func fromStockIndexAdvice(p *models.StockIndexAdvice) (r *api.StockIndexAdvice) {
 	if p == nil {
 		return nil

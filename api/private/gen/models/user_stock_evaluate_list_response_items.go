@@ -16,7 +16,6 @@ import (
 
 // UserStockEvaluateListResponseItems user stock evaluate list response items
 // swagger:model userStockEvaluateListResponseItems
-
 type UserStockEvaluateListResponseItems []*UserStockEvaluate
 
 // Validate validates this user stock evaluate list response items

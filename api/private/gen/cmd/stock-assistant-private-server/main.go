@@ -18,17 +18,17 @@ import (
 
 func main() {
 
-	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
+	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	api := operations.NewStockAssistantAPI(swaggerSpec)
+	api := operations.NewStockAssistantPrivateAPI(swaggerSpec)
 	server := restapi.NewServer(api)
 	defer server.Shutdown()
 
 	parser := flags.NewParser(server, flags.Default)
-	parser.ShortDescription = "Stock Assistant"
+	parser.ShortDescription = "Stock Assistant Private API"
 	parser.LongDescription = swaggerSpec.Spec().Info.Description
 
 	server.ConfigureFlags()

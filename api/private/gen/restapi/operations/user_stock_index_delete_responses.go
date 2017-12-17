@@ -9,8 +9,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
-	"github.com/NeuronEvolution/StockAssistant/api/private/gen/models"
 )
 
 // UserStockIndexDeleteOKCode is the HTTP code returned for type UserStockIndexDeleteOK
@@ -31,63 +29,7 @@ func NewUserStockIndexDeleteOK() *UserStockIndexDeleteOK {
 // WriteResponse to the client
 func (o *UserStockIndexDeleteOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
 	rw.WriteHeader(200)
-}
-
-/*UserStockIndexDeleteDefault Error response
-
-swagger:response userStockIndexDeleteDefault
-*/
-type UserStockIndexDeleteDefault struct {
-	_statusCode int
-
-	/*
-	  In: Body
-	*/
-	Payload *models.UserStockIndexDeleteDefaultBody `json:"body,omitempty"`
-}
-
-// NewUserStockIndexDeleteDefault creates UserStockIndexDeleteDefault with default headers values
-func NewUserStockIndexDeleteDefault(code int) *UserStockIndexDeleteDefault {
-	if code <= 0 {
-		code = 500
-	}
-
-	return &UserStockIndexDeleteDefault{
-		_statusCode: code,
-	}
-}
-
-// WithStatusCode adds the status to the user stock index delete default response
-func (o *UserStockIndexDeleteDefault) WithStatusCode(code int) *UserStockIndexDeleteDefault {
-	o._statusCode = code
-	return o
-}
-
-// SetStatusCode sets the status to the user stock index delete default response
-func (o *UserStockIndexDeleteDefault) SetStatusCode(code int) {
-	o._statusCode = code
-}
-
-// WithPayload adds the payload to the user stock index delete default response
-func (o *UserStockIndexDeleteDefault) WithPayload(payload *models.UserStockIndexDeleteDefaultBody) *UserStockIndexDeleteDefault {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the user stock index delete default response
-func (o *UserStockIndexDeleteDefault) SetPayload(payload *models.UserStockIndexDeleteDefaultBody) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UserStockIndexDeleteDefault) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(o._statusCode)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
 }

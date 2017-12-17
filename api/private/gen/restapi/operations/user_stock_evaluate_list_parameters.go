@@ -30,7 +30,7 @@ func NewUserStockEvaluateListParams() UserStockEvaluateListParams {
 type UserStockEvaluateListParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*not evaluated
 	  In: query

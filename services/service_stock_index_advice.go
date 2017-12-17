@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func (s *StockAssistantService) StockIndexAdviceList(query *models.StockIndexAdviceQuery) (result []*models.StockIndexAdvice, nextPageToken string, err error) {
+func (s *StockAssistantService) StockIndexAdviceList(ctx context.Context, query *models.StockIndexAdviceQuery) (result []*models.StockIndexAdvice, nextPageToken string, err error) {
 	start := int64(0)
 	count := int64(0)
 
@@ -31,7 +31,7 @@ func (s *StockAssistantService) StockIndexAdviceList(query *models.StockIndexAdv
 
 	indexMap := make(map[string]*fin_stock_assistant.UserStockIndex)
 	if query.UserId != "" {
-		dbIndexList, err := s.db.UserStockIndex.GetQuery().UserId_Equal(query.UserId).QueryList(context.Background(), nil)
+		dbIndexList, err := s.db.UserStockIndex.GetQuery().UserId_Equal(query.UserId).QueryList(ctx, nil)
 		if err != nil {
 			return nil, "", err
 		}
@@ -48,7 +48,7 @@ func (s *StockAssistantService) StockIndexAdviceList(query *models.StockIndexAdv
 		OrderByGroupCount(false).
 		OrderBy(fin_stock_assistant.USER_STOCK_INDEX_FIELD_INDEX_NAME, true).
 		Limit(start, count).
-		QueryGroupBy(context.Background(), nil)
+		QueryGroupBy(ctx, nil)
 	if err != nil {
 		return nil, "", err
 	}

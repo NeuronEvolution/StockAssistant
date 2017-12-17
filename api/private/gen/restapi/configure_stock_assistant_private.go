@@ -16,13 +16,13 @@ import (
 
 // This file is safe to edit. Once it exists it will not be overwritten
 
-//go:generate swagger generate server --target ../gen --name  --spec ../swagger.json
+//go:generate swagger generate server --target ../gen --name  --spec ../swagger.json --template-dir /Users/god/work/neuron/src/github.com/NeuronFramework/restful/go_template/
 
-func configureFlags(api *operations.StockAssistantAPI) {
+func configureFlags(api *operations.StockAssistantPrivateAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
-func configureAPI(api *operations.StockAssistantAPI) http.Handler {
+func configureAPI(api *operations.StockAssistantPrivateAPI) http.Handler {
 	// configure the api here
 	api.ServeError = errors.ServeError
 
@@ -51,18 +51,6 @@ func configureAPI(api *operations.StockAssistantAPI) http.Handler {
 	api.UserIndexEvaluateSaveHandler = operations.UserIndexEvaluateSaveHandlerFunc(func(params operations.UserIndexEvaluateSaveParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserIndexEvaluateSave has not yet been implemented")
 	})
-	api.UserSettingDeleteHandler = operations.UserSettingDeleteHandlerFunc(func(params operations.UserSettingDeleteParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserSettingDelete has not yet been implemented")
-	})
-	api.UserSettingGetHandler = operations.UserSettingGetHandlerFunc(func(params operations.UserSettingGetParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserSettingGet has not yet been implemented")
-	})
-	api.UserSettingListHandler = operations.UserSettingListHandlerFunc(func(params operations.UserSettingListParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserSettingList has not yet been implemented")
-	})
-	api.UserSettingSaveHandler = operations.UserSettingSaveHandlerFunc(func(params operations.UserSettingSaveParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UserSettingSave has not yet been implemented")
-	})
 	api.UserStockEvaluateGetHandler = operations.UserStockEvaluateGetHandlerFunc(func(params operations.UserStockEvaluateGetParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserStockEvaluateGet has not yet been implemented")
 	})
@@ -86,9 +74,6 @@ func configureAPI(api *operations.StockAssistantAPI) http.Handler {
 	})
 	api.UserStockIndexUpdateHandler = operations.UserStockIndexUpdateHandlerFunc(func(params operations.UserStockIndexUpdateParams) middleware.Responder {
 		return middleware.NotImplemented("operation .UserStockIndexUpdate has not yet been implemented")
-	})
-	api.OauthJumpHandler = operations.OauthJumpHandlerFunc(func(params operations.OauthJumpParams) middleware.Responder {
-		return middleware.NotImplemented("operation .OauthJump has not yet been implemented")
 	})
 
 	api.ServerShutdown = func() {}

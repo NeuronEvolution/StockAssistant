@@ -57,7 +57,7 @@ func (o *UserStockIndexDeleteURL) Build() (*url.URL, error) {
 	}
 	_basePath := o._basePath
 	if _basePath == "" {
-		_basePath = "/api/stock-assistant/v1"
+		_basePath = "/api/v1/stock-assistant-private"
 	}
 	result.Path = golangswaggerpaths.Join(_basePath, _path)
 

@@ -2,13 +2,13 @@
   "swagger": "2.0",
   "info": {
     "description": "",
-    "title": "Stock Assistant",
+    "title": "Stock Assistant Private API",
     "contact": {
       "name": "mars"
     },
     "version": "v1"
   },
-  "basePath": "/api/stock-assistant/v1",
+  "basePath": "/api/v1/stock-assistant-private",
   "consumes": [
     "application/json"
   ],
@@ -24,80 +24,7 @@
   },
   "parameters": {
   },
-  "responses": {
-    "ErrorResponse": {
-      "description": "Error response",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "default": "Http status",
-            "type": "string",
-            "format": "int32"
-          },
-          "code": {
-            "description": "Error code",
-            "type": "string"
-          },
-          "message": {
-            "description": "Error message",
-            "type": "string"
-          },
-          "errors": {
-            "description": "Errors",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "field": {
-                  "description": "field name",
-                  "type": "string"
-                },
-                "code": {
-                  "description": "error code",
-                  "type": "string"
-                },
-                "message": {
-                  "description": "error message",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
   "paths": {
-    "/oauthJump": {
-      "post": {
-        "summary": "",
-        "operationId": "oauthJump",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "authorizationCode",
-            "type": "string",
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "state",
-            "type": "string",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "type": "string",
-              "description": "jwt"
-            }
-          }
-        }
-      }
-    },
     "/{userId}/stockIndices": {
       "parameters": [
         {
@@ -126,9 +53,6 @@
                 "$ref": "#/definitions/UserStockIndex"
               }
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       },
@@ -152,9 +76,6 @@
             "schema": {
               "$ref": "#/definitions/UserStockIndex"
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -194,9 +115,6 @@
             "schema": {
               "$ref": "#/definitions/UserStockIndex"
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -229,9 +147,6 @@
             "schema": {
               "$ref": "#/definitions/UserStockIndex"
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       },
@@ -255,9 +170,6 @@
             "schema": {
               "$ref": "#/definitions/UserStockIndex"
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       },
@@ -269,9 +181,6 @@
         "responses": {
           "200": {
             "description": "ok"
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -326,9 +235,6 @@
             "schema": {
               "$ref": "#/definitions/UserStockEvaluateListResponse"
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -361,9 +267,6 @@
             "schema": {
               "$ref": "#/definitions/UserStockEvaluate"
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -399,9 +302,6 @@
                 "$ref": "#/definitions/UserIndexEvaluate"
               }
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       },
@@ -424,9 +324,6 @@
             "schema": {
               "$ref": "#/definitions/UserIndexEvaluate"
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -466,115 +363,6 @@
             "schema": {
               "$ref": "#/definitions/UserIndexEvaluate"
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
-          }
-        }
-      }
-    },
-    "/{userId}/settings": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "userId",
-          "description": "User id",
-          "type": "string",
-          "required": true
-        }
-      ],
-      "get": {
-        "summary": "list",
-        "operationId": "UserSettingList",
-        "parameters": [
-        ],
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/UserSetting"
-              }
-            }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
-          }
-        }
-      },
-      "post": {
-        "summary": "save",
-        "operationId": "UserSettingSave",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "Setting",
-            "description": "setting",
-            "schema": {
-              "$ref": "#/definitions/UserSetting"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "$ref": "#/definitions/UserSetting"
-            }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
-          }
-        }
-      }
-    },
-    "/{userId}/settings/{configKey}": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "userId",
-          "description": "User id",
-          "type": "string",
-          "required": true
-        },
-        {
-          "in": "path",
-          "name": "configKey",
-          "description": "config key",
-          "type": "string",
-          "required": true
-        }
-      ],
-      "get": {
-        "summary": "",
-        "operationId": "UserSettingGet",
-        "parameters": [
-        ],
-        "responses": {
-          "200": {
-            "description": "ok",
-            "schema": {
-              "$ref": "#/definitions/UserSetting"
-            }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
-          }
-        }
-      },
-      "delete": {
-        "summary": "",
-        "operationId": "UserSettingDelete",
-        "parameters": [
-        ],
-        "responses": {
-          "200": {
-            "description": "ok"
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -597,9 +385,6 @@
             "schema": {
               "$ref": "#/definitions/Stock"
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -640,9 +425,6 @@
                 "$ref": "#/definitions/StockIndexAdvice"
               }
             }
-          },
-          "default": {
-            "$ref": "#/responses/ErrorResponse"
           }
         }
       }
@@ -714,20 +496,6 @@
           "items": {
             "$ref": "#/definitions/StockUrl"
           }
-        }
-      }
-    },
-    "UserSetting": {
-      "description": "User stock setting",
-      "type": "object",
-      "properties": {
-        "key": {
-          "description": "Key",
-          "type": "string"
-        },
-        "value": {
-          "description": "Value",
-          "type": "string"
         }
       }
     },

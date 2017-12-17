@@ -28,7 +28,7 @@ func NewUserIndexEvaluateListParams() UserIndexEvaluateListParams {
 type UserIndexEvaluateListParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*stock id
 	  Required: true

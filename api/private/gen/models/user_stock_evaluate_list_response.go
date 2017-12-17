@@ -14,7 +14,6 @@ import (
 
 // UserStockEvaluateListResponse user stock evaluate list response
 // swagger:model UserStockEvaluateListResponse
-
 type UserStockEvaluateListResponse struct {
 
 	// items
@@ -23,10 +22,6 @@ type UserStockEvaluateListResponse struct {
 	// next page token
 	NextPageToken string `json:"nextPageToken,omitempty"`
 }
-
-/* polymorph UserStockEvaluateListResponse items false */
-
-/* polymorph UserStockEvaluateListResponse nextPageToken false */
 
 // Validate validates this user stock evaluate list response
 func (m *UserStockEvaluateListResponse) Validate(formats strfmt.Registry) error {

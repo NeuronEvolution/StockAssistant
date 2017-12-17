@@ -30,7 +30,7 @@ func NewUserStockIndexRenameParams() UserStockIndexRenameParams {
 type UserStockIndexRenameParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*new name
 	  Required: true

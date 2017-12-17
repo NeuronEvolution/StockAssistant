@@ -28,7 +28,7 @@ func NewUserStockEvaluateGetParams() UserStockEvaluateGetParams {
 type UserStockEvaluateGetParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*stock id
 	  Required: true
