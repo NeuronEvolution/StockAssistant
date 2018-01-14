@@ -30,7 +30,7 @@ func (s *StockAssistantService) reCalcStockEvaluates(ctx context.Context, tx *wr
 				return err
 			}
 			if dbStockEvaluate == nil {
-				return errors.InternalServerError("指标评估存在，但股票评估不存在 userId=" +
+				return errors.Unknown("指标评估存在，但股票评估不存在 userId=" +
 					userId + ",stockId=" + dbIndexEvaluate.StockId + ",indexName=" + dbIndexEvaluate.IndexName)
 			}
 
@@ -73,7 +73,7 @@ func (s *StockAssistantService) UserStockIndexGet(ctx context.Context, userId st
 
 func (s *StockAssistantService) UserStockIndexAdd(ctx context.Context, userId string, index *models.UserStockIndex) (indexAdded *models.UserStockIndex, err error) {
 	var dbUserStockIndex *fin_stock_assistant.UserStockIndex
-	err = s.db.TransactionReadCommitted(ctx, func(tx *wrap.Tx) (err error) {
+	err = s.db.TransactionReadCommitted(ctx, false, func(tx *wrap.Tx) (err error) {
 		dbUserStockIndex, err = s.db.UserStockIndex.GetQuery().ForUpdate().
 			UserId_Equal(userId).And().IndexName_Equal(index.IndexName).
 			QueryOne(ctx, tx)
@@ -118,7 +118,7 @@ func (s *StockAssistantService) UserStockIndexAdd(ctx context.Context, userId st
 
 func (s *StockAssistantService) UserStockIndexUpdate(ctx context.Context, userId string, index *models.UserStockIndex) (indexUpdated *models.UserStockIndex, err error) {
 	var dbUserStockIndex *fin_stock_assistant.UserStockIndex
-	err = s.db.TransactionReadCommitted(ctx, func(tx *wrap.Tx) (err error) {
+	err = s.db.TransactionReadCommitted(ctx, false, func(tx *wrap.Tx) (err error) {
 		dbUserStockIndex, err = s.db.UserStockIndex.GetQuery().ForUpdate().
 			UserId_Equal(userId).And().IndexName_Equal(index.IndexName).
 			QueryOne(ctx, tx)
@@ -158,7 +158,7 @@ func (s *StockAssistantService) UserStockIndexUpdate(ctx context.Context, userId
 }
 
 func (s *StockAssistantService) UserStockIndexDelete(ctx context.Context, userId string, indexName string) (err error) {
-	err = s.db.TransactionReadCommitted(ctx, func(tx *wrap.Tx) (err error) {
+	err = s.db.TransactionReadCommitted(ctx, false, func(tx *wrap.Tx) (err error) {
 		dbIndex, err := s.db.UserStockIndex.GetQuery().ForUpdate().
 			UserId_Equal(userId).And().IndexName_Equal(indexName).
 			QueryOne(ctx, tx)
@@ -192,7 +192,7 @@ func (s *StockAssistantService) UserStockIndexDelete(ctx context.Context, userId
 
 func (s *StockAssistantService) UserStockIndexRename(ctx context.Context, userId string, indexNameOld string, indexNameNew string) (indexNew *models.UserStockIndex, err error) {
 	var dbIndexOld *fin_stock_assistant.UserStockIndex
-	err = s.db.TransactionReadCommitted(ctx, func(tx *wrap.Tx) (err error) {
+	err = s.db.TransactionReadCommitted(ctx, false, func(tx *wrap.Tx) (err error) {
 		if indexNameNew == indexNameOld {
 			return fmt.Errorf("name same")
 		}

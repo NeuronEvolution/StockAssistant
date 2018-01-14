@@ -60,7 +60,7 @@ func (s *StockAssistantService) UserIndexEvaluateGet(ctx context.Context, userId
 
 func (s *StockAssistantService) UserIndexEvaluateSave(ctx context.Context, userId string, stockId string, indexEvaluate *models.UserIndexEvaluate) (indexEvaluateSaved *models.UserIndexEvaluate, err error) {
 	var dbUserIndexEvaluate *fin_stock_assistant.UserIndexEvaluate
-	err = s.db.TransactionReadCommitted(ctx, func(tx *wrap.Tx) (err error) {
+	err = s.db.TransactionReadCommitted(ctx, false, func(tx *wrap.Tx) (err error) {
 		//save index evaluate
 		dbIndex, err := s.db.UserStockIndex.GetQuery().ForShare().
 			UserId_Equal(userId).And().IndexName_Equal(indexEvaluate.IndexName).

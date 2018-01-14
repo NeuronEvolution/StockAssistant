@@ -3,14 +3,18 @@ package fin_stock_assistant
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/NeuronFramework/log"
 	"github.com/NeuronFramework/sql/wrap"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
 	"go.uber.org/zap"
 	"strings"
 	"time"
 )
+
+var _ = sql.ErrNoRows
+var _ = mysql.ErrOldProtocol
 
 type BaseQuery struct {
 	forUpdate     bool
@@ -99,7 +103,7 @@ var STOCK_ALL_FIELDS = []string{
 }
 
 type Stock struct {
-	Id             int64  //size=20
+	Id             uint64 //size=20
 	StockId        string //size=32
 	ExchangeId     string //size=32
 	StockCode      string //size=32
@@ -208,13 +212,13 @@ func (q *StockQuery) And() *StockQuery   { return q.w(" AND ") }
 func (q *StockQuery) Or() *StockQuery    { return q.w(" OR ") }
 func (q *StockQuery) Not() *StockQuery   { return q.w(" NOT ") }
 
-func (q *StockQuery) Id_Equal(v int64) *StockQuery        { return q.w("id='" + fmt.Sprint(v) + "'") }
-func (q *StockQuery) Id_NotEqual(v int64) *StockQuery     { return q.w("id<>'" + fmt.Sprint(v) + "'") }
-func (q *StockQuery) Id_Less(v int64) *StockQuery         { return q.w("id<'" + fmt.Sprint(v) + "'") }
-func (q *StockQuery) Id_LessEqual(v int64) *StockQuery    { return q.w("id<='" + fmt.Sprint(v) + "'") }
-func (q *StockQuery) Id_Greater(v int64) *StockQuery      { return q.w("id>'" + fmt.Sprint(v) + "'") }
-func (q *StockQuery) Id_GreaterEqual(v int64) *StockQuery { return q.w("id>='" + fmt.Sprint(v) + "'") }
-func (q *StockQuery) StockId_Equal(v string) *StockQuery  { return q.w("stock_id='" + fmt.Sprint(v) + "'") }
+func (q *StockQuery) Id_Equal(v uint64) *StockQuery        { return q.w("id='" + fmt.Sprint(v) + "'") }
+func (q *StockQuery) Id_NotEqual(v uint64) *StockQuery     { return q.w("id<>'" + fmt.Sprint(v) + "'") }
+func (q *StockQuery) Id_Less(v uint64) *StockQuery         { return q.w("id<'" + fmt.Sprint(v) + "'") }
+func (q *StockQuery) Id_LessEqual(v uint64) *StockQuery    { return q.w("id<='" + fmt.Sprint(v) + "'") }
+func (q *StockQuery) Id_Greater(v uint64) *StockQuery      { return q.w("id>'" + fmt.Sprint(v) + "'") }
+func (q *StockQuery) Id_GreaterEqual(v uint64) *StockQuery { return q.w("id>='" + fmt.Sprint(v) + "'") }
+func (q *StockQuery) StockId_Equal(v string) *StockQuery   { return q.w("stock_id='" + fmt.Sprint(v) + "'") }
 func (q *StockQuery) StockId_NotEqual(v string) *StockQuery {
 	return q.w("stock_id<>'" + fmt.Sprint(v) + "'")
 }
@@ -585,7 +589,7 @@ func (dao *StockDao) Update(ctx context.Context, tx *wrap.Tx, e *Stock) (err err
 	return nil
 }
 
-func (dao *StockDao) Delete(ctx context.Context, tx *wrap.Tx, id int64) (err error) {
+func (dao *StockDao) Delete(ctx context.Context, tx *wrap.Tx, id uint64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -713,7 +717,7 @@ var STOCK_INDEX_ADVICE_ALL_FIELDS = []string{
 }
 
 type StockIndexAdvice struct {
-	Id         int64  //size=20
+	Id         uint64 //size=20
 	IndexName  string //size=32
 	UsedCount  int64  //size=20
 	CreateTime time.Time
@@ -810,22 +814,22 @@ func (q *StockIndexAdviceQuery) And() *StockIndexAdviceQuery   { return q.w(" AN
 func (q *StockIndexAdviceQuery) Or() *StockIndexAdviceQuery    { return q.w(" OR ") }
 func (q *StockIndexAdviceQuery) Not() *StockIndexAdviceQuery   { return q.w(" NOT ") }
 
-func (q *StockIndexAdviceQuery) Id_Equal(v int64) *StockIndexAdviceQuery {
+func (q *StockIndexAdviceQuery) Id_Equal(v uint64) *StockIndexAdviceQuery {
 	return q.w("id='" + fmt.Sprint(v) + "'")
 }
-func (q *StockIndexAdviceQuery) Id_NotEqual(v int64) *StockIndexAdviceQuery {
+func (q *StockIndexAdviceQuery) Id_NotEqual(v uint64) *StockIndexAdviceQuery {
 	return q.w("id<>'" + fmt.Sprint(v) + "'")
 }
-func (q *StockIndexAdviceQuery) Id_Less(v int64) *StockIndexAdviceQuery {
+func (q *StockIndexAdviceQuery) Id_Less(v uint64) *StockIndexAdviceQuery {
 	return q.w("id<'" + fmt.Sprint(v) + "'")
 }
-func (q *StockIndexAdviceQuery) Id_LessEqual(v int64) *StockIndexAdviceQuery {
+func (q *StockIndexAdviceQuery) Id_LessEqual(v uint64) *StockIndexAdviceQuery {
 	return q.w("id<='" + fmt.Sprint(v) + "'")
 }
-func (q *StockIndexAdviceQuery) Id_Greater(v int64) *StockIndexAdviceQuery {
+func (q *StockIndexAdviceQuery) Id_Greater(v uint64) *StockIndexAdviceQuery {
 	return q.w("id>'" + fmt.Sprint(v) + "'")
 }
-func (q *StockIndexAdviceQuery) Id_GreaterEqual(v int64) *StockIndexAdviceQuery {
+func (q *StockIndexAdviceQuery) Id_GreaterEqual(v uint64) *StockIndexAdviceQuery {
 	return q.w("id>='" + fmt.Sprint(v) + "'")
 }
 func (q *StockIndexAdviceQuery) IndexName_Equal(v string) *StockIndexAdviceQuery {
@@ -987,7 +991,7 @@ func (dao *StockIndexAdviceDao) Update(ctx context.Context, tx *wrap.Tx, e *Stoc
 	return nil
 }
 
-func (dao *StockIndexAdviceDao) Delete(ctx context.Context, tx *wrap.Tx, id int64) (err error) {
+func (dao *StockIndexAdviceDao) Delete(ctx context.Context, tx *wrap.Tx, id uint64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -1121,7 +1125,7 @@ var USER_INDEX_EVALUATE_ALL_FIELDS = []string{
 }
 
 type UserIndexEvaluate struct {
-	Id         int64  //size=20
+	Id         uint64 //size=20
 	UserId     string //size=32
 	StockId    string //size=32
 	IndexName  string //size=32
@@ -1221,22 +1225,22 @@ func (q *UserIndexEvaluateQuery) And() *UserIndexEvaluateQuery   { return q.w(" 
 func (q *UserIndexEvaluateQuery) Or() *UserIndexEvaluateQuery    { return q.w(" OR ") }
 func (q *UserIndexEvaluateQuery) Not() *UserIndexEvaluateQuery   { return q.w(" NOT ") }
 
-func (q *UserIndexEvaluateQuery) Id_Equal(v int64) *UserIndexEvaluateQuery {
+func (q *UserIndexEvaluateQuery) Id_Equal(v uint64) *UserIndexEvaluateQuery {
 	return q.w("id='" + fmt.Sprint(v) + "'")
 }
-func (q *UserIndexEvaluateQuery) Id_NotEqual(v int64) *UserIndexEvaluateQuery {
+func (q *UserIndexEvaluateQuery) Id_NotEqual(v uint64) *UserIndexEvaluateQuery {
 	return q.w("id<>'" + fmt.Sprint(v) + "'")
 }
-func (q *UserIndexEvaluateQuery) Id_Less(v int64) *UserIndexEvaluateQuery {
+func (q *UserIndexEvaluateQuery) Id_Less(v uint64) *UserIndexEvaluateQuery {
 	return q.w("id<'" + fmt.Sprint(v) + "'")
 }
-func (q *UserIndexEvaluateQuery) Id_LessEqual(v int64) *UserIndexEvaluateQuery {
+func (q *UserIndexEvaluateQuery) Id_LessEqual(v uint64) *UserIndexEvaluateQuery {
 	return q.w("id<='" + fmt.Sprint(v) + "'")
 }
-func (q *UserIndexEvaluateQuery) Id_Greater(v int64) *UserIndexEvaluateQuery {
+func (q *UserIndexEvaluateQuery) Id_Greater(v uint64) *UserIndexEvaluateQuery {
 	return q.w("id>'" + fmt.Sprint(v) + "'")
 }
-func (q *UserIndexEvaluateQuery) Id_GreaterEqual(v int64) *UserIndexEvaluateQuery {
+func (q *UserIndexEvaluateQuery) Id_GreaterEqual(v uint64) *UserIndexEvaluateQuery {
 	return q.w("id>='" + fmt.Sprint(v) + "'")
 }
 func (q *UserIndexEvaluateQuery) UserId_Equal(v string) *UserIndexEvaluateQuery {
@@ -1452,7 +1456,7 @@ func (dao *UserIndexEvaluateDao) Update(ctx context.Context, tx *wrap.Tx, e *Use
 	return nil
 }
 
-func (dao *UserIndexEvaluateDao) Delete(ctx context.Context, tx *wrap.Tx, id int64) (err error) {
+func (dao *UserIndexEvaluateDao) Delete(ctx context.Context, tx *wrap.Tx, id uint64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -1582,7 +1586,7 @@ var USER_SETTING_ALL_FIELDS = []string{
 }
 
 type UserSetting struct {
-	Id          int64  //size=20
+	Id          uint64 //size=20
 	UserId      string //size=32
 	ConfigKey   string //size=32
 	ConfigValue string //size=1024
@@ -1680,18 +1684,20 @@ func (q *UserSettingQuery) And() *UserSettingQuery   { return q.w(" AND ") }
 func (q *UserSettingQuery) Or() *UserSettingQuery    { return q.w(" OR ") }
 func (q *UserSettingQuery) Not() *UserSettingQuery   { return q.w(" NOT ") }
 
-func (q *UserSettingQuery) Id_Equal(v int64) *UserSettingQuery { return q.w("id='" + fmt.Sprint(v) + "'") }
-func (q *UserSettingQuery) Id_NotEqual(v int64) *UserSettingQuery {
+func (q *UserSettingQuery) Id_Equal(v uint64) *UserSettingQuery {
+	return q.w("id='" + fmt.Sprint(v) + "'")
+}
+func (q *UserSettingQuery) Id_NotEqual(v uint64) *UserSettingQuery {
 	return q.w("id<>'" + fmt.Sprint(v) + "'")
 }
-func (q *UserSettingQuery) Id_Less(v int64) *UserSettingQuery { return q.w("id<'" + fmt.Sprint(v) + "'") }
-func (q *UserSettingQuery) Id_LessEqual(v int64) *UserSettingQuery {
+func (q *UserSettingQuery) Id_Less(v uint64) *UserSettingQuery { return q.w("id<'" + fmt.Sprint(v) + "'") }
+func (q *UserSettingQuery) Id_LessEqual(v uint64) *UserSettingQuery {
 	return q.w("id<='" + fmt.Sprint(v) + "'")
 }
-func (q *UserSettingQuery) Id_Greater(v int64) *UserSettingQuery {
+func (q *UserSettingQuery) Id_Greater(v uint64) *UserSettingQuery {
 	return q.w("id>'" + fmt.Sprint(v) + "'")
 }
-func (q *UserSettingQuery) Id_GreaterEqual(v int64) *UserSettingQuery {
+func (q *UserSettingQuery) Id_GreaterEqual(v uint64) *UserSettingQuery {
 	return q.w("id>='" + fmt.Sprint(v) + "'")
 }
 func (q *UserSettingQuery) UserId_Equal(v string) *UserSettingQuery {
@@ -1871,7 +1877,7 @@ func (dao *UserSettingDao) Update(ctx context.Context, tx *wrap.Tx, e *UserSetti
 	return nil
 }
 
-func (dao *UserSettingDao) Delete(ctx context.Context, tx *wrap.Tx, id int64) (err error) {
+func (dao *UserSettingDao) Delete(ctx context.Context, tx *wrap.Tx, id uint64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -2015,7 +2021,7 @@ var USER_STOCK_EVALUATE_ALL_FIELDS = []string{
 }
 
 type UserStockEvaluate struct {
-	Id           int64  //size=20
+	Id           uint64 //size=20
 	UserId       string //size=32
 	StockId      string //size=32
 	TotalScore   float64
@@ -2120,22 +2126,22 @@ func (q *UserStockEvaluateQuery) And() *UserStockEvaluateQuery   { return q.w(" 
 func (q *UserStockEvaluateQuery) Or() *UserStockEvaluateQuery    { return q.w(" OR ") }
 func (q *UserStockEvaluateQuery) Not() *UserStockEvaluateQuery   { return q.w(" NOT ") }
 
-func (q *UserStockEvaluateQuery) Id_Equal(v int64) *UserStockEvaluateQuery {
+func (q *UserStockEvaluateQuery) Id_Equal(v uint64) *UserStockEvaluateQuery {
 	return q.w("id='" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockEvaluateQuery) Id_NotEqual(v int64) *UserStockEvaluateQuery {
+func (q *UserStockEvaluateQuery) Id_NotEqual(v uint64) *UserStockEvaluateQuery {
 	return q.w("id<>'" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockEvaluateQuery) Id_Less(v int64) *UserStockEvaluateQuery {
+func (q *UserStockEvaluateQuery) Id_Less(v uint64) *UserStockEvaluateQuery {
 	return q.w("id<'" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockEvaluateQuery) Id_LessEqual(v int64) *UserStockEvaluateQuery {
+func (q *UserStockEvaluateQuery) Id_LessEqual(v uint64) *UserStockEvaluateQuery {
 	return q.w("id<='" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockEvaluateQuery) Id_Greater(v int64) *UserStockEvaluateQuery {
+func (q *UserStockEvaluateQuery) Id_Greater(v uint64) *UserStockEvaluateQuery {
 	return q.w("id>'" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockEvaluateQuery) Id_GreaterEqual(v int64) *UserStockEvaluateQuery {
+func (q *UserStockEvaluateQuery) Id_GreaterEqual(v uint64) *UserStockEvaluateQuery {
 	return q.w("id>='" + fmt.Sprint(v) + "'")
 }
 func (q *UserStockEvaluateQuery) UserId_Equal(v string) *UserStockEvaluateQuery {
@@ -2441,7 +2447,7 @@ func (dao *UserStockEvaluateDao) Update(ctx context.Context, tx *wrap.Tx, e *Use
 	return nil
 }
 
-func (dao *UserStockEvaluateDao) Delete(ctx context.Context, tx *wrap.Tx, id int64) (err error) {
+func (dao *UserStockEvaluateDao) Delete(ctx context.Context, tx *wrap.Tx, id uint64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
@@ -2577,7 +2583,7 @@ var USER_STOCK_INDEX_ALL_FIELDS = []string{
 }
 
 type UserStockIndex struct {
-	Id         int64  //size=20
+	Id         uint64 //size=20
 	UserId     string //size=32
 	IndexName  string //size=32
 	UiOrder    int32  //size=11
@@ -2678,22 +2684,22 @@ func (q *UserStockIndexQuery) And() *UserStockIndexQuery   { return q.w(" AND ")
 func (q *UserStockIndexQuery) Or() *UserStockIndexQuery    { return q.w(" OR ") }
 func (q *UserStockIndexQuery) Not() *UserStockIndexQuery   { return q.w(" NOT ") }
 
-func (q *UserStockIndexQuery) Id_Equal(v int64) *UserStockIndexQuery {
+func (q *UserStockIndexQuery) Id_Equal(v uint64) *UserStockIndexQuery {
 	return q.w("id='" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockIndexQuery) Id_NotEqual(v int64) *UserStockIndexQuery {
+func (q *UserStockIndexQuery) Id_NotEqual(v uint64) *UserStockIndexQuery {
 	return q.w("id<>'" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockIndexQuery) Id_Less(v int64) *UserStockIndexQuery {
+func (q *UserStockIndexQuery) Id_Less(v uint64) *UserStockIndexQuery {
 	return q.w("id<'" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockIndexQuery) Id_LessEqual(v int64) *UserStockIndexQuery {
+func (q *UserStockIndexQuery) Id_LessEqual(v uint64) *UserStockIndexQuery {
 	return q.w("id<='" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockIndexQuery) Id_Greater(v int64) *UserStockIndexQuery {
+func (q *UserStockIndexQuery) Id_Greater(v uint64) *UserStockIndexQuery {
 	return q.w("id>'" + fmt.Sprint(v) + "'")
 }
-func (q *UserStockIndexQuery) Id_GreaterEqual(v int64) *UserStockIndexQuery {
+func (q *UserStockIndexQuery) Id_GreaterEqual(v uint64) *UserStockIndexQuery {
 	return q.w("id>='" + fmt.Sprint(v) + "'")
 }
 func (q *UserStockIndexQuery) UserId_Equal(v string) *UserStockIndexQuery {
@@ -2927,7 +2933,7 @@ func (dao *UserStockIndexDao) Update(ctx context.Context, tx *wrap.Tx, e *UserSt
 	return nil
 }
 
-func (dao *UserStockIndexDao) Delete(ctx context.Context, tx *wrap.Tx, id int64) (err error) {
+func (dao *UserStockIndexDao) Delete(ctx context.Context, tx *wrap.Tx, id uint64) (err error) {
 	stmt := dao.deleteStmt
 	if tx != nil {
 		stmt = tx.Stmt(ctx, stmt)
